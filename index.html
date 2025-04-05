@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ticket Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <ul>
+      <li onclick="showPage('home')">Home</li>
+      <li onclick="showPage('pending')">Pending
+        <ul>
+          <li onclick="showPending('group')">Group</li>
+          <li onclick="showPending('person')">Person</li>
+        </ul>
+      </li>
+      <li onclick="showPage('successful')">Successful</li>
+    </ul>
+  </nav>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="page">
+      <div class="home-container">
+        <div class="left">
+          <h2>Group Input</h2>
+          <input type="text" id="groupName" placeholder="Group Name">
+          <textarea id="groupPeople" placeholder="Name, Ticket Price, Quantity (one per line)"></textarea>
+          <button onclick="saveGroup()">Save Group</button>
+        </div>
+        <div class="right">
+          <h2>Person Input</h2>
+          <input type="text" id="personName" placeholder="Name">
+          <input type="number" id="personTicketPrice" placeholder="Ticket Price">
+          <input type="number" id="personTicketQty" placeholder="Ticket Qty">
+          <button onclick="savePerson()">Save Person</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PENDING -->
+    <section id="pending" class="page">
+      <div id="groupPending" class="pending-type"></div>
+      <div id="personPending" class="pending-type" style="display: none;"></div>
+    </section>
+
+    <!-- SUCCESSFUL -->
+    <section id="successful" class="page">
+      <h2>Fully Paid Entries</h2>
+      <div id="successfulList"></div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
