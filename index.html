@@ -26,7 +26,6 @@
       margin: 0;
       justify-content: center;
     }
-
     nav ul li {
   position: relative;
   margin: 0 20px;
@@ -35,7 +34,8 @@
   color: white;
 }
 
-nav ul li:hover {
+nav ul li:hover,
+nav ul li:focus-within {
   background-color: #444;
   border-radius: 5px;
 }
@@ -48,7 +48,7 @@ nav ul li a {
 }
 
 nav ul li ul {
-  display: none;
+  display: none; /* Keep hidden by default */
   position: absolute;
   background-color: #444;
   top: 35px;
@@ -56,12 +56,12 @@ nav ul li ul {
   width: 200px;
   padding: 10px;
   border-radius: 5px;
-  z-index: 10;
+  z-index: 10; /* Ensure the dropdown is above other elements */
 }
 
-nav ul li:hover ul, 
-nav ul li:focus-within ul {
-  display: block; /* Show on hover or when focused */
+nav ul li:hover > ul,
+nav ul li:focus-within > ul {
+  display: block; /* Show when hovering or focusing on the parent li */
 }
 
 nav ul li ul li {
@@ -154,7 +154,8 @@ nav ul li ul li {
   <nav>
     <ul>
       <li onclick="showPage('home')">Home</li>
-      <li>Pending
+      <li>
+        Pending
         <ul>
           <li onclick="showPending('group')">Group</li>
           <li onclick="showPending('person')">Person</li>
@@ -163,6 +164,7 @@ nav ul li ul li {
       <li onclick="showPage('successful')">Successful</li>
     </ul>
   </nav>
+  
 
   <main>
     <section id="home" class="page active">
