@@ -1,136 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Pending Persons</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f4f4f4;
-    }
+    <meta charset="UTF-8">
+    <title>Pending Persons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
 
-    .pending-type {
-      background: white;
-      padding: 20px;
-      margin-top: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
+        .container {
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
 
-    .pending-type h2 {
-      color: #333;
-    }
+        h2 {
+            color: #333;
+        }
 
-    .pending-type input,
-    .pending-type button {
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
+        .person-item {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
 
-    .pending-type button {
-      background-color: #333;
-      color: white;
-      cursor: pointer;
-    }
+        button {
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-    .pending-type button:hover {
-      background-color: #444;
-    }
-
-    #pendingPersonContainer {
-      margin-top: 20px;
-    }
-
-    .person-item {
-      margin-bottom: 20px;
-      padding: 10px;
-      background: #f9f9f9;
-      border-radius: 5px;
-    }
-
-    .person-item button {
-      margin-right: 5px;
-    }
-  </style>
+        button:hover {
+            background-color: #444;
+        }
+    </style>
 </head>
+
 <body>
-  <div class="pending-type">
-    <h2>Pending Persons</h2>
-    <div id="pendingPersonContainer"></div>
+    <div class="container">
+        <h2>Pending Persons</h2>
+        <div id="pendingPersonContainer"></div>
+    </div>
 
-    <h3>Add Person</h3>
-    <input type="text" id="personNameInput" placeholder="Person Name" required>
-    <input type="number" id="personTicketPriceInput" placeholder="Ticket Price" required>
-    <input type="number" id="personTicketQtyInput" placeholder="Ticket Quantity" required>
-    <button onclick="addPerson()">Add Person</button>
-  </div>
+    <script>
+        function renderPendingPerson() {
+            const container = document.getElementById('pendingPersonContainer');
+            const persons = JSON.parse(localStorage.getItem('persons')) || [];
 
-  <script>
-    function renderPendingPerson() {
-      const container = document.getElementById('pendingPersonContainer');
-      const persons = JSON.parse(localStorage.getItem('persons')) || [];
+            container.innerHTML = persons.map(person => {
+                const balance = (person.ticket * person.qty) - person.paid;
+                return `
+                    <div class="person-item">
+                        ${person.name} - Tickets: ${person.qty}, Balance: ${balance}
+                        <button onclick="addPaymentToPerson('${person.name}')">Add Payment</button>
+                        <button onclick="addTicketToPerson('${person.name}')">Add Ticket</button>
+                    </div>
+                `;
+            }).join('');
+        }
 
-      container.innerHTML = persons.map(person => {
-        const balance = (person.ticket * person.qty) - person.paid;
-        return `
-          <div class="person-item">
-            ${person.name} - Tickets: ${person.qty}, Balance: ${balance}
-            <button onclick="addPaymentToPerson('${person.name}')">Add Payment</button>
-            <button onclick="addTicketToPerson('${person.name}')">Add Ticket</button>
-          </div>
-        `;
-      }).join('');
-    }
+        function addPaymentToPerson(personName) {
+            const amount = +prompt("Enter payment amount:");
+            const persons = JSON.parse(localStorage.getItem('persons')) || [];
+            const person = persons.find(p => p.name === personName);
+            person.paid += amount;
+            localStorage.setItem('persons', JSON.stringify(persons));
 
-    function addPerson() {
-      const name = document.getElementById('personNameInput').value;
-      const ticketPrice = +document.getElementById('personTicketPriceInput').value;
-      const ticketQty = +document.getElementById('personTicketQtyInput').value;
+            renderPendingPerson();
+        }
 
-      if (!name || !ticketPrice || !ticketQty) {
-        alert("Please fill all fields");
-        return;
-      }
+        function addTicketToPerson(personName) {
+            const qty = +prompt("Enter number of tickets to add:");
+            const persons = JSON.parse(localStorage.getItem('persons')) || [];
+            const person = persons.find(p => p.name === personName);
+            person.qty += qty;
+            localStorage.setItem('persons', JSON.stringify(persons));
 
-      const persons = JSON.parse(localStorage.getItem('persons')) || [];
-      const newPerson = { name: name, ticket: ticketPrice, qty: ticketQty, paid: 0 };
+            renderPendingPerson();
+        }
 
-      persons.push(newPerson);
-      localStorage.setItem('persons', JSON.stringify(persons));
-
-      document.getElementById('personNameInput').value = '';
-      document.getElementById('personTicketPriceInput').value = '';
-      document.getElementById('personTicketQtyInput').value = '';
-
-      renderPendingPerson();
-    }
-
-    function addPaymentToPerson(name) {
-      const amount = +prompt("Enter payment amount:");
-      const persons = JSON.parse(localStorage.getItem('persons')) || [];
-      const person = persons.find(p => p.name === name);
-      person.paid += amount;
-      localStorage.setItem('persons', JSON.stringify(persons));
-
-      renderPendingPerson();
-    }
-
-    function addTicketToPerson(name) {
-      const qty = +prompt("Enter number of tickets to add:");
-      const persons = JSON.parse(localStorage.getItem('persons')) || [];
-      const person = persons.find(p => p.name === name);
-      person.qty += qty;
-      localStorage.setItem('persons', JSON.stringify(persons));
-
-      renderPendingPerson();
-    }
-
-    // Initial render call
-    renderPendingPerson();
-  </script>
+        renderPendingPerson();
+    </script>
 </body>
+
 </html>

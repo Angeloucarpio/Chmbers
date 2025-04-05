@@ -1,158 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Pending Groups</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f4f4f4;
-    }
+    <meta charset="UTF-8">
+    <title>Pending Groups</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
 
-    .pending-type {
-      background: white;
-      padding: 20px;
-      margin-top: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
+        .container {
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
 
-    .pending-type h2 {
-      color: #333;
-    }
+        h2 {
+            color: #333;
+        }
 
-    .pending-type input,
-    .pending-type button {
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
+        .group-item {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
 
-    .pending-type button {
-      background-color: #333;
-      color: white;
-      cursor: pointer;
-    }
+        button {
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-    .pending-type button:hover {
-      background-color: #444;
-    }
-
-    #pendingGroupContainer {
-      margin-top: 20px;
-    }
-
-    .group-item {
-      margin-bottom: 20px;
-      padding: 10px;
-      background: #f9f9f9;
-      border-radius: 5px;
-    }
-
-    .group-item button {
-      margin-right: 5px;
-    }
-  </style>
+        button:hover {
+            background-color: #444;
+        }
+    </style>
 </head>
+
 <body>
-  <div class="pending-type">
-    <h2>Pending Groups</h2>
-    <div id="pendingGroupContainer"></div>
+    <div class="container">
+        <h2>Pending Groups</h2>
+        <div id="pendingGroupContainer"></div>
+    </div>
 
-    <h3>Add Group</h3>
-    <input type="text" id="groupNameInput" placeholder="Group Name" required>
-    <button onclick="addGroup()">Create Group</button>
-  </div>
+    <script>
+        function renderPendingGroup() {
+            const container = document.getElementById('pendingGroupContainer');
+            const groups = JSON.parse(localStorage.getItem('groups')) || [];
 
-  <script>
-    function renderPendingGroup() {
-      const container = document.getElementById('pendingGroupContainer');
-      const groups = JSON.parse(localStorage.getItem('groups')) || [];
+            container.innerHTML = groups.map(group => {
+                const members = group.people.map(person => {
+                    const balance = (person.ticket * person.qty) - person.paid;
+                    return `
+                        <div>
+                            ${person.name} - Tickets: ${person.qty}, Balance: ${balance}
+                            <button onclick="addPaymentToPerson('${group.name}', '${person.name}')">Add Payment</button>
+                            <button onclick="addTicketToPerson('${group.name}', '${person.name}')">Add Ticket</button>
+                        </div>
+                    `;
+                }).join('');
 
-      container.innerHTML = groups.map(group => {
-        const members = group.people.map(person => {
-          const balance = (person.ticket * person.qty) - person.paid;
-          return `
-            <div>
-              ${person.name} - Tickets: ${person.qty}, Balance: ${balance}
-              <button onclick="addPaymentToPerson('${group.name}', '${person.name}')">Add Payment</button>
-              <button onclick="addTicketToPerson('${group.name}', '${person.name}')">Add Ticket</button>
-            </div>
-          `;
-        }).join('');
+                return `
+                    <div class="group-item">
+                        <h3>${group.name}</h3>
+                        ${members}
+                        <button onclick="addPersonToGroup('${group.name}')">Add Person to Group</button>
+                    </div>
+                `;
+            }).join('');
+        }
 
-        return `
-          <div class="group-item">
-            <h4>${group.name}</h4>
-            ${members}
-            <button onclick="addPersonToGroup('${group.name}')">Add Person to Group</button>
-          </div>
-        `;
-      }).join('');
-    }
+        function addPersonToGroup(groupName) {
+            const personName = prompt("Enter person name:");
+            const ticketPrice = +prompt("Enter ticket price:");
+            const ticketQty = +prompt("Enter ticket quantity:");
 
-    function addGroup() {
-      const groupName = document.getElementById('groupNameInput').value;
-      if (!groupName) {
-        alert("Please enter a group name");
-        return;
-      }
+            if (!personName || !ticketPrice || !ticketQty) {
+                alert("Please fill all fields");
+                return;
+            }
 
-      const groups = JSON.parse(localStorage.getItem('groups')) || [];
-      const newGroup = { name: groupName, people: [] };
+            const groups = JSON.parse(localStorage.getItem('groups')) || [];
+            const group = groups.find(g => g.name === groupName);
+            group.people.push({ name: personName, ticket: ticketPrice, qty: ticketQty, paid: 0 });
+            localStorage.setItem('groups', JSON.stringify(groups));
 
-      groups.push(newGroup);
-      localStorage.setItem('groups', JSON.stringify(groups));
+            renderPendingGroup();
+        }
 
-      document.getElementById('groupNameInput').value = '';  // Clear the input field
-      renderPendingGroup();  // Re-render the groups
-    }
+        function addPaymentToPerson(groupName, personName) {
+            const amount = +prompt("Enter payment amount:");
+            const groups = JSON.parse(localStorage.getItem('groups')) || [];
+            const group = groups.find(g => g.name === groupName);
+            const person = group.people.find(p => p.name === personName);
+            person.paid += amount;
+            localStorage.setItem('groups', JSON.stringify(groups));
 
-    function addPersonToGroup(groupName) {
-      const personName = prompt("Enter person name:");
-      const ticketPrice = +prompt("Enter ticket price:");
-      const ticketQty = +prompt("Enter ticket quantity:");
+            renderPendingGroup();
+        }
 
-      if (!personName || !ticketPrice || !ticketQty) {
-        alert("Please fill all fields");
-        return;
-      }
+        function addTicketToPerson(groupName, personName) {
+            const qty = +prompt("Enter number of tickets to add:");
+            const groups = JSON.parse(localStorage.getItem('groups')) || [];
+            const group = groups.find(g => g.name === groupName);
+            const person = group.people.find(p => p.name === personName);
+            person.qty += qty;
+            localStorage.setItem('groups', JSON.stringify(groups));
 
-      const groups = JSON.parse(localStorage.getItem('groups')) || [];
-      const group = groups.find(g => g.name === groupName);
-      group.people.push({ name: personName, ticket: ticketPrice, qty: ticketQty, paid: 0 });
-      localStorage.setItem('groups', JSON.stringify(groups));
+            renderPendingGroup();
+        }
 
-      renderPendingGroup();  // Re-render after adding person
-    }
-
-    function addPaymentToPerson(groupName, personName) {
-      const amount = +prompt("Enter payment amount:");
-      const groups = JSON.parse(localStorage.getItem('groups')) || [];
-      const group = groups.find(g => g.name === groupName);
-      const person = group.people.find(p => p.name === personName);
-      person.paid += amount;
-      localStorage.setItem('groups', JSON.stringify(groups));
-
-      renderPendingGroup();  // Re-render after adding payment
-    }
-
-    function addTicketToPerson(groupName, personName) {
-      const qty = +prompt("Enter number of tickets to add:");
-      const groups = JSON.parse(localStorage.getItem('groups')) || [];
-      const group = groups.find(g => g.name === groupName);
-      const person = group.people.find(p => p.name === personName);
-      person.qty += qty;
-      localStorage.setItem('groups', JSON.stringify(groups));
-
-      renderPendingGroup();  // Re-render after adding tickets
-    }
-
-    // Initial render call
-    renderPendingGroup();
-  </script>
+        renderPendingGroup();
+    </script>
 </body>
+
 </html>
