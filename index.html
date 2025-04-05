@@ -26,48 +26,47 @@
       margin: 0;
       justify-content: center;
     }
+
     nav ul li {
-  position: relative;
-  margin: 0 20px;
-  cursor: pointer;
-  font-weight: bold;
-  color: white;
-}
+      position: relative;
+      margin: 0 20px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+    }
 
-nav ul li:hover,
-nav ul li:focus-within {
-  background-color: #444;
-  border-radius: 5px;
-}
+    nav ul li:hover,
+    nav ul li:focus-within {
+      background-color: #444;
+      border-radius: 5px;
+    }
 
-nav ul li a {
-  color: white;
-  text-decoration: none;
-  padding: 10px;
-  display: inline-block;
-}
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      padding: 10px;
+      display: inline-block;
+    }
 
-nav ul li ul {
-  display: none; /* Keep hidden by default */
-  position: absolute;
-  background-color: #444;
-  top: 35px;
-  left: 0;
-  width: 200px;
-  padding: 10px;
-  border-radius: 5px;
-  z-index: 10; /* Ensure the dropdown is above other elements */
-}
+    nav ul li ul {
+      display: none; /* Keep hidden by default */
+      position: absolute;
+      background-color: #444;
+      top: 35px;
+      left: 0;
+      width: 200px;
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 10; /* Ensure the dropdown is above other elements */
+    }
 
-nav ul li:hover > ul,
-nav ul li:focus-within > ul {
-  display: block; /* Show when hovering or focusing on the parent li */
-}
+    nav ul li.active > ul {
+      display: block; /* Show the dropdown when it's active */
+    }
 
-nav ul li ul li {
-  padding: 8px 0;
-}
-
+    nav ul li ul li {
+      padding: 8px 0;
+    }
 
     main {
       padding: 20px;
@@ -94,11 +93,15 @@ nav ul li ul li {
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
-    .left, .right {
+    .left,
+    .right {
       width: 48%;
     }
 
-    .left input, .right input, .left textarea, .right textarea {
+    .left input,
+    .right input,
+    .left textarea,
+    .right textarea {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
@@ -106,7 +109,8 @@ nav ul li ul li {
       border: 1px solid #ccc;
     }
 
-    .left button, .right button {
+    .left button,
+    .right button {
       background-color: #333;
       color: white;
       border: none;
@@ -116,7 +120,8 @@ nav ul li ul li {
       transition: background-color 0.3s ease;
     }
 
-    .left button:hover, .right button:hover {
+    .left button:hover,
+    .right button:hover {
       background-color: #444;
     }
 
@@ -132,7 +137,8 @@ nav ul li ul li {
       margin-bottom: 15px;
     }
 
-    h2, h3 {
+    h2,
+    h3 {
       color: #333;
     }
 
@@ -164,7 +170,6 @@ nav ul li ul li {
       <li onclick="showPage('successful')">Successful</li>
     </ul>
   </nav>
-  
 
   <main>
     <section id="home" class="page active">
@@ -212,6 +217,44 @@ nav ul li ul li {
     let groups = [];
     let persons = [];
     let logs = [];
+
+    let activeMenu = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Add click listeners to each menu item
+      const menuItems = document.querySelectorAll('nav ul li');
+      menuItems.forEach(item => {
+        item.addEventListener('click', (event) => {
+          toggleDropdown(event.target);
+        });
+      });
+
+      // Close the dropdown if the user clicks anywhere outside
+      document.addEventListener('click', (event) => {
+        if (!event.target.closest('nav')) {
+          closeAllDropdowns();
+        }
+      });
+    });
+
+    function toggleDropdown(target) {
+      // If the clicked item is already active, close it
+      if (activeMenu === target) {
+        closeAllDropdowns();
+      } else {
+        closeAllDropdowns();
+        target.classList.add('active');
+        activeMenu = target;
+      }
+    }
+
+    function closeAllDropdowns() {
+      // Close all dropdowns by removing the active class
+      document.querySelectorAll('nav ul li').forEach(item => {
+        item.classList.remove('active');
+      });
+      activeMenu = null; // Reset the active menu item
+    }
 
     function showPage(id) {
       pages.forEach(p => p.classList.remove('active'));
