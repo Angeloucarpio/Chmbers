@@ -1,15 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Ticket Tracker</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Add your existing CSS here */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    nav {
+      background-color: #333;
+      padding: 15px;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      padding: 0;
+      margin: 0;
+      justify-content: center;
+    }
+
+    nav ul li {
+      position: relative;
+      margin: 0 20px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+    }
+
+    nav ul li:hover {
+      background-color: #444;
+      border-radius: 5px;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      padding: 10px;
+      display: inline-block;
+    }
+
+    nav ul li ul {
+      display: none;
+      position: absolute;
+      background-color: #444;
+      top: 35px;
+      left: 0;
+      width: 200px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    nav ul li:hover ul {
+      display: block;
+    }
+
+    nav ul li ul li {
+      padding: 8px 0;
+    }
+
+    main {
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page {
+      display: none;
+      width: 90%;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .home-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .left, .right {
+      width: 48%;
+    }
+
+    .left input, .right input, .left textarea, .right textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .left button, .right button {
+      background-color: #333;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .left button:hover, .right button:hover {
+      background-color: #444;
+    }
+
+    .pending-type {
+      background: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .pending-type div {
+      margin-bottom: 15px;
+    }
+
+    h2, h3 {
+      color: #333;
+    }
+
+    textarea {
+      height: 100px;
+    }
+
+    .add-person {
+      cursor: pointer;
+      color: #007BFF;
+      font-size: 20px;
+      display: inline-block;
+      margin-top: 10px;
+    }
+  </style>
 </head>
+
 <body>
   <nav>
     <ul>
       <li onclick="showPage('home')">Home</li>
-      <li onclick="showPage('pending')">Pending
+      <li>Pending
         <ul>
           <li onclick="showPending('group')">Group</li>
           <li onclick="showPending('person')">Person</li>
@@ -20,13 +162,19 @@
   </nav>
 
   <main>
-    <!-- HOME -->
-    <section id="home" class="page">
+    <section id="home" class="page active">
       <div class="home-container">
         <div class="left">
           <h2>Group Input</h2>
           <input type="text" id="groupName" placeholder="Group Name">
-          <textarea id="groupPeople" placeholder="Name, Ticket Price, Quantity (one per line)"></textarea>
+          <div id="groupPeopleContainer">
+            <div class="groupPersonEntry">
+              <input type="text" class="groupName" placeholder="Name">
+              <input type="number" class="ticketPrice" placeholder="Ticket Price">
+              <input type="number" class="ticketQty" placeholder="Quantity">
+            </div>
+          </div>
+          <span class="add-person" onclick="addPersonField()">+ Add Person</span>
           <button onclick="saveGroup()">Save Group</button>
         </div>
         <div class="right">
@@ -39,13 +187,11 @@
       </div>
     </section>
 
-    <!-- PENDING -->
     <section id="pending" class="page">
       <div id="groupPending" class="pending-type"></div>
       <div id="personPending" class="pending-type" style="display: none;"></div>
     </section>
 
-    <!-- SUCCESSFUL -->
     <section id="successful" class="page">
       <h2>Fully Paid Entries</h2>
       <div id="successfulList"></div>
@@ -53,6 +199,124 @@
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="app.js"></script>
+  <script>
+    const pages = document.querySelectorAll('.page');
+    const pendingGroupEl = document.getElementById('groupPending');
+    const pendingPersonEl = document.getElementById('personPending');
+
+    let groups = [];
+    let persons = [];
+    let logs = [];
+
+    function showPage(id) {
+      pages.forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function showPending(type) {
+      pendingGroupEl.style.display = type === 'group' ? 'block' : 'none';
+      pendingPersonEl.style.display = type === 'person' ? 'block' : 'none';
+      renderPending();
+    }
+
+    function addPersonField() {
+      const container = document.getElementById('groupPeopleContainer');
+      const newPersonField = document.createElement('div');
+      newPersonField.classList.add('groupPersonEntry');
+      newPersonField.innerHTML = `
+        <input type="text" class="groupName" placeholder="Name">
+        <input type="number" class="ticketPrice" placeholder="Ticket Price">
+        <input type="number" class="ticketQty" placeholder="Quantity">
+      `;
+      container.appendChild(newPersonField);
+    }
+
+    function saveGroup() {
+      const name = document.getElementById('groupName').value;
+      const groupEntries = document.querySelectorAll('.groupPersonEntry');
+      const people = [];
+      
+      groupEntries.forEach(entry => {
+        const personName = entry.querySelector('.groupName').value;
+        const ticketPrice = +entry.querySelector('.ticketPrice').value;
+        const ticketQty = +entry.querySelector('.ticketQty').value;
+        if (personName && ticketPrice && ticketQty) {
+          people.push({ name: personName, ticket: ticketPrice, qty: ticketQty, paid: 0 });
+        }
+      });
+
+      if (people.length > 0) {
+        groups.push({ name, people });
+        logAction(`${name} group saved with ${people.length} people`);
+        alert("Group saved!");
+      }
+    }
+
+    function savePerson() {
+      const name = document.getElementById('personName').value;
+      const ticket = +document.getElementById('personTicketPrice').value;
+      const qty = +document.getElementById('personTicketQty').value;
+      persons.push({ name, ticket, qty, paid: 0 });
+      logAction(`${name} person saved`);
+      alert("Person saved!");
+    }
+
+    function logAction(action) {
+      const time = new Date().toLocaleString();
+      logs.push(`${action} on ${time}`);
+    }
+
+    function renderPending() {
+      // Group
+      pendingGroupEl.innerHTML = `<h2>Pending Groups</h2>` + groups.map(g => {
+        let members = g.people.map(p => {
+          const bal = (p.ticket * p.qty) - p.paid;
+          return `<li>${p.name} - Tickets: ${p.qty}, Balance: ${bal}
+            <button onclick="addPayment('${g.name}', '${p.name}')">Add Payment</button>
+            <button onclick="addTicket('${g.name}', '${p.name}')">Add Ticket</button>
+          </li>`;
+        }).join('');
+        return `<div><h3>${g.name}</h3><ul>${members}</ul></div>`;
+      }).join('');
+
+      // Person
+      pendingPersonEl.innerHTML = `<h2>Pending Persons</h2>` + persons.map(p => {
+        const bal = (p.ticket * p.qty) - p.paid;
+        return `<div>${p.name} - Tickets: ${p.qty}, Balance: ${bal}
+          <button onclick="addPaymentPerson('${p.name}')">Add Payment</button>
+        </div>`;
+      }).join('');
+    }
+
+    function addPayment(groupName, personName) {
+      const amount = +prompt("Enter payment amount:");
+      const group = groups.find(g => g.name === groupName);
+      const person = group.people.find(p => p.name === personName);
+      person.paid += amount;
+      logAction(`${personName} added payment ${amount}`);
+      renderPending();
+    }
+
+    function addTicket(groupName, personName) {
+      const qty = +prompt("Add how many tickets?");
+      const group = groups.find(g => g.name === groupName);
+      const person = group.people.find(p => p.name === personName);
+      person.qty += qty;
+      logAction(`${personName} added ${qty} ticket(s)`);
+      renderPending();
+    }
+
+    function addPaymentPerson(name) {
+      const amount = +prompt("Enter payment amount:");
+      const person = persons.find(p => p.name === name);
+      person.paid += amount;
+      logAction(`${name} added payment ${amount}`);
+      renderPending();
+    }
+
+    // Show Home by default
+    showPage('home');
+  </script>
 </body>
+
 </html>
