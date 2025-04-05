@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Person Transactions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f2f2f2;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .person {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .paid {
+            color: #27ae60;
+        }
+
+        .balance {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>All Person Transactions</h2>
+    <div id="personTransactions"></div>
+
+    <script>
+        function renderPersonTransactions() {
+            const container = document.getElementById('personTransactions');
+            const persons = JSON.parse(localStorage.getItem('persons')) || [];
+
+            container.innerHTML = persons.map(person => {
+                const total = person.ticket * person.qty;
+                const balance = total - person.paid;
+                const status = balance <= 0 ? `<span class="paid">Paid</span>` : `<span class="balance">Pending: ${balance}</span>`;
+                return `
+                    <div class="person">
+                        <strong>${person.name}</strong><br>
+                        Tickets: ${person.qty}, Price: ${person.ticket}, Paid: ${person.paid}<br>
+                        ${status}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        renderPersonTransactions();
+    </script>
+</body>
+
+</html>
