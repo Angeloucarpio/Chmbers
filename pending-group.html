@@ -71,10 +71,18 @@
 
         .person-item {
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
         }
 
         .person-name {
             font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .person-details {
+            display: inline-block;
+            margin-right: 20px;
         }
 
         .balance {
@@ -82,7 +90,13 @@
         }
 
         .action-buttons {
-            margin-left: 15px;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .action-buttons button {
+            margin-left: 5px;
         }
 
         .add-person {
@@ -98,6 +112,30 @@
         .add-person:hover {
             background-color: #45a049;
         }
+
+        .time-container {
+            margin-top: 30px;
+            font-size: 1em;
+            color: #666;
+        }
+
+        .add-person-container {
+            margin-top: 20px;
+        }
+
+        .add-group {
+            margin-top: 20px;
+            cursor: pointer;
+            padding: 8px 15px;
+            background-color: #008CBA;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .add-group:hover {
+            background-color: #007B9A;
+        }
+
     </style>
 </head>
 
@@ -106,6 +144,14 @@
     <div class="container">
         <h2>Pending Groups</h2>
         <div id="pendingGroupContainer"></div>
+
+        <div class="add-person-container">
+            <button class="add-group" onclick="addGroup()">Add Group</button>
+        </div>
+    </div>
+
+    <div class="time-container">
+        <p id="currentTime"></p>
     </div>
 
     <script>
@@ -115,7 +161,6 @@
             const groups = JSON.parse(localStorage.getItem('groups')) || [];
 
             container.innerHTML = groups.map(group => {
-                // Render the group name
                 return `
                     <div class="group-item" onclick="toggleGroupDetails('${group.name}')">
                         <span class="group-name">${group.name}</span>
@@ -132,14 +177,20 @@
             return `
                 <div>
                     ${group.people.map(person => {
-                        const balance = (person.ticket * person.qty) - person.paid;
+                        const ticketPrice = person.ticket || 0;
+                        const ticketQty = person.qty || 0;
+                        const total = ticketPrice * ticketQty;
                         return `
                             <div class="person-item">
-                                <span class="person-name">${person.name}</span>
-                                <span class="balance"> - Balance: $${balance.toFixed(2)}</span>
+                                <div class="person-details">
+                                    <span class="person-name">${person.name}</span>
+                                    <span>Ticket Price: $${ticketPrice}</span>,
+                                    <span>Quantity: ${ticketQty}</span>,
+                                    <span>Total: $${total}</span>
+                                </div>
                                 <div class="action-buttons">
-                                    <button onclick="addPaymentToPerson('${group.name}', '${person.name}')">Add Payment</button>
-                                    <button onclick="addTicketToPerson('${group.name}', '${person.name}')">Add Ticket</button>
+                                    <button onclick="addPaymentToPerson('${group.name}', '${person.name}')">+</button>
+                                    <button onclick="addTicketToPerson('${group.name}', '${person.name}')">+</button>
                                     <button onclick="editPerson('${group.name}', '${person.name}')">Edit</button>
                                     <button onclick="deletePerson('${group.name}', '${person.name}')">Delete</button>
                                 </div>
@@ -165,8 +216,8 @@
             const ticketPrice = +prompt("Enter ticket price:");
             const ticketQty = +prompt("Enter ticket quantity:");
 
-            if (!personName || !ticketPrice || !ticketQty) {
-                alert("Please fill all fields");
+            if (!personName || isNaN(ticketPrice) || isNaN(ticketQty)) {
+                alert("Please fill all fields correctly");
                 return;
             }
 
@@ -217,8 +268,31 @@
             renderPendingGroup();
         }
 
+        // Add new group
+        function addGroup() {
+            const groupName = prompt("Enter group name:");
+            if (!groupName) return;
+
+            const groups = JSON.parse(localStorage.getItem('groups')) || [];
+            groups.push({ name: groupName, people: [] });
+            localStorage.setItem('groups', JSON.stringify(groups));
+
+            renderPendingGroup();
+        }
+
+        // Function to show the current date and time
+        function updateCurrentTime() {
+            const currentTime = new Date();
+            const timeString = currentTime.toLocaleString();
+            document.getElementById('currentTime').textContent = `Last updated: ${timeString}`;
+        }
+
         // Initialize rendering
         renderPendingGroup();
+
+        // Update time every second
+        setInterval(updateCurrentTime, 1000);
+
     </script>
 </body>
 
