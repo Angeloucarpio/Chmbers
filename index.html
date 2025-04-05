@@ -6,7 +6,7 @@
   <title>Ticket Tracker</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Add your existing CSS here */
+    /* Your existing CSS here */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -49,7 +49,7 @@
     }
 
     nav ul li ul {
-      display: none; /* Keep hidden by default */
+      display: none;
       position: absolute;
       background-color: #444;
       top: 35px;
@@ -57,11 +57,11 @@
       width: 200px;
       padding: 10px;
       border-radius: 5px;
-      z-index: 10; /* Ensure the dropdown is above other elements */
+      z-index: 10;
     }
 
     nav ul li.active > ul {
-      display: block; /* Show the dropdown when it's active */
+      display: block;
     }
 
     nav ul li ul li {
@@ -208,7 +208,6 @@
     </section>
   </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
     const pages = document.querySelectorAll('.page');
     const pendingGroupEl = document.getElementById('groupPending');
@@ -221,7 +220,6 @@
     let activeMenu = null;
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Add click listeners to each menu item
       const menuItems = document.querySelectorAll('nav ul li');
       menuItems.forEach(item => {
         item.addEventListener('click', (event) => {
@@ -229,7 +227,6 @@
         });
       });
 
-      // Close the dropdown if the user clicks anywhere outside
       document.addEventListener('click', (event) => {
         if (!event.target.closest('nav')) {
           closeAllDropdowns();
@@ -238,7 +235,6 @@
     });
 
     function toggleDropdown(target) {
-      // If the clicked item is already active, close it
       if (activeMenu === target) {
         closeAllDropdowns();
       } else {
@@ -249,11 +245,10 @@
     }
 
     function closeAllDropdowns() {
-      // Close all dropdowns by removing the active class
       document.querySelectorAll('nav ul li').forEach(item => {
         item.classList.remove('active');
       });
-      activeMenu = null; // Reset the active menu item
+      activeMenu = null;
     }
 
     function showPage(id) {
@@ -282,7 +277,7 @@
       const name = document.getElementById('groupName').value;
       const groupEntries = document.querySelectorAll('.groupPersonEntry');
       const people = [];
-      
+
       groupEntries.forEach(entry => {
         const personName = entry.querySelector('.groupName').value;
         const ticketPrice = +entry.querySelector('.ticketPrice').value;
@@ -297,6 +292,7 @@
         localStorage.setItem('groups', JSON.stringify(groups));
         logAction(`${name} group saved with ${people.length} people`);
         alert("Group saved!");
+        showPending('group');
       }
     }
 
@@ -308,6 +304,7 @@
       localStorage.setItem('persons', JSON.stringify(persons));
       logAction(`${name} person saved`);
       alert("Person saved!");
+      showPending('person');
     }
 
     function logAction(action) {
@@ -323,9 +320,9 @@
           return `<li>${p.name} - Tickets: ${p.qty}, Balance: ${bal}
             <button onclick="addPayment('${g.name}', '${p.name}')">Add Payment</button>
             <button onclick="addTicket('${g.name}', '${p.name}')">Add Ticket</button>
-          </li>`; 
+          </li>`;
         }).join('');
-        return `<div><h3>${g.name}</h3><ul>${members}</ul></div>`; 
+        return `<div><h3>${g.name}</h3><ul>${members}</ul></div>`;
       }).join('');
 
       // Person
@@ -342,18 +339,18 @@
       const group = groups.find(g => g.name === groupName);
       const person = group.people.find(p => p.name === personName);
       person.paid += amount;
-      logAction(`${personName} added payment ${amount}`);
-      localStorage.setItem('groups', JSON.stringify(groups));  // Save to localStorage
+      logAction(`${groupName} - ${personName} added payment ${amount}`);
+      localStorage.setItem('groups', JSON.stringify(groups));
       renderPending();
     }
 
     function addTicket(groupName, personName) {
-      const qty = +prompt("Add how many tickets?");
+      const qty = +prompt("Enter number of tickets to add:");
       const group = groups.find(g => g.name === groupName);
       const person = group.people.find(p => p.name === personName);
       person.qty += qty;
-      logAction(`${personName} added ${qty} ticket(s)`);
-      localStorage.setItem('groups', JSON.stringify(groups));  // Save to localStorage
+      logAction(`${groupName} - ${personName} added ${qty} tickets`);
+      localStorage.setItem('groups', JSON.stringify(groups));
       renderPending();
     }
 
@@ -362,12 +359,9 @@
       const person = persons.find(p => p.name === name);
       person.paid += amount;
       logAction(`${name} added payment ${amount}`);
-      localStorage.setItem('persons', JSON.stringify(persons));  // Save to localStorage
+      localStorage.setItem('persons', JSON.stringify(persons));
       renderPending();
     }
-
-    // Show Home by default
-    showPage('home');
   </script>
 </body>
 
