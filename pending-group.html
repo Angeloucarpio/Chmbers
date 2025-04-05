@@ -29,55 +29,137 @@
             padding: 10px;
             background: #f9f9f9;
             border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .group-item:hover {
+            background-color: #ececec;
+        }
+
+        .group-details {
+            display: none;
+            margin-top: 10px;
+            padding: 20px;
+            background-color: #fafafa;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .group-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            display: inline-block;
+        }
+
+        .button-container {
+            margin-top: 10px;
         }
 
         button {
-            padding: 10px;
+            padding: 8px 15px;
             background-color: #333;
             color: white;
             border-radius: 5px;
             cursor: pointer;
+            margin-right: 10px;
         }
 
         button:hover {
             background-color: #444;
         }
+
+        .person-item {
+            margin-bottom: 15px;
+        }
+
+        .person-name {
+            font-weight: bold;
+        }
+
+        .balance {
+            margin-left: 10px;
+        }
+
+        .action-buttons {
+            margin-left: 15px;
+        }
+
+        .add-person {
+            margin-top: 20px;
+            display: block;
+            cursor: pointer;
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .add-person:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 
 <body>
+
     <div class="container">
         <h2>Pending Groups</h2>
         <div id="pendingGroupContainer"></div>
     </div>
 
     <script>
+        // Function to render pending groups
         function renderPendingGroup() {
             const container = document.getElementById('pendingGroupContainer');
             const groups = JSON.parse(localStorage.getItem('groups')) || [];
 
             container.innerHTML = groups.map(group => {
-                const members = group.people.map(person => {
-                    const balance = (person.ticket * person.qty) - person.paid;
-                    return `
-                        <div>
-                            ${person.name} - Tickets: ${person.qty}, Balance: ${balance}
-                            <button onclick="addPaymentToPerson('${group.name}', '${person.name}')">Add Payment</button>
-                            <button onclick="addTicketToPerson('${group.name}', '${person.name}')">Add Ticket</button>
-                        </div>
-                    `;
-                }).join('');
-
+                // Render the group name
                 return `
-                    <div class="group-item">
-                        <h3>${group.name}</h3>
-                        ${members}
-                        <button onclick="addPersonToGroup('${group.name}')">Add Person to Group</button>
+                    <div class="group-item" onclick="toggleGroupDetails('${group.name}')">
+                        <span class="group-name">${group.name}</span>
+                        <div id="group-details-${group.name}" class="group-details">
+                            ${renderGroupDetails(group)}
+                        </div>
                     </div>
                 `;
             }).join('');
         }
 
+        // Function to render details for each group
+        function renderGroupDetails(group) {
+            return `
+                <div>
+                    ${group.people.map(person => {
+                        const balance = (person.ticket * person.qty) - person.paid;
+                        return `
+                            <div class="person-item">
+                                <span class="person-name">${person.name}</span>
+                                <span class="balance"> - Balance: $${balance.toFixed(2)}</span>
+                                <div class="action-buttons">
+                                    <button onclick="addPaymentToPerson('${group.name}', '${person.name}')">Add Payment</button>
+                                    <button onclick="addTicketToPerson('${group.name}', '${person.name}')">Add Ticket</button>
+                                    <button onclick="editPerson('${group.name}', '${person.name}')">Edit</button>
+                                    <button onclick="deletePerson('${group.name}', '${person.name}')">Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div class="button-container">
+                    <button onclick="addPersonToGroup('${group.name}')">Add Person</button>
+                </div>
+            `;
+        }
+
+        // Toggle the visibility of the group details
+        function toggleGroupDetails(groupName) {
+            const details = document.getElementById(`group-details-${groupName}`);
+            details.style.display = details.style.display === 'none' || details.style.display === '' ? 'block' : 'none';
+        }
+
+        // Add a new person to the group
         function addPersonToGroup(groupName) {
             const personName = prompt("Enter person name:");
             const ticketPrice = +prompt("Enter ticket price:");
@@ -96,6 +178,7 @@
             renderPendingGroup();
         }
 
+        // Add payment to the person's balance
         function addPaymentToPerson(groupName, personName) {
             const amount = +prompt("Enter payment amount:");
             const groups = JSON.parse(localStorage.getItem('groups')) || [];
@@ -107,6 +190,7 @@
             renderPendingGroup();
         }
 
+        // Add tickets to the person's quantity
         function addTicketToPerson(groupName, personName) {
             const qty = +prompt("Enter number of tickets to add:");
             const groups = JSON.parse(localStorage.getItem('groups')) || [];
@@ -118,6 +202,22 @@
             renderPendingGroup();
         }
 
+        // Edit person details (to be implemented)
+        function editPerson(groupName, personName) {
+            alert("Edit functionality is not implemented yet.");
+        }
+
+        // Delete person from the group
+        function deletePerson(groupName, personName) {
+            const groups = JSON.parse(localStorage.getItem('groups')) || [];
+            const group = groups.find(g => g.name === groupName);
+            group.people = group.people.filter(p => p.name !== personName);
+            localStorage.setItem('groups', JSON.stringify(groups));
+
+            renderPendingGroup();
+        }
+
+        // Initialize rendering
         renderPendingGroup();
     </script>
 </body>

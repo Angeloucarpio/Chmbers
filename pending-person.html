@@ -29,45 +29,103 @@
             padding: 10px;
             background: #f9f9f9;
             border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .person-item:hover {
+            background-color: #ececec;
+        }
+
+        .person-details {
+            display: none;
+            margin-top: 10px;
+            padding: 20px;
+            background-color: #fafafa;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .person-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            display: inline-block;
+        }
+
+        .button-container {
+            margin-top: 10px;
         }
 
         button {
-            padding: 10px;
+            padding: 8px 15px;
             background-color: #333;
             color: white;
             border-radius: 5px;
             cursor: pointer;
+            margin-right: 10px;
         }
 
         button:hover {
             background-color: #444;
         }
+
+        .balance {
+            margin-left: 10px;
+        }
+
+        .action-buttons {
+            margin-top: 15px;
+        }
     </style>
 </head>
 
 <body>
+
     <div class="container">
         <h2>Pending Persons</h2>
         <div id="pendingPersonContainer"></div>
     </div>
 
     <script>
+        // Function to render pending persons
         function renderPendingPerson() {
             const container = document.getElementById('pendingPersonContainer');
             const persons = JSON.parse(localStorage.getItem('persons')) || [];
 
             container.innerHTML = persons.map(person => {
-                const balance = (person.ticket * person.qty) - person.paid;
+                // Render person name with a toggle for details
                 return `
-                    <div class="person-item">
-                        ${person.name} - Tickets: ${person.qty}, Balance: ${balance}
-                        <button onclick="addPaymentToPerson('${person.name}')">Add Payment</button>
-                        <button onclick="addTicketToPerson('${person.name}')">Add Ticket</button>
+                    <div class="person-item" onclick="togglePersonDetails('${person.name}')">
+                        <span class="person-name">${person.name}</span>
+                        <div id="person-details-${person.name}" class="person-details">
+                            ${renderPersonDetails(person)}
+                        </div>
                     </div>
                 `;
             }).join('');
         }
 
+        // Function to render details for each person
+        function renderPersonDetails(person) {
+            const balance = (person.ticket * person.qty) - person.paid;
+            return `
+                <div>
+                    <span class="balance">Tickets: ${person.qty}, Balance: $${balance.toFixed(2)}</span>
+                    <div class="action-buttons">
+                        <button onclick="addPaymentToPerson('${person.name}')">Add Payment</button>
+                        <button onclick="addTicketToPerson('${person.name}')">Add Ticket</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Toggle the visibility of the person details
+        function togglePersonDetails(personName) {
+            const details = document.getElementById(`person-details-${personName}`);
+            details.style.display = details.style.display === 'none' || details.style.display === '' ? 'block' : 'none';
+        }
+
+        // Add payment to a person's balance
         function addPaymentToPerson(personName) {
             const amount = +prompt("Enter payment amount:");
             const persons = JSON.parse(localStorage.getItem('persons')) || [];
@@ -78,6 +136,7 @@
             renderPendingPerson();
         }
 
+        // Add tickets to a person's quantity
         function addTicketToPerson(personName) {
             const qty = +prompt("Enter number of tickets to add:");
             const persons = JSON.parse(localStorage.getItem('persons')) || [];
@@ -88,6 +147,7 @@
             renderPendingPerson();
         }
 
+        // Initialize rendering
         renderPendingPerson();
     </script>
 </body>
