@@ -1,17 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Group Transactions</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background: #f9f9f9;
-        }
+  <meta charset="UTF-8">
+  <title>Group Transactions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+    }
 
-       
     .navbar {
       background-color: #333;
       padding: 10px;
@@ -19,311 +17,246 @@
       text-align: center;
     }
 
-    .navbar a,
-    .dropdown-btn {
+    .navbar a {
       padding: 10px 20px;
       color: white;
       text-decoration: none;
       display: inline-block;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .group {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       cursor: pointer;
+      position: relative;
+    }
+
+    .group-name {
+      font-weight: bold;
+    }
+
+    .members {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .member {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .actions {
+      display: flex;
+      gap: 5px;
     }
 
     .dropdown {
-      display: inline-block;
       position: relative;
     }
 
     .dropdown-content {
       display: none;
       position: absolute;
-      background-color: #444;
-      min-width: 160px;
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-      z-index: 1;
-    }
-
-    .dropdown-content a {
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-      color: white;
-      background-color: #444;
-    }
-
-    .dropdown-content a:hover {
-      background-color: #555;
+      top: 100%;
+      left: 0;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
 
     .dropdown:hover .dropdown-content {
       display: block;
     }
-        .container {
-            padding: 20px;
-        }
 
-        .group {
-            background: white;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            position: relative;
-        }
+    .dropdown-content button {
+      padding: 5px 10px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+    }
 
-        .group-name {
-            font-weight: bold;
-        }
+    .paid {
+      color: green;
+    }
 
-        .members {
-            margin-top: 10px;
-            display: none;
-        }
+    .balance {
+      color: red;
+    }
 
-        .member {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .log {
+      background: white;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
 
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
+    .add-person {
+      color: blue;
+      margin-top: 10px;
+      cursor: pointer;
+    }
 
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: white;
-            min-width: 100px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-        }
-
-        .dropdown-content button {
-            width: 100%;
-            padding: 5px;
-            border: none;
-            background: none;
-            text-align: left;
-            cursor: pointer;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .add-person {
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: blue;
-            cursor: pointer;
-        }
-
-        .log {
-            margin-top: 30px;
-            background: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .paid {
-            color: green;
-        }
-
-        .balance {
-            color: red;
-        }
-
-        .delete-group {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: red;
-            color: white;
-            padding: 5px 10px;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
+    .delete-group {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
-
 <body>
-   
-  <div class="navbar">
-    <a href="index.html">Groups</a>
-    <a href="groups.html">Groups</a>
-    <a href="person.html">Persons</a>
-  </div>
 
-    <div class="container" id="home">
-        <h2>Group Transactions</h2>
-        <div id="groupTransactions"></div>
-        <h3 id="logs">Transaction Logs</h3>
-        <div class="log" id="transactionLog"></div>
-    </div>
+<div class="navbar">
+  <a href="index.html">Home</a>
+  <a href="groups.html">Groups</a>
+  <a href="person.html">Persons</a>
+</div>
 
-    <script>
-        function renderGroupTransactions() {
-            const container = document.getElementById('groupTransactions');
-            const groups = JSON.parse(localStorage.getItem('groups')) || [];
+<div class="container">
+  <h2>Group Transactions</h2>
+  <div id="groupTransactions"></div>
+</div>
 
-            container.innerHTML = '';
+<script>
+  function renderGroupTransactions() {
+    const container = document.getElementById('groupTransactions');
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    container.innerHTML = '';
 
-            groups.forEach((group, groupIndex) => {
-                const groupDiv = document.createElement('div');
-                groupDiv.classList.add('group');
+    groups.forEach((group, groupIndex) => {
+      const groupDiv = document.createElement('div');
+      groupDiv.classList.add('group');
 
-                const groupName = document.createElement('div');
-                groupName.classList.add('group-name');
-                groupName.textContent = group.name;
-                groupDiv.appendChild(groupName);
+      const groupName = document.createElement('div');
+      groupName.classList.add('group-name');
+      groupName.textContent = group.name;
 
-                const membersDiv = document.createElement('div');
-                membersDiv.classList.add('members');
+      const deleteBtn = document.createElement('button');
+      deleteBtn.classList.add('delete-group');
+      deleteBtn.textContent = 'Delete Group';
+      deleteBtn.onclick = () => {
+        groups.splice(groupIndex, 1);
+        localStorage.setItem('groups', JSON.stringify(groups));
+        renderGroupTransactions();
+      };
 
-                group.people.forEach((person, personIndex) => {
-                    const memberDiv = document.createElement('div');
-                    memberDiv.classList.add('member');
+      const membersDiv = document.createElement('div');
+      membersDiv.classList.add('members');
 
-                    const total = person.ticketPrice * person.qty;
-                    const balance = total - person.paid;
-                    const status = balance <= 0
-                        ? `<span class="paid">Paid</span>`
-                        : `<span class="balance">Pending: ₱${balance}</span>`;
+      group.people.forEach((person, personIndex) => {
+        const total = person.ticketPrice * person.qty;
+        const balance = total - person.paid;
+        const status = balance <= 0 ? `<span class="paid">Paid</span>` : `<span class="balance">Pending: ₱${balance}</span>`;
 
-                    memberDiv.innerHTML = `
-                        <div>
-                            ${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}
-                        </div>
-                        <div class="actions">
-                            <div class="dropdown">
-                                <button>＋</button>
-                                <div class="dropdown-content">
-                                    <button onclick="addPayment(${groupIndex}, ${personIndex})">Add Payment</button>
-                                    <button onclick="addTicket(${groupIndex}, ${personIndex})">Add Ticket</button>
-                                </div>
-                            </div>
-                            <button onclick="editPerson(${groupIndex}, ${personIndex})">✏️</button>
-                            <button onclick="deletePerson(${groupIndex}, ${personIndex})">🗑️</button>
-                        </div>
-                    `;
-                    membersDiv.appendChild(memberDiv);
-                });
+        const memberDiv = document.createElement('div');
+        memberDiv.classList.add('member');
+        memberDiv.innerHTML = `
+          <div>${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}</div>
+          <div class="actions">
+            <div class="dropdown">
+              <button>＋</button>
+              <div class="dropdown-content">
+                <button onclick="addPayment(${groupIndex}, ${personIndex})">Add Payment</button>
+                <button onclick="addTicket(${groupIndex}, ${personIndex})">Add Ticket</button>
+              </div>
+            </div>
+            <button onclick="editPerson(${groupIndex}, ${personIndex})">✏️</button>
+            <button onclick="deletePerson(${groupIndex}, ${personIndex})">🗑️</button>
+          </div>
+        `;
+        membersDiv.appendChild(memberDiv);
+      });
 
-                const addPersonBtn = document.createElement('div');
-                addPersonBtn.classList.add('add-person');
-                addPersonBtn.textContent = '+ Add Person';
-                addPersonBtn.onclick = () => addPerson(groupIndex);
-                membersDiv.appendChild(addPersonBtn);
+      const addPerson = document.createElement('div');
+      addPerson.classList.add('add-person');
+      addPerson.textContent = '+ Add Person';
+      addPerson.onclick = () => {
+        const name = prompt("Name:");
+        const ticketPrice = parseFloat(prompt("Ticket Price:"));
+        const qty = parseInt(prompt("Quantity:"));
+        const paid = parseFloat(prompt("Paid:")) || 0;
 
-                const deleteGroupBtn = document.createElement('button');
-                deleteGroupBtn.classList.add('delete-group');
-                deleteGroupBtn.textContent = 'Delete Group';
-                deleteGroupBtn.onclick = () => deleteGroup(groupIndex);
-                groupDiv.appendChild(deleteGroupBtn);
-
-                groupDiv.appendChild(membersDiv);
-
-                groupName.onclick = () => {
-                    membersDiv.style.display = membersDiv.style.display === 'block' ? 'none' : 'block';
-                };
-
-                container.appendChild(groupDiv);
-            });
+        if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
+          group.people.push({ name, ticketPrice, qty, paid });
+          localStorage.setItem('groups', JSON.stringify(groups));
+          renderGroupTransactions();
         }
+      };
 
-        function saveGroups(groups) {
-            localStorage.setItem('groups', JSON.stringify(groups));
-            renderGroupTransactions();
-        }
+      membersDiv.appendChild(addPerson);
 
-        function logAction(groupIdx, message) {
-            const groups = JSON.parse(localStorage.getItem('groups')) || [];
-            const group = groups[groupIdx];
-            group.transactionLog = group.transactionLog || [];
-            const now = new Date();
-            const timestamp = now.toLocaleString();
-            group.transactionLog.push(`${timestamp}: ${message}`);
-            saveGroups(groups);
-        }
+      groupName.onclick = () => {
+        membersDiv.style.display = membersDiv.style.display === 'block' ? 'none' : 'block';
+      };
 
-        function addPayment(groupIdx, personIdx) {
-            const groups = JSON.parse(localStorage.getItem('groups')) || [];
-            const amount = parseFloat(prompt('Enter amount to add as payment:'));
-            if (!isNaN(amount)) {
-                groups[groupIdx].people[personIdx].paid += amount;
-                logAction(groupIdx, `${groups[groupIdx].people[personIdx].name} added payment ₱${amount}`);
-                saveGroups(groups);
-            }
-        }
+      groupDiv.appendChild(groupName);
+      groupDiv.appendChild(deleteBtn);
+      groupDiv.appendChild(membersDiv);
+      container.appendChild(groupDiv);
+    });
+  }
 
-        function addTicket(groupIdx, personIdx) {
-            const groups = JSON.parse(localStorage.getItem('groups')) || [];
-            const qty = parseInt(prompt('Enter additional ticket quantity:'), 10);
-            if (!isNaN(qty)) {
-                groups[groupIdx].people[personIdx].qty += qty;
-                logAction(groupIdx, `${groups[groupIdx].people[personIdx].name} added ${qty} ticket(s)`);
-                saveGroups(groups);
-            }
-        }
+  function addPayment(groupIdx, personIdx) {
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    const amount = parseFloat(prompt("Enter amount to add:"));
+    if (!isNaN(amount)) {
+      groups[groupIdx].people[personIdx].paid += amount;
+      localStorage.setItem('groups', JSON.stringify(groups));
+      renderGroupTransactions();
+    }
+  }
 
-        function editPerson(groupIdx, personIdx) {
-            const groups = JSON.parse(localStorage.getItem('groups')) || [];
-            const name = prompt('Edit name:', groups[groupIdx].people[personIdx].name);
-            const ticketPrice = parseFloat(prompt('Edit ticket price:', groups[groupIdx].people[personIdx].ticketPrice));
-            const qty = parseInt(prompt('Edit quantity:', groups[groupIdx].people[personIdx].qty), 10);
-            const paid = parseFloat(prompt('Edit amount paid:', groups[groupIdx].people[personIdx].paid));
+  function addTicket(groupIdx, personIdx) {
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    const qty = parseInt(prompt("Enter ticket quantity:"));
+    if (!isNaN(qty)) {
+      groups[groupIdx].people[personIdx].qty += qty;
+      localStorage.setItem('groups', JSON.stringify(groups));
+      renderGroupTransactions();
+    }
+  }
 
-            if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
-                groups[groupIdx].people[personIdx] = { name, ticketPrice, qty, paid };
-                logAction(groupIdx, `${name}'s details were edited.`);
-                saveGroups(groups);
-            }
-        }
+  function editPerson(groupIdx, personIdx) {
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    const person = groups[groupIdx].people[personIdx];
 
-        function deletePerson(groupIdx, personIdx) {
-            const groups = JSON.parse(localStorage.getItem('groups')) || [];
-            const personName = groups[groupIdx].people[personIdx].name;
-            groups[groupIdx].people.splice(personIdx, 1);
-            logAction(groupIdx, `${personName} was deleted`);
-            saveGroups(groups);
-        }
+    const name = prompt("Name:", person.name);
+    const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
+    const qty = parseInt(prompt("Quantity:", person.qty));
+    const paid = parseFloat(prompt("Paid:", person.paid));
 
-        function addPerson(groupIdx) {
-            const groups = JSON.parse(localStorage.getItem('groups')) || [];
-            const name = prompt('Enter name of person:');
-            const ticketPrice = parseFloat(prompt('Enter ticket price:'));
-            const qty = parseInt(prompt('Enter ticket quantity:'), 10);
-            const paid = parseFloat(prompt('Enter amount paid:'));
+    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
+      groups[groupIdx].people[personIdx] = { name, ticketPrice, qty, paid };
+      localStorage.setItem('groups', JSON.stringify(groups));
+      renderGroupTransactions();
+    }
+  }
 
-            if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
-                groups[groupIdx].people.push({ name, ticketPrice, qty, paid });
-                logAction(groupIdx, `${name} was added to the group`);
-                saveGroups(groups);
-            }
-        }
+  function deletePerson(groupIdx, personIdx) {
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    groups[groupIdx].people.splice(personIdx, 1);
+    localStorage.setItem('groups', JSON.stringify(groups));
+    renderGroupTransactions();
+  }
 
-        function deleteGroup(groupIdx) {
-            const groups = JSON.parse(localStorage.getItem('groups')) || [];
-            const groupName = groups[groupIdx].name;
-            groups.splice(groupIdx, 1);
-            logAction(groupIdx, `${groupName} was deleted`);
-            saveGroups(groups);
-        }
+  document.addEventListener('DOMContentLoaded', renderGroupTransactions);
+</script>
 
-        document.addEventListener('DOMContentLoaded', renderGroupTransactions);
-    </script>
 </body>
-
 </html>
