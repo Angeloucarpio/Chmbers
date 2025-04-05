@@ -155,6 +155,27 @@
     </div>
 
     <script>
+        // Initialize with sample data
+        function initializeSampleData() {
+            const sampleGroups = [
+                {
+                    name: "Angelou",
+                    people: [
+                        { name: "Ca", ticket: 20, qty: 2, paid: 10 },
+                        { name: "Kwarta", ticket: 25, qty: 1, paid: 0 }
+                    ]
+                },
+                {
+                    name: "Kwarta",
+                    people: [
+                        { name: "Chaos", ticket: 30, qty: 3, paid: 15 },
+                        { name: "asd", ticket: 15, qty: 1, paid: 5 }
+                    ]
+                }
+            ];
+            localStorage.setItem('groups', JSON.stringify(sampleGroups));
+        }
+
         // Function to render pending groups
         function renderPendingGroup() {
             const container = document.getElementById('pendingGroupContainer');
@@ -288,6 +309,7 @@
         }
 
         // Initialize rendering
+        initializeSampleData();
         renderPendingGroup();
 
         // Update time every second
