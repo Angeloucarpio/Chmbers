@@ -214,8 +214,8 @@
     const pendingGroupEl = document.getElementById('groupPending');
     const pendingPersonEl = document.getElementById('personPending');
 
-    let groups = [];
-    let persons = [];
+    let groups = JSON.parse(localStorage.getItem('groups')) || [];
+    let persons = JSON.parse(localStorage.getItem('persons')) || [];
     let logs = [];
 
     let activeMenu = null;
@@ -271,11 +271,10 @@
       const container = document.getElementById('groupPeopleContainer');
       const newPersonField = document.createElement('div');
       newPersonField.classList.add('groupPersonEntry');
-      newPersonField.innerHTML = `
+      newPersonField.innerHTML = ` 
         <input type="text" class="groupName" placeholder="Name">
         <input type="number" class="ticketPrice" placeholder="Ticket Price">
-        <input type="number" class="ticketQty" placeholder="Quantity">
-      `;
+        <input type="number" class="ticketQty" placeholder="Quantity">`;
       container.appendChild(newPersonField);
     }
 
@@ -295,6 +294,7 @@
 
       if (people.length > 0) {
         groups.push({ name, people });
+        localStorage.setItem('groups', JSON.stringify(groups));
         logAction(`${name} group saved with ${people.length} people`);
         alert("Group saved!");
       }
@@ -305,6 +305,7 @@
       const ticket = +document.getElementById('personTicketPrice').value;
       const qty = +document.getElementById('personTicketQty').value;
       persons.push({ name, ticket, qty, paid: 0 });
+      localStorage.setItem('persons', JSON.stringify(persons));
       logAction(`${name} person saved`);
       alert("Person saved!");
     }
@@ -322,9 +323,9 @@
           return `<li>${p.name} - Tickets: ${p.qty}, Balance: ${bal}
             <button onclick="addPayment('${g.name}', '${p.name}')">Add Payment</button>
             <button onclick="addTicket('${g.name}', '${p.name}')">Add Ticket</button>
-          </li>`;
+          </li>`; 
         }).join('');
-        return `<div><h3>${g.name}</h3><ul>${members}</ul></div>`;
+        return `<div><h3>${g.name}</h3><ul>${members}</ul></div>`; 
       }).join('');
 
       // Person
@@ -342,6 +343,7 @@
       const person = group.people.find(p => p.name === personName);
       person.paid += amount;
       logAction(`${personName} added payment ${amount}`);
+      localStorage.setItem('groups', JSON.stringify(groups));  // Save to localStorage
       renderPending();
     }
 
@@ -351,6 +353,7 @@
       const person = group.people.find(p => p.name === personName);
       person.qty += qty;
       logAction(`${personName} added ${qty} ticket(s)`);
+      localStorage.setItem('groups', JSON.stringify(groups));  // Save to localStorage
       renderPending();
     }
 
@@ -359,6 +362,7 @@
       const person = persons.find(p => p.name === name);
       person.paid += amount;
       logAction(`${name} added payment ${amount}`);
+      localStorage.setItem('persons', JSON.stringify(persons));  // Save to localStorage
       renderPending();
     }
 
