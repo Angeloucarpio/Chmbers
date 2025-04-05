@@ -1,56 +1,146 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-  
-  nav ul {
-    list-style: none;
-    background: #333;
-    padding: 10px;
-    display: flex;
-    color: #fff;
-  }
-  
-  nav ul li {
-    margin: 0 15px;
-    cursor: pointer;
-    position: relative;
-  }
-  
-  nav ul li ul {
-    display: none;
-    position: absolute;
-    background: #444;
-    top: 30px;
-    left: 0;
-    padding: 5px;
-  }
-  
-  nav ul li:hover ul {
-    display: block;
-  }
-  
-  .page {
-    display: none;
-    padding: 20px;
-  }
-  
-  .page.active {
-    display: block;
-  }
-  
-  .home-container {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .left, .right {
-    width: 45%;
-  }
-  
-  textarea {
-    width: 100%;
-    height: 100px;
-  }
-  
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+nav {
+  background-color: #333;
+  padding: 15px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
+  justify-content: center;
+}
+
+nav ul li {
+  position: relative;
+  margin: 0 20px;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+}
+
+nav ul li:hover,
+nav ul li:focus-within {
+  background-color: #444;
+  border-radius: 5px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  padding: 10px;
+  display: inline-block;
+}
+
+nav ul li ul {
+  display: none;
+  position: absolute;
+  background-color: #444;
+  top: 35px;
+  left: 0;
+  width: 200px;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 10;
+}
+
+nav ul li.active > ul {
+  display: block;
+}
+
+nav ul li ul li {
+  padding: 8px 0;
+}
+
+main {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.page {
+  display: none;
+  width: 90%;
+}
+
+.page.active {
+  display: block;
+}
+
+.home-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.left,
+.right {
+  width: 48%;
+}
+
+.left input,
+.right input,
+.left textarea,
+.right textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.left button,
+.right button {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.left button:hover,
+.right button:hover {
+  background-color: #444;
+}
+
+.pending-type {
+  background: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pending-type div {
+  margin-bottom: 15px;
+}
+
+h2,
+h3 {
+  color: #333;
+}
+
+textarea {
+  height: 100px;
+}
+
+.add-person {
+  cursor: pointer;
+  color: #007BFF;
+  font-size: 20px;
+  display: inline-block;
+  margin-top: 10px;
+}
