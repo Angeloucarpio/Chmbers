@@ -28,43 +28,46 @@
     }
 
     nav ul li {
-      position: relative;
-      margin: 0 20px;
-      cursor: pointer;
-      font-weight: bold;
-      color: white;
-    }
+  position: relative;
+  margin: 0 20px;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+}
 
-    nav ul li:hover {
-      background-color: #444;
-      border-radius: 5px;
-    }
+nav ul li:hover {
+  background-color: #444;
+  border-radius: 5px;
+}
 
-    nav ul li a {
-      color: white;
-      text-decoration: none;
-      padding: 10px;
-      display: inline-block;
-    }
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  padding: 10px;
+  display: inline-block;
+}
 
-    nav ul li ul {
-      display: none;
-      position: absolute;
-      background-color: #444;
-      top: 35px;
-      left: 0;
-      width: 200px;
-      padding: 10px;
-      border-radius: 5px;
-    }
+nav ul li ul {
+  display: none;
+  position: absolute;
+  background-color: #444;
+  top: 35px;
+  left: 0;
+  width: 200px;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 10; /* Ensure the dropdown is on top of other elements */
+}
 
-    nav ul li:hover ul {
-      display: block;
-    }
+nav ul li:hover ul, 
+nav ul li:focus-within ul {
+  display: block; /* Show on hover or when focused */
+}
 
-    nav ul li ul li {
-      padding: 8px 0;
-    }
+nav ul li ul li {
+  padding: 8px 0;
+}
+
 
     main {
       padding: 20px;
