@@ -31,15 +31,15 @@
     .group {
       background: white;
       padding: 15px;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      cursor: pointer;
       position: relative;
     }
 
     .group-name {
       font-weight: bold;
+      cursor: pointer;
     }
 
     .members {
@@ -70,6 +70,7 @@
       left: 0;
       background-color: white;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 1;
     }
 
     .dropdown:hover .dropdown-content {
@@ -85,21 +86,17 @@
       cursor: pointer;
     }
 
-    .paid {
-      color: green;
-    }
-
-    .balance {
-      color: red;
-    }
+    .paid { color: green; }
+    .balance { color: red; }
 
     .log {
-      background: white;
+      background: #f1f1f1;
       padding: 10px;
-      margin-top: 20px;
+      margin-top: 10px;
       border-radius: 8px;
-      max-height: 200px;
+      max-height: 150px;
       overflow-y: auto;
+      font-size: 0.9em;
     }
 
     .add-person {
@@ -118,6 +115,11 @@
       padding: 5px 10px;
       cursor: pointer;
     }
+
+    .overall {
+      font-weight: bold;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -134,6 +136,17 @@
 </div>
 
 <script>
+  function saveGroups(groups) {
+    localStorage.setItem('groups', JSON.stringify(groups));
+  }
+
+  function addLog(group, message) {
+    const now = new Date();
+    const timestamp = now.toLocaleString();
+    if (!group.logs) group.logs = [];
+    group.logs.unshift(`[${timestamp}] ${message}`);
+  }
+
   function renderGroupTransactions() {
     const container = document.getElementById('groupTransactions');
     const groups = JSON.parse(localStorage.getItem('groups')) || [];
@@ -152,17 +165,22 @@
       deleteBtn.textContent = 'Delete Group';
       deleteBtn.onclick = () => {
         groups.splice(groupIndex, 1);
-        localStorage.setItem('groups', JSON.stringify(groups));
+        saveGroups(groups);
         renderGroupTransactions();
       };
 
       const membersDiv = document.createElement('div');
       membersDiv.classList.add('members');
 
+      let totalPaid = 0, totalExpected = 0;
+
       group.people.forEach((person, personIndex) => {
         const total = person.ticketPrice * person.qty;
         const balance = total - person.paid;
         const status = balance <= 0 ? `<span class="paid">Paid</span>` : `<span class="balance">Pending: ₱${balance}</span>`;
+
+        totalPaid += person.paid;
+        totalExpected += total;
 
         const memberDiv = document.createElement('div');
         memberDiv.classList.add('member');
@@ -183,6 +201,14 @@
         membersDiv.appendChild(memberDiv);
       });
 
+      const overall = document.createElement('div');
+      overall.classList.add('overall');
+      const overallBalance = totalExpected - totalPaid;
+      overall.innerHTML = `
+        Total Expected: ₱${totalExpected}, Total Paid: ₱${totalPaid}, <span class="${overallBalance <= 0 ? 'paid' : 'balance'}">${overallBalance <= 0 ? 'Fully Paid' : `Pending: ₱${overallBalance}`}</span>
+      `;
+      membersDiv.appendChild(overall);
+
       const addPerson = document.createElement('div');
       addPerson.classList.add('add-person');
       addPerson.textContent = '+ Add Person';
@@ -194,12 +220,20 @@
 
         if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
           group.people.push({ name, ticketPrice, qty, paid });
-          localStorage.setItem('groups', JSON.stringify(groups));
+          addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid})`);
+          saveGroups(groups);
           renderGroupTransactions();
         }
       };
 
       membersDiv.appendChild(addPerson);
+
+      // LOG SECTION
+      const logDiv = document.createElement('div');
+      logDiv.classList.add('log');
+      logDiv.innerHTML = `<strong>Transaction Log:</strong><br>` + 
+        (group.logs && group.logs.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
+      membersDiv.appendChild(logDiv);
 
       groupName.onclick = () => {
         membersDiv.style.display = membersDiv.style.display === 'block' ? 'none' : 'block';
@@ -217,7 +251,8 @@
     const amount = parseFloat(prompt("Enter amount to add:"));
     if (!isNaN(amount)) {
       groups[groupIdx].people[personIdx].paid += amount;
-      localStorage.setItem('groups', JSON.stringify(groups));
+      addLog(groups[groupIdx], `Added ₱${amount} payment for ${groups[groupIdx].people[personIdx].name}`);
+      saveGroups(groups);
       renderGroupTransactions();
     }
   }
@@ -227,7 +262,8 @@
     const qty = parseInt(prompt("Enter ticket quantity:"));
     if (!isNaN(qty)) {
       groups[groupIdx].people[personIdx].qty += qty;
-      localStorage.setItem('groups', JSON.stringify(groups));
+      addLog(groups[groupIdx], `Added ${qty} ticket(s) to ${groups[groupIdx].people[personIdx].name}`);
+      saveGroups(groups);
       renderGroupTransactions();
     }
   }
@@ -243,15 +279,18 @@
 
     if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
       groups[groupIdx].people[personIdx] = { name, ticketPrice, qty, paid };
-      localStorage.setItem('groups', JSON.stringify(groups));
+      addLog(groups[groupIdx], `Edited person: ${name}`);
+      saveGroups(groups);
       renderGroupTransactions();
     }
   }
 
   function deletePerson(groupIdx, personIdx) {
     const groups = JSON.parse(localStorage.getItem('groups'));
+    const name = groups[groupIdx].people[personIdx].name;
     groups[groupIdx].people.splice(personIdx, 1);
-    localStorage.setItem('groups', JSON.stringify(groups));
+    addLog(groups[groupIdx], `Deleted person: ${name}`);
+    saveGroups(groups);
     renderGroupTransactions();
   }
 
