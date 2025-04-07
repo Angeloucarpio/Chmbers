@@ -126,6 +126,17 @@
       margin-top: 10px;
       font-size: 1em;
     }
+
+    .backup-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -139,6 +150,8 @@
 <div class="container">
   <h2>Group Transactions</h2>
   <div id="groupTransactions"></div>
+  <!-- Backup Button -->
+  <button class="backup-btn" onclick="backupData()">Backup Data</button>
 </div>
 
 <script>
@@ -314,6 +327,16 @@
     addLog(groups[groupIdx], `Deleted person: ${name}`);
     saveGroups(groups);
     renderGroupTransactions();
+  }
+
+  // Backup function to save current data as a .json file
+  function backupData() {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const blob = new Blob([JSON.stringify(groups, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'group_transactions_backup.json';
+    link.click();
   }
 
   document.addEventListener('DOMContentLoaded', renderGroupTransactions);
