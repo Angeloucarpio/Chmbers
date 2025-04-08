@@ -9,11 +9,9 @@
       background: #eef;
       padding: 20px;
     }
-
     h2 {
       color: #333;
     }
-
     .backup-container {
       background-color: white;
       padding: 20px;
@@ -22,138 +20,63 @@
       max-height: 80vh;
       overflow-y: auto;
     }
-
     pre {
       font-family: monospace;
       font-size: 14px;
       white-space: pre-wrap;
       word-wrap: break-word;
     }
-
-    .delete-btn {
-      color: #ff4d4d;
-      background: none;
+    .buttons {
+      margin-top: 10px;
+    }
+    .back-btn, .delete-btn {
+      padding: 10px 15px;
+      margin: 5px;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
-      font-size: 16px;
-      transition: color 0.2s;
     }
-
-    .delete-btn:hover {
-      color: #ff0000;
+    .back-btn {
+      background-color: #4CAF50;
+      color: white;
     }
-
-    .delete-btn i {
-      font-size: 18px;
+    .delete-btn {
+      background-color: #f44336;
+      color: white;
     }
-
-    .group-container {
-      padding: 10px;
-      margin-bottom: 10px;
-      background: #f9f9f9;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-      display: flex;
-      justify-content: space-between;
-    }
-
   </style>
 </head>
 <body>
 
   <h2>📦 Groups Backup (From groups.html)</h2>
-
   <div class="backup-container">
-    <div id="groupsBackup">Loading groups data...</div>
+    <pre id="groupsBackup">Loading groups data...</pre>
+    <div class="buttons">
+      <button class="back-btn" onclick="goBack()">⬅️ Back</button>
+      <button class="delete-btn" onclick="deleteBackup()">🗑️ Delete Backup</button>
+    </div>
   </div>
 
   <script>
-    // Initialize group data if it doesn't exist in localStorage
-    if (!localStorage.getItem('groups')) {
-      localStorage.setItem('groups', JSON.stringify([
-        {
-          "name": "CHAOS",
-          "people": [
-            {
-              "name": "Angelou",
-              "ticketPrice": 2000,
-              "qty": 4,
-              "paid": 2000
-            },
-            {
-              "name": "Versilyn",
-              "ticketPrice": 2000,
-              "qty": 10,
-              "paid": 0
-            },
-            {
-              "name": "Mark",
-              "ticketPrice": 2000,
-              "qty": 20,
-              "paid": 0
-            }
-          ],
-          "logs": [
-            "[4/8/2025, 12:55:58 PM] Added 2 ticket(s) to Angelou",
-            "[4/8/2025, 12:31:29 PM] Added ₱2000 payment for Angelou"
-          ]
-        },
-        {
-          "name": "SPC",
-          "people": [
-            {
-              "name": "Angel",
-              "ticketPrice": 200,
-              "qty": 2,
-              "paid": 0
-            },
-            {
-              "name": "kwarta",
-              "ticketPrice": 200,
-              "qty": 2,
-              "paid": 0
-            }
-          ]
-        }
-      ]));
-    }
+ 
+    const groupData = JSON.parse(localStorage.getItem('groups')) || [];
 
-    // Function to render the group data
-    function renderGroupData() {
-      const groupData = JSON.parse(localStorage.getItem('groups')) || [];
-      const backupDisplay = document.getElementById('groupsBackup');
-      backupDisplay.innerHTML = ''; // Clear previous data before re-rendering
-
-      groupData.forEach((group, groupIndex) => {
-        let groupHTML = `
-          <div class="group-container">
-            <div>
-              <strong>${group.name}</strong>
-            </div>
-            <button class="delete-btn" onclick="deleteGroup(${groupIndex})">
-              <i class="fas fa-trash"></i> Delete Group
-            </button>
-          </div>
-        `;
-
-        backupDisplay.innerHTML += groupHTML;
-      });
-    }
-
-    // Function to delete a group from localStorage
-    function deleteGroup(groupIndex) {
-      const groupData = JSON.parse(localStorage.getItem('groups')) || [];
-      groupData.splice(groupIndex, 1);  // Remove the group from the array
-      localStorage.setItem('groups', JSON.stringify(groupData));  // Save updated data to localStorage
-
-      renderGroupData();  // Re-render data after deletion
-    }
-
-    // Initial rendering of group data
-    renderGroupData();
     
-    // Periodic refresh every 5 seconds
-    setInterval(renderGroupData, 5000);
+    const backupDisplay = document.getElementById('groupsBackup');
+    backupDisplay.textContent = JSON.stringify(groupData, null, 2);
+
+   
+    function goBack() {
+      window.history.back();
+    }
+
+ 
+    function deleteBackup() {
+      if (confirm("Are you sure you want to delete the backup data? This cannot be undone.")) {
+        localStorage.removeItem('groups');
+        backupDisplay.textContent = "No groups data available.";
+      }
+    }
   </script>
 
 </body>
