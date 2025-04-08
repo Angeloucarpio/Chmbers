@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Backup Database View</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #eef;
+      padding: 20px;
+    }
+    h2 {
+      color: #333;
+    }
+    .backup-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    pre {
+      font-family: monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📦 Groups Backup (From groups.html)</h2>
+  <div class="backup-container">
+    <pre id="groupsBackup">Loading groups data...</pre>
+  </div>
+
+  <script>
+    // Get the data saved from groups.html
+    const groupData = JSON.parse(localStorage.getItem('groups')) || [];
+
+    // Display it in readable format
+    const backupDisplay = document.getElementById('groupsBackup');
+    backupDisplay.textContent = JSON.stringify(groupData, null, 2);
+  </script>
+
+</body>
+</html>
