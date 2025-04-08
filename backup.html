@@ -9,9 +9,35 @@
       background: #eef;
       padding: 20px;
     }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .back-btn {
+      text-decoration: none;
+      color: #333;
+      font-size: 20px;
+      margin-right: 10px;
+      display: inline-flex;
+      align-items: center;
+      background: #ddd;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #ccc;
+    }
+
     h2 {
       color: #333;
+      margin: 0;
     }
+
     .backup-container {
       background-color: white;
       padding: 20px;
@@ -20,6 +46,7 @@
       max-height: 80vh;
       overflow-y: auto;
     }
+
     pre {
       font-family: monospace;
       font-size: 14px;
@@ -30,16 +57,37 @@
 </head>
 <body>
 
-  <h2>📦 Groups Backup (From groups.html)</h2>
+  <div class="top-bar">
+    <a href="groups.html" class="back-btn">← Back</a>
+    <h2>📦 Groups Backup (From groups.html)</h2>
+  </div>
+
   <div class="backup-container">
     <pre id="groupsBackup">Loading groups data...</pre>
   </div>
 
   <script>
-    // Get the data saved from groups.html
-    const groupData = JSON.parse(localStorage.getItem('groups')) || [];
+    function getUrlParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
 
-    // Display it in readable format
+    const urlData = getUrlParameter('data');
+    let groupData = [];
+
+    if (urlData) {
+      try {
+        groupData = JSON.parse(decodeURIComponent(urlData));
+        // Save it to localStorage for future access
+        localStorage.setItem('groups', JSON.stringify(groupData));
+      } catch (e) {
+        console.error("Invalid JSON in URL parameter.");
+      }
+    } else {
+      // Fallback to localStorage
+      groupData = JSON.parse(localStorage.getItem('groups')) || [];
+    }
+
     const backupDisplay = document.getElementById('groupsBackup');
     backupDisplay.textContent = JSON.stringify(groupData, null, 2);
   </script>
