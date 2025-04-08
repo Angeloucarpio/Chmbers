@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Backup Database View</title>
+  <!-- Add Font Awesome for the delete icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -72,7 +74,28 @@
 
     .people-item, .logs-item {
       margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
+
+    .delete-btn {
+      color: #ff4d4d;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      transition: color 0.2s;
+    }
+
+    .delete-btn:hover {
+      color: #ff0000;
+    }
+
+    .delete-btn i {
+      font-size: 18px;
+    }
+
   </style>
 </head>
 <body>
@@ -87,6 +110,56 @@
   </div>
 
   <script>
+    // Check if 'groups' exists in localStorage, if not, set the initial data
+    if (!localStorage.getItem('groups')) {
+      localStorage.setItem('groups', JSON.stringify([
+        {
+          "name": "CHAOS",
+          "people": [
+            {
+              "name": "Angelou",
+              "ticketPrice": 2000,
+              "qty": 4,
+              "paid": 2000
+            },
+            {
+              "name": "Versilyn",
+              "ticketPrice": 2000,
+              "qty": 10,
+              "paid": 0
+            },
+            {
+              "name": "Mark",
+              "ticketPrice": 2000,
+              "qty": 20,
+              "paid": 0
+            }
+          ],
+          "logs": [
+            "[4/8/2025, 12:55:58 PM] Added 2 ticket(s) to Angelou",
+            "[4/8/2025, 12:31:29 PM] Added ₱2000 payment for Angelou"
+          ]
+        },
+        {
+          "name": "SPC",
+          "people": [
+            {
+              "name": "Angel",
+              "ticketPrice": 200,
+              "qty": 2,
+              "paid": 0
+            },
+            {
+              "name": "kwarta",
+              "ticketPrice": 200,
+              "qty": 2,
+              "paid": 0
+            }
+          ]
+        }
+      ]));
+    }
+
     // Function to render the group data
     function renderGroupData() {
       const groupData = JSON.parse(localStorage.getItem('groups')) || [];
@@ -94,16 +167,21 @@
       const displayData = document.getElementById('groupData');
       displayData.innerHTML = ''; // Clear previous data before re-rendering
 
-      groupData.forEach(group => {
+      groupData.forEach((group, groupIndex) => {
         let groupHTML = `
           <div class="group-container">
             <div class="group-title">${group.name}</div>
             <div class="group-info">
               <strong>People:</strong>
               <ul class="people-list">
-                ${group.people.map(person => `
+                ${group.people.map((person, personIndex) => `
                   <li class="people-item">
-                    <strong>${person.name}</strong>: ${person.qty} tickets, ₱${person.paid} paid
+                    <div>
+                      <strong>${person.name}</strong>: ${person.qty} tickets, ₱${person.paid} paid
+                    </div>
+                    <button class="delete-btn" onclick="deletePerson(${groupIndex}, ${personIndex})">
+                      <i class="fas fa-trash"></i>
+                    </button>
                   </li>
                 `).join('')}
               </ul>
@@ -120,6 +198,20 @@
         `;
         displayData.innerHTML += groupHTML;
       });
+    }
+
+    // Function to delete a person from a group
+    function deletePerson(groupIndex, personIndex) {
+      const groupData = JSON.parse(localStorage.getItem('groups')) || [];
+
+      // Remove the person from the group
+      groupData[groupIndex].people.splice(personIndex, 1);
+
+      // Update the group data in localStorage
+      localStorage.setItem('groups', JSON.stringify(groupData));
+
+      // Re-render the group data after deletion
+      renderGroupData();
     }
 
     // Call the render function once on page load
