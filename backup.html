@@ -58,7 +58,7 @@
 <body>
 
   <div class="top-bar">
-    <a href="groups.html" class="back-btn">← Back</a>
+    <a href="index.html" class="back-btn">← Back to Home</a>
     <h2>📦 Groups Backup (From groups.html)</h2>
   </div>
 
@@ -67,29 +67,12 @@
   </div>
 
   <script>
-    function getUrlParameter(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
+    // Get data from localStorage
+    const groupData = JSON.parse(localStorage.getItem('groups')) || [];
 
-    const urlData = getUrlParameter('data');
-    let groupData = [];
-
-    if (urlData) {
-      try {
-        groupData = JSON.parse(decodeURIComponent(urlData));
-        // Save it to localStorage for future access
-        localStorage.setItem('groups', JSON.stringify(groupData));
-      } catch (e) {
-        console.error("Invalid JSON in URL parameter.");
-      }
-    } else {
-      // Fallback to localStorage
-      groupData = JSON.parse(localStorage.getItem('groups')) || [];
-    }
-
-    const backupDisplay = document.getElementById('groupsBackup');
-    backupDisplay.textContent = JSON.stringify(groupData, null, 2);
+    // Show it inside the pre tag
+    const display = document.getElementById('groupsBackup');
+    display.textContent = JSON.stringify(groupData, null, 2);
   </script>
 
 </body>
