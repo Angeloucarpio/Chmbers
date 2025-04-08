@@ -3,43 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>Backup Database View</title>
-  <!-- Add Font Awesome for the delete icon -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #eef;
       padding: 20px;
     }
-
-    .top-bar {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .back-btn {
-      text-decoration: none;
-      color: #333;
-      font-size: 20px;
-      margin-right: 10px;
-      display: inline-flex;
-      align-items: center;
-      background: #ddd;
-      padding: 8px 12px;
-      border-radius: 6px;
-      transition: background 0.2s;
-    }
-
-    .back-btn:hover {
-      background: #ccc;
-    }
-
     h2 {
       color: #333;
-      margin: 0;
     }
-
     .backup-container {
       background-color: white;
       padding: 20px;
@@ -48,177 +20,28 @@
       max-height: 80vh;
       overflow-y: auto;
     }
-
-    .group-container {
-      border: 1px solid #ddd;
-      margin-bottom: 20px;
-      padding: 10px;
-      border-radius: 6px;
-      background-color: #f9f9f9;
+    pre {
+      font-family: monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
-
-    .group-title {
-      font-size: 18px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .group-info {
-      margin-top: 10px;
-    }
-
-    .people-list, .logs-list {
-      list-style-type: none;
-      padding-left: 0;
-    }
-
-    .people-item, .logs-item {
-      margin: 5px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .delete-btn {
-      color: #ff4d4d;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      transition: color 0.2s;
-    }
-
-    .delete-btn:hover {
-      color: #ff0000;
-    }
-
-    .delete-btn i {
-      font-size: 18px;
-    }
-
   </style>
 </head>
 <body>
 
-  <div class="top-bar">
-    <a href="index.html" class="back-btn">← Back to Home</a>
-    <h2>📦 Groups Backup (From groups.html)</h2>
-  </div>
-
+  <h2>📦 Groups Backup (From groups.html)</h2>
   <div class="backup-container">
-    <div id="groupData">Loading groups data...</div>
+    <pre id="groupsBackup">Loading groups data...</pre>
   </div>
 
   <script>
-    // Check if 'groups' exists in localStorage, if not, set the initial data
-    if (!localStorage.getItem('groups')) {
-      localStorage.setItem('groups', JSON.stringify([
-        {
-          "name": "CHAOS",
-          "people": [
-            {
-              "name": "Angelou",
-              "ticketPrice": 2000,
-              "qty": 4,
-              "paid": 2000
-            },
-            {
-              "name": "Versilyn",
-              "ticketPrice": 2000,
-              "qty": 10,
-              "paid": 0
-            },
-            {
-              "name": "Mark",
-              "ticketPrice": 2000,
-              "qty": 20,
-              "paid": 0
-            }
-          ],
-          "logs": [
-            "[4/8/2025, 12:55:58 PM] Added 2 ticket(s) to Angelou",
-            "[4/8/2025, 12:31:29 PM] Added ₱2000 payment for Angelou"
-          ]
-        },
-        {
-          "name": "SPC",
-          "people": [
-            {
-              "name": "Angel",
-              "ticketPrice": 200,
-              "qty": 2,
-              "paid": 0
-            },
-            {
-              "name": "kwarta",
-              "ticketPrice": 200,
-              "qty": 2,
-              "paid": 0
-            }
-          ]
-        }
-      ]));
-    }
+    // Get the data saved from groups.html
+    const groupData = JSON.parse(localStorage.getItem('groups')) || [];
 
-    // Function to render the group data
-    function renderGroupData() {
-      const groupData = JSON.parse(localStorage.getItem('groups')) || [];
-
-      const displayData = document.getElementById('groupData');
-      displayData.innerHTML = ''; // Clear previous data before re-rendering
-
-      groupData.forEach((group, groupIndex) => {
-        let groupHTML = `
-          <div class="group-container">
-            <div class="group-title">${group.name}</div>
-            <div class="group-info">
-              <strong>People:</strong>
-              <ul class="people-list">
-                ${group.people.map((person, personIndex) => `
-                  <li class="people-item">
-                    <div>
-                      <strong>${person.name}</strong>: ${person.qty} tickets, ₱${person.paid} paid
-                    </div>
-                    <button class="delete-btn" onclick="deletePerson(${groupIndex}, ${personIndex})">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </li>
-                `).join('')}
-              </ul>
-            </div>
-            <div class="group-info">
-              <strong>Logs:</strong>
-              <ul class="logs-list">
-                ${group.logs && group.logs.length > 0 ? group.logs.map(log => `
-                  <li class="logs-item">${log}</li>
-                `).join('') : '<li>No logs available</li>'}
-              </ul>
-            </div>
-          </div>
-        `;
-        displayData.innerHTML += groupHTML;
-      });
-    }
-
-    // Function to delete a person from a group
-    function deletePerson(groupIndex, personIndex) {
-      const groupData = JSON.parse(localStorage.getItem('groups')) || [];
-
-      // Remove the person from the group
-      groupData[groupIndex].people.splice(personIndex, 1);
-
-      // Update the group data in localStorage
-      localStorage.setItem('groups', JSON.stringify(groupData));
-
-      // Re-render the group data after deletion
-      renderGroupData();
-    }
-
-    // Call the render function once on page load
-    renderGroupData();
-
-    // Set an interval to refresh the data every 5 seconds (5000 milliseconds)
-    setInterval(renderGroupData, 5000);
+    // Display it in readable format
+    const backupDisplay = document.getElementById('groupsBackup');
+    backupDisplay.textContent = JSON.stringify(groupData, null, 2);
   </script>
 
 </body>
