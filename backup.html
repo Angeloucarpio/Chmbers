@@ -47,11 +47,31 @@
       overflow-y: auto;
     }
 
-    pre {
-      font-family: monospace;
-      font-size: 14px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
+    .group-container {
+      border: 1px solid #ddd;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 6px;
+      background-color: #f9f9f9;
+    }
+
+    .group-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .group-info {
+      margin-top: 10px;
+    }
+
+    .people-list, .logs-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .people-item, .logs-item {
+      margin: 5px 0;
     }
   </style>
 </head>
@@ -63,16 +83,50 @@
   </div>
 
   <div class="backup-container">
-    <pre id="groupsBackup">Loading groups data...</pre>
+    <div id="groupData">Loading groups data...</div>
   </div>
 
   <script>
-    // Get data from localStorage
-    const groupData = JSON.parse(localStorage.getItem('groups')) || [];
+    // Function to render the group data
+    function renderGroupData() {
+      const groupData = JSON.parse(localStorage.getItem('groups')) || [];
 
-    // Show it inside the pre tag
-    const display = document.getElementById('groupsBackup');
-    display.textContent = JSON.stringify(groupData, null, 2);
+      const displayData = document.getElementById('groupData');
+      displayData.innerHTML = ''; // Clear previous data before re-rendering
+
+      groupData.forEach(group => {
+        let groupHTML = `
+          <div class="group-container">
+            <div class="group-title">${group.name}</div>
+            <div class="group-info">
+              <strong>People:</strong>
+              <ul class="people-list">
+                ${group.people.map(person => `
+                  <li class="people-item">
+                    <strong>${person.name}</strong>: ${person.qty} tickets, ₱${person.paid} paid
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+            <div class="group-info">
+              <strong>Logs:</strong>
+              <ul class="logs-list">
+                ${group.logs && group.logs.length > 0 ? group.logs.map(log => `
+                  <li class="logs-item">${log}</li>
+                `).join('') : '<li>No logs available</li>'}
+              </ul>
+            </div>
+          </div>
+        `;
+        displayData.innerHTML += groupHTML;
+      });
+    }
+
+    // Call the render function once on page load
+    renderGroupData();
+
+    // Set an interval to refresh the data every 5 seconds (5000 milliseconds)
+    setInterval(renderGroupData, 5000);
   </script>
 
 </body>
