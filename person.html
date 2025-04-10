@@ -1,114 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Person Transactions</title>
   <style>
+    :root {
+      --primary: #3498db;
+      --danger: #e74c3c;
+      --success: #2ecc71;
+      --bg: #f4f7fa;
+      --card-bg: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      background: #f9f9f9;
+      background: var(--bg);
     }
 
     .navbar {
-      background-color: #333;
-      padding: 10px;
-      color: white;
+      background-color: var(--primary);
+      padding: 15px;
       text-align: center;
+      box-shadow: 0 2px 5px var(--shadow);
     }
 
     .navbar a {
-      padding: 10px 20px;
       color: white;
       text-decoration: none;
-      display: inline-block;
+      margin: 0 15px;
+      font-size: 1.1em;
+      transition: color 0.3s ease;
+    }
+
+    .navbar a:hover {
+      color: #ecf0f1;
     }
 
     .container {
-      padding: 20px;
+      padding: 30px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+    }
+
+    .add-person-btn {
+      background-color: var(--primary);
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+      display: block;
+      margin: 0 auto 25px auto;
+      box-shadow: 0 4px 6px var(--shadow);
+    }
+
+    .add-person-btn:hover {
+      background-color: #2980b9;
     }
 
     .person {
-      background: white;
-      padding: 15px;
+      background: var(--card-bg);
+      padding: 20px;
       margin-bottom: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 8px var(--shadow);
       position: relative;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    .person:hover {
+      transform: scale(1.01);
+      box-shadow: 0 6px 12px var(--shadow);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .person-name {
       font-weight: bold;
-      font-size: 1.1em;
+      font-size: 1.2em;
       margin-bottom: 10px;
+      color: #34495e;
     }
 
     .info-line {
-      font-size: 0.95em;
-      margin-bottom: 5px;
+      font-size: 1em;
+      margin-bottom: 6px;
+      color: #555;
     }
+
+    .paid { color: var(--success); font-weight: bold; }
+    .balance { color: var(--danger); font-weight: bold; }
 
     .actions {
       display: flex;
-      gap: 5px;
-      margin-top: 10px;
+      gap: 10px;
+      margin-top: 12px;
     }
 
     .dropdown {
       position: relative;
     }
 
+    .dropdown button {
+      background-color: #ddd;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .dropdown:hover button {
+      background-color: #ccc;
+    }
+
     .dropdown-content {
       display: none;
       position: absolute;
-      top: 100%;
+      top: 35px;
       left: 0;
-      background-color: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      z-index: 1;
+      background-color: #ffffff;
+      box-shadow: 0 4px 10px var(--shadow);
+      border-radius: 5px;
+      overflow: hidden;
+      z-index: 5;
     }
 
     .dropdown:hover .dropdown-content {
       display: block;
+      animation: dropdownFade 0.3s ease;
+    }
+
+    @keyframes dropdownFade {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .dropdown-content button {
-      padding: 5px 10px;
-      border: none;
       background: none;
+      border: none;
+      padding: 10px 15px;
       width: 100%;
       text-align: left;
       cursor: pointer;
-      font-size: 0.9em;
+      font-size: 0.95em;
     }
 
-    .paid { color: green; }
-    .balance { color: red; }
-
-    .log {
-      background: #f1f1f1;
-      padding: 10px;
-      margin-top: 20px;
-      border-radius: 8px;
-      max-height: 150px;
-      overflow-y: auto;
-      font-size: 0.9em;
+    .dropdown-content button:hover {
+      background-color: #f1f1f1;
     }
 
-    .add-person-btn {
-      background-color: #2980b9;
-      color: white;
-      padding: 10px 15px;
+    .edit-btn, .delete-btn {
       border: none;
+      padding: 6px 12px;
       border-radius: 5px;
       cursor: pointer;
-      margin-bottom: 20px;
-      font-size: 1em;
+      font-size: 0.9em;
     }
 
-    .edit-btn { background-color: #3498db; color: white; padding: 5px 8px; border: none; border-radius: 5px; cursor: pointer; }
-    .delete-btn { background-color: #e74c3c; color: white; padding: 5px 8px; border: none; border-radius: 5px; cursor: pointer; }
+    .edit-btn {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .edit-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .delete-btn {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+
+    .log {
+      background: #eef3f7;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 30px;
+      font-size: 0.95em;
+      max-height: 200px;
+      overflow-y: auto;
+      box-shadow: inset 0 2px 5px var(--shadow);
+    }
+
+    .log div {
+      padding: 5px 0;
+    }
   </style>
 </head>
 <body>
@@ -132,7 +230,7 @@
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
 
       container.innerHTML = persons.map((person, index) => {
-        const total = person.ticket * person.qty;
+        const total = person.ticketPrice * person.qty;
         const balance = total - person.paid;
         const status = balance <= 0
           ? `<span class="paid">Fully Paid</span>`
@@ -141,7 +239,7 @@
         return `
           <div class="person">
             <div class="person-name">${person.name}</div>
-            <div class="info-line">Ticket: ₱${person.ticket} × ${person.qty} = ₱${total}</div>
+            <div class="info-line">Ticket: ₱${person.ticketPrice} × ${person.qty} = ₱${total}</div>
             <div class="info-line">Paid: ₱${person.paid}</div>
             <div class="info-line">${status}</div>
 
@@ -171,16 +269,16 @@
 
     function addPerson() {
       const name = prompt("Enter name:");
-      const ticket = parseFloat(prompt("Ticket price:"));
+      const ticketPrice = parseFloat(prompt("Ticket price:"));
       const qty = parseInt(prompt("Ticket quantity:"));
       const paid = parseFloat(prompt("Amount paid:"));
 
-      if (name && !isNaN(ticket) && !isNaN(qty) && !isNaN(paid)) {
+      if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
         const persons = JSON.parse(localStorage.getItem('persons')) || [];
-        persons.push({ name, ticket, qty, paid });
+        persons.push({ name, ticketPrice, qty, paid });
         localStorage.setItem('persons', JSON.stringify(persons));
         renderPersonTransactions();
-        logTransaction(`${name} added with ${qty} ticket(s) at ₱${ticket} each, Paid: ₱${paid}`);
+        logTransaction(`${name} added with ${qty} ticket(s) at ₱${ticketPrice} each, Paid: ₱${paid}`);
       }
     }
 
@@ -211,12 +309,12 @@
       const person = persons[index];
 
       const name = prompt("Enter new name:", person.name);
-      const ticket = parseFloat(prompt("Enter new ticket price:", person.ticket));
+      const ticketPrice = parseFloat(prompt("Enter new ticket price:", person.ticketPrice));
       const qty = parseInt(prompt("Enter new quantity:", person.qty));
       const paid = parseFloat(prompt("Enter new amount paid:", person.paid));
 
-      if (name && !isNaN(ticket) && !isNaN(qty) && !isNaN(paid)) {
-        persons[index] = { name, ticket, qty, paid };
+      if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
+        persons[index] = { name, ticketPrice, qty, paid };
         localStorage.setItem('persons', JSON.stringify(persons));
         renderPersonTransactions();
         logTransaction(`${name}'s data was edited`);
