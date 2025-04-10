@@ -1,228 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Person Transactions</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f9f9f9;
-            margin: 0;
-            padding: 20px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Person Transactions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+    }
 
-        .navbar {
-            background-color: #333;
-            padding: 10px;
-            color: white;
-            text-align: center;
-        }
+    .navbar {
+      background-color: #333;
+      padding: 10px;
+      color: white;
+      text-align: center;
+    }
 
-        .navbar a {
-            padding: 10px 20px;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-        }
+    .navbar a {
+      padding: 10px 20px;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+    }
 
-        h2 {
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
+    .container {
+      padding: 20px;
+    }
 
-        .person {
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 15px;
-            position: relative;
-        }
+    .person {
+      background: white;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
 
-        .paid {
-            color: #27ae60;
-            font-weight: bold;
-        }
+    .person-name {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 10px;
+    }
 
-        .balance {
-            color: #e74c3c;
-            font-weight: bold;
-        }
+    .info-line {
+      font-size: 0.95em;
+      margin-bottom: 5px;
+    }
 
-        .actions {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            display: flex;
-            gap: 5px;
-        }
+    .actions {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+    }
 
-        button {
-            padding: 5px 8px;
-            font-size: 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+    .dropdown {
+      position: relative;
+    }
 
-        .edit-btn {
-            background: #3498db;
-            color: white;
-        }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
 
-        .delete-btn {
-            background: #e74c3c;
-            color: white;
-        }
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
 
-        .add-btn {
-            background: #2ecc71;
-            color: white;
-        }
+    .dropdown-content button {
+      padding: 5px 10px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
 
-        .log {
-            background: white;
-            padding: 10px;
-            margin-top: 20px;
-            border-radius: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
+    .paid { color: green; }
+    .balance { color: red; }
 
-        .add-person {
-            margin: 10px 0;
-            padding: 10px 15px;
-            background: #2980b9;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+    .log {
+      background: #f1f1f1;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 0.9em;
+    }
 
-    </style>
+    .add-person-btn {
+      background-color: #2980b9;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      font-size: 1em;
+    }
+
+    .edit-btn { background-color: #3498db; color: white; padding: 5px 8px; border: none; border-radius: 5px; cursor: pointer; }
+    .delete-btn { background-color: #e74c3c; color: white; padding: 5px 8px; border: none; border-radius: 5px; cursor: pointer; }
+  </style>
 </head>
-
 <body>
 
-    <div class="navbar">
-        <a href="index.html">Home</a>
-        <a href="groups.html">Groups</a>
-        <a href="person.html">Persons</a>
-    </div>
+  <div class="navbar">
+    <a href="index.html">Home</a>
+    <a href="groups.html">Groups</a>
+    <a href="person.html">Persons</a>
+  </div>
 
-    <h2>All Person Transactions</h2>
-    <button class="add-person" onclick="addPerson()">+ Add Person</button>
+  <div class="container">
+    <h2>Person Transactions</h2>
+    <button class="add-person-btn" onclick="addPerson()">+ Add Person</button>
     <div id="personTransactions"></div>
     <div class="log" id="log"></div>
+  </div>
 
-    <script>
-        function renderPersonTransactions() {
-            const container = document.getElementById('personTransactions');
-            const persons = JSON.parse(localStorage.getItem('persons')) || [];
+  <script>
+    function renderPersonTransactions() {
+      const container = document.getElementById('personTransactions');
+      const persons = JSON.parse(localStorage.getItem('persons')) || [];
 
-            container.innerHTML = persons.map((person, index) => {
-                const total = person.ticket * person.qty;
-                const balance = total - person.paid;
-                const status = balance <= 0
-                    ? `<span class="paid">Fully Paid</span>`
-                    : `<span class="balance">Pending: ₱${balance}</span>`;
+      container.innerHTML = persons.map((person, index) => {
+        const total = person.ticket * person.qty;
+        const balance = total - person.paid;
+        const status = balance <= 0
+          ? `<span class="paid">Fully Paid</span>`
+          : `<span class="balance">Pending: ₱${balance}</span>`;
 
-                return `
-                    <div class="person">
-                        <strong>${person.name}</strong>
-                        <div class="actions">
-                            <button class="add-btn" onclick="addPayment(${index})">💰</button>
-                            <button class="add-btn" onclick="addTicket(${index})">🎫</button>
-                            <button class="edit-btn" onclick="editPerson(${index})">✏️</button>
-                            <button class="delete-btn" onclick="deletePerson(${index})">🗑️</button>
-                        </div>
-                        <div class="person-details">
-                            Ticket: ₱${person.ticket} × ${person.qty} = ₱${total}<br>
-                            Paid: ₱${person.paid}<br>
-                            ${status}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
+        return `
+          <div class="person">
+            <div class="person-name">${person.name}</div>
+            <div class="info-line">Ticket: ₱${person.ticket} × ${person.qty} = ₱${total}</div>
+            <div class="info-line">Paid: ₱${person.paid}</div>
+            <div class="info-line">${status}</div>
 
-        function logTransaction(text) {
-            const logBox = document.getElementById('log');
-            const timestamp = new Date().toLocaleString();
-            const entry = document.createElement('div');
-            entry.textContent = `[${timestamp}] ${text}`;
-            logBox.prepend(entry);
-        }
+            <div class="actions">
+              <div class="dropdown">
+                <button>＋</button>
+                <div class="dropdown-content">
+                  <button onclick="addPayment(${index})">Add Payment</button>
+                  <button onclick="addTicket(${index})">Add Ticket</button>
+                </div>
+              </div>
+              <button class="edit-btn" onclick="editPerson(${index})">✏️ Edit</button>
+              <button class="delete-btn" onclick="deletePerson(${index})">🗑️ Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
-        function addPerson() {
-            const name = prompt("Enter name:");
-            const ticket = parseFloat(prompt("Ticket price:"));
-            const qty = parseInt(prompt("Ticket quantity:"));
-            const paid = parseFloat(prompt("Amount paid:"));
+    function logTransaction(text) {
+      const logBox = document.getElementById('log');
+      const timestamp = new Date().toLocaleString();
+      const entry = document.createElement('div');
+      entry.textContent = `[${timestamp}] ${text}`;
+      logBox.prepend(entry);
+    }
 
-            if (name && !isNaN(ticket) && !isNaN(qty) && !isNaN(paid)) {
-                const persons = JSON.parse(localStorage.getItem('persons')) || [];
-                persons.push({ name, ticket, qty, paid });
-                localStorage.setItem('persons', JSON.stringify(persons));
-                renderPersonTransactions();
-                logTransaction(`${name} added with ${qty} tickets (₱${ticket} each), Paid: ₱${paid}`);
-            }
-        }
+    function addPerson() {
+      const name = prompt("Enter name:");
+      const ticket = parseFloat(prompt("Ticket price:"));
+      const qty = parseInt(prompt("Ticket quantity:"));
+      const paid = parseFloat(prompt("Amount paid:"));
 
-        function addPayment(index) {
-            const persons = JSON.parse(localStorage.getItem('persons')) || [];
-            const amount = parseFloat(prompt("Enter payment amount:"));
-            if (!isNaN(amount)) {
-                persons[index].paid += amount;
-                localStorage.setItem('persons', JSON.stringify(persons));
-                renderPersonTransactions();
-                logTransaction(`${persons[index].name} added payment ₱${amount}`);
-            }
-        }
+      if (name && !isNaN(ticket) && !isNaN(qty) && !isNaN(paid)) {
+        const persons = JSON.parse(localStorage.getItem('persons')) || [];
+        persons.push({ name, ticket, qty, paid });
+        localStorage.setItem('persons', JSON.stringify(persons));
+        renderPersonTransactions();
+        logTransaction(`${name} added with ${qty} ticket(s) at ₱${ticket} each, Paid: ₱${paid}`);
+      }
+    }
 
-        function addTicket(index) {
-            const persons = JSON.parse(localStorage.getItem('persons')) || [];
-            const qty = parseInt(prompt("Enter additional ticket quantity:"));
-            if (!isNaN(qty)) {
-                persons[index].qty += qty;
-                localStorage.setItem('persons', JSON.stringify(persons));
-                renderPersonTransactions();
-                logTransaction(`${persons[index].name} added ${qty} ticket(s)`);
-            }
-        }
+    function addPayment(index) {
+      const persons = JSON.parse(localStorage.getItem('persons')) || [];
+      const amount = parseFloat(prompt("Enter payment amount:"));
+      if (!isNaN(amount)) {
+        persons[index].paid += amount;
+        localStorage.setItem('persons', JSON.stringify(persons));
+        renderPersonTransactions();
+        logTransaction(`${persons[index].name} added payment ₱${amount}`);
+      }
+    }
 
-        function editPerson(index) {
-            const persons = JSON.parse(localStorage.getItem('persons')) || [];
-            const person = persons[index];
+    function addTicket(index) {
+      const persons = JSON.parse(localStorage.getItem('persons')) || [];
+      const qty = parseInt(prompt("Enter additional ticket quantity:"));
+      if (!isNaN(qty)) {
+        persons[index].qty += qty;
+        localStorage.setItem('persons', JSON.stringify(persons));
+        renderPersonTransactions();
+        logTransaction(`${persons[index].name} added ${qty} ticket(s)`);
+      }
+    }
 
-            const name = prompt("Enter new name:", person.name);
-            const ticket = parseFloat(prompt("Enter new ticket price:", person.ticket));
-            const qty = parseInt(prompt("Enter new quantity:", person.qty));
-            const paid = parseFloat(prompt("Enter new amount paid:", person.paid));
+    function editPerson(index) {
+      const persons = JSON.parse(localStorage.getItem('persons')) || [];
+      const person = persons[index];
 
-            if (name && !isNaN(ticket) && !isNaN(qty) && !isNaN(paid)) {
-                persons[index] = { name, ticket, qty, paid };
-                localStorage.setItem('persons', JSON.stringify(persons));
-                renderPersonTransactions();
-                logTransaction(`${name}'s data was edited`);
-            }
-        }
+      const name = prompt("Enter new name:", person.name);
+      const ticket = parseFloat(prompt("Enter new ticket price:", person.ticket));
+      const qty = parseInt(prompt("Enter new quantity:", person.qty));
+      const paid = parseFloat(prompt("Enter new amount paid:", person.paid));
 
-        function deletePerson(index) {
-            const persons = JSON.parse(localStorage.getItem('persons')) || [];
-            const name = persons[index].name;
-            if (confirm(`Delete ${name}?`)) {
-                persons.splice(index, 1);
-                localStorage.setItem('persons', JSON.stringify(persons));
-                renderPersonTransactions();
-                logTransaction(`${name} was deleted`);
-            }
-        }
+      if (name && !isNaN(ticket) && !isNaN(qty) && !isNaN(paid)) {
+        persons[index] = { name, ticket, qty, paid };
+        localStorage.setItem('persons', JSON.stringify(persons));
+        renderPersonTransactions();
+        logTransaction(`${name}'s data was edited`);
+      }
+    }
 
-        document.addEventListener('DOMContentLoaded', renderPersonTransactions);
-    </script>
+    function deletePerson(index) {
+      const persons = JSON.parse(localStorage.getItem('persons')) || [];
+      const name = persons[index].name;
+      if (confirm(`Delete ${name}?`)) {
+        persons.splice(index, 1);
+        localStorage.setItem('persons', JSON.stringify(persons));
+        renderPersonTransactions();
+        logTransaction(`${name} was deleted`);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', renderPersonTransactions);
+  </script>
 
 </body>
-
 </html>
