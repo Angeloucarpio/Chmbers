@@ -180,30 +180,32 @@
     <div id="personTransactions"></div>
     <div class="log" id="log"></div>
   </div>
-
   <script>
     function generateReferenceCode() {
       return 'REF-' + Math.random().toString(36).substr(2, 9).toUpperCase();
     }
-
+  
     function renderPersonTransactions() {
       const container = document.getElementById('personTransactions');
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
-
+  
       container.innerHTML = persons.map((person, index) => {
         const total = person.ticketPrice * person.qty;
         const balance = total - person.paid;
         const status = balance <= 0
           ? `<span class="paid">Fully Paid</span>`
           : `<span class="balance">Pending: ₱${balance}</span>`;
-
+  
+        const lastUpdated = person.lastUpdated ? `Last Updated: ${person.lastUpdated}` : 'Last Updated: N/A';
+  
         return `
           <div class="person" id="person-${index}">
             <div class="person-name">${person.name} (Ref: ${person.referenceCode})</div>
             <div class="info-line">Ticket: ₱${person.ticketPrice} × ${person.qty} = ₱${total}</div>
             <div class="info-line">Paid: ₱${person.paid}</div>
             <div class="info-line">${status}</div>
-
+            <div class="info-line">${lastUpdated}</div>
+  
             <div class="actions">
               <div class="dropdown">
                 <button>＋</button>
@@ -219,7 +221,7 @@
         `;
       }).join('');
     }
-
+  
     function logTransaction(text) {
       const logBox = document.getElementById('log');
       const timestamp = new Date().toLocaleString();
@@ -227,63 +229,66 @@
       entry.textContent = `[${timestamp}] ${text}`;
       logBox.prepend(entry);
     }
-
+  
     function addPerson() {
       const name = prompt("Enter name:");
       const ticketPrice = parseFloat(prompt("Ticket price:"));
       const qty = parseInt(prompt("Ticket quantity:"));
       const paid = parseFloat(prompt("Amount paid:"));
-
+  
       if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
         const referenceCode = generateReferenceCode();
         const persons = JSON.parse(localStorage.getItem('persons')) || [];
-        persons.push({ name, ticketPrice, qty, paid, referenceCode });
+        const lastUpdated = new Date().toLocaleString();  // Current time for new person
+        persons.push({ name, ticketPrice, qty, paid, referenceCode, lastUpdated });
         localStorage.setItem('persons', JSON.stringify(persons));
         logTransaction(`${name} added with ${qty} ticket(s) at ₱${ticketPrice}, paid ₱${paid}`);
         renderPersonTransactions();
       }
     }
-
+  
     function addPayment(index) {
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
       const amount = parseFloat(prompt("Enter additional payment:"));
       if (!isNaN(amount)) {
         persons[index].paid += amount;
+        persons[index].lastUpdated = new Date().toLocaleString();  // Update timestamp
         localStorage.setItem('persons', JSON.stringify(persons));
         logTransaction(`${persons[index].name} added ₱${amount} payment`);
         renderPersonTransactions();
       }
     }
-
+  
     function addTicket(index) {
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
       const qty = parseInt(prompt("Enter additional ticket quantity:"));
       if (!isNaN(qty)) {
         persons[index].qty += qty;
+        persons[index].lastUpdated = new Date().toLocaleString();  // Update timestamp
         localStorage.setItem('persons', JSON.stringify(persons));
         logTransaction(`${persons[index].name} added ${qty} ticket(s)`);
         renderPersonTransactions();
       }
     }
-
+  
     function editPerson(index) {
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
       const person = persons[index];
-
+  
       const name = prompt("Edit name:", person.name);
       const ticketPrice = parseFloat(prompt("Edit ticket price:", person.ticketPrice));
       const qty = parseInt(prompt("Edit quantity:", person.qty));
       const paid = parseFloat(prompt("Edit paid amount:", person.paid));
       const referenceCode = prompt("Edit reference code:", person.referenceCode);
-
+  
       if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid) && referenceCode) {
-        persons[index] = { name, ticketPrice, qty, paid, referenceCode };
+        persons[index] = { name, ticketPrice, qty, paid, referenceCode, lastUpdated: new Date().toLocaleString() };
         localStorage.setItem('persons', JSON.stringify(persons));
         logTransaction(`${name}'s info edited`);
         renderPersonTransactions();
       }
     }
-
+  
     function deletePerson(index) {
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
       const person = persons.splice(index, 1)[0];
@@ -291,14 +296,14 @@
       logTransaction(`${person.name} deleted`);
       renderPersonTransactions();
     }
-
+  
     function searchPerson() {
       const input = document.getElementById('searchInput').value.toLowerCase();
       const results = document.getElementById('searchResults');
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
-
+  
       results.innerHTML = '';
-
+  
       persons.forEach((person, index) => {
         if (person.referenceCode.toLowerCase().includes(input)) {
           const li = document.createElement('li');
@@ -310,12 +315,13 @@
           results.appendChild(li);
         }
       });
-
+  
       results.style.display = input && results.children.length > 0 ? 'block' : 'none';
     }
-
+  
     window.onload = renderPersonTransactions;
   </script>
+  
 
 </body>
 </html>
