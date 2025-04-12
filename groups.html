@@ -467,7 +467,6 @@ function addTicket(groupIdx, personIdx) {
     alert('Please enter a valid ticket quantity.');
   }
 }
-
 function editPerson(groupIdx, personIdx) {
   const groups = JSON.parse(localStorage.getItem('groups'));
   const person = groups[groupIdx].people[personIdx];
@@ -476,21 +475,26 @@ function editPerson(groupIdx, personIdx) {
   const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
   const qty = parseInt(prompt("Quantity:", person.qty));
   const paid = parseFloat(prompt("Paid:", person.paid));
-  const reference = prompt("Reference Code:", person.reference);  // Added reference code prompt
+  const reference = prompt("Reference Code:", person.reference);  // Prompt for reference code
 
   if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid) && reference) {
     person.name = name;
     person.ticketPrice = ticketPrice;
     person.qty = qty;
     person.paid = paid;
-    person.reference = reference;  // Updating reference code
+    person.reference = reference;  // Update the reference code
+    
     addLog(groups[groupIdx], `Edited person: ${name} with reference code: ${reference}`);
-    saveGroups(groups);
-    renderGroupTransactions();
+    
+    // Save the updated groups back to localStorage
+    localStorage.setItem('groups', JSON.stringify(groups));
+    
+    renderGroupTransactions();  // Re-render the transactions to reflect the updated info
   } else {
     alert('Please provide valid information for the person.');
   }
 }
+
 
 function deletePerson(groupIdx, personIdx) {
   const groups = JSON.parse(localStorage.getItem('groups'));
