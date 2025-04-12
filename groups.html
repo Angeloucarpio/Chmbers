@@ -5,231 +5,231 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Group Transactions</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: url('LOGO.png') no-repeat center center fixed;
-      background-size: 300px 300px;
-      background-color: #0f172a;
-      color: #f1f5f9;
-      backdrop-filter: blur(4px);
-    }
+  body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: url('LOGO.png') no-repeat center center fixed;
+  background-size: 300px 300px;
+  background-color: #0f172a;
+  color: #f1f5f9;
+  backdrop-filter: blur(4px);
+}
 
-    .navbar {
-      background-color: #1e293b;
-      padding: 18px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    }
+.navbar {
+  background-color: #1e293b;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
 
-    .navbar a {
-      color: #f9fafb;
-      text-decoration: none;
-      padding: 12px 20px;
-      margin: 0 10px;
-      transition: all 0.3s ease;
-      border-radius: 8px;
-      font-weight: 500;
-    }
+.navbar a {
+  color: #f9fafb;
+  text-decoration: none;
+  padding: 12px 20px;
+  margin: 0 10px;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: 500;
+}
 
-    .navbar a:hover {
-      background-color: #3b82f6;
-      transform: scale(1.05);
-    }
+.navbar a:hover {
+  background-color: #3b82f6;
+  transform: scale(1.05);
+}
 
-    .container {
-      padding: 30px;
-      max-width: 1000px;
-      margin: auto;
-      background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(6px);
-    }
+.container {
+  padding: 30px;
+  max-width: 1000px;
+  margin: auto;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(6px);
+}
 
-    h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: #e0f2fe;
-    }
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #e0f2fe;
+}
 
-    .group {
-      background-color: #f8fafc;
-      color: black;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-      position: relative;
-      transition: transform 0.3s ease;
-    }
+.group {
+  background-color: #f8fafc;
+  color: black;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: transform 0.3s ease;
+}
 
-    .group:hover {
-      transform: scale(1.02);
-    }
+.group:hover {
+  transform: scale(1.02);
+}
 
-    .group-name {
-      font-size: 1.6em;
-      cursor: pointer;
-      margin-bottom: 10px;
-      color: #0f172a;
-      transition: color 0.3s;
-    }
+.group-name {
+  font-size: 1.6em;
+  cursor: pointer;
+  margin-bottom: 10px;
+  color: #0f172a;
+  transition: color 0.3s;
+}
 
-    .group-name:hover {
-      color: #2563eb;
-    }
+.group-name:hover {
+  color: #2563eb;
+}
 
-    .members {
-      display: none;
-      animation: fadeIn 0.4s ease-in-out forwards;
-    }
+.members {
+  display: none;
+  animation: fadeIn 0.4s ease-in-out forwards;
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-    .member {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px dashed #94a3b8;
-    }
+.member {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px dashed #94a3b8;
+}
 
-    .actions {
-      display: flex;
-      gap: 8px;
-    }
+.actions {
+  display: flex;
+  gap: 8px;
+}
 
-    .actions button,
-    .dropdown-content button {
-      background-color: #c7d2fe;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85em;
-      transition: background-color 0.3s, transform 0.2s;
-    }
+.actions button,
+.dropdown-content button {
+  background-color: #c7d2fe;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background-color 0.3s, transform 0.2s;
+}
 
-    .actions button:hover,
-    .dropdown-content button:hover {
-      background-color: #a5b4fc;
-      transform: scale(1.05);
-    }
+.actions button:hover,
+.dropdown-content button:hover {
+  background-color: #a5b4fc;
+  transform: scale(1.05);
+}
 
-    .dropdown {
-      position: relative;
-    }
+.dropdown {
+  position: relative;
+}
 
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      top: 110%;
-      left: 0;
-      background-color: #f8fafc;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-      border-radius: 6px;
-      z-index: 2;
-      min-width: 150px;
-    }
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background-color: #f8fafc;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  border-radius: 6px;
+  z-index: 2;
+  min-width: 150px;
+}
 
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
+.dropdown:hover .dropdown-content {
+  display: block;
+}
 
-    .paid {
-      background-color: #ecfdf5;
-      color: #10b981;
-      font-weight: bold;
-      padding: 6px 10px;
-      border-radius: 8px;
-    }
+.paid {
+  background-color: #ecfdf5;
+  color: #10b981;
+  font-weight: bold;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
 
-    .balance {
-      color: #dc2626;
-      font-weight: 500;
-    }
+.balance {
+  color: #dc2626;
+  font-weight: 500;
+}
 
-    .log {
-      background: #f1f5f9;
-      padding: 12px;
-      margin-top: 15px;
-      border-radius: 8px;
-      max-height: 180px;
-      overflow-y: auto;
-      font-size: 0.88em;
-      border-left: 4px solid #3b82f6;
-      color: #111827;
-    }
+.log {
+  background: #f1f5f9;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: 0.88em;
+  border-left: 4px solid #3b82f6;
+  color: #111827;
+}
 
-    .add-person {
-      margin-top: 15px;
-      display: inline-block;
-      font-weight: 500;
-      color: #3b82f6;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
+.add-person {
+  margin-top: 15px;
+  display: inline-block;
+  font-weight: 500;
+  color: #3b82f6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
-    .add-person:hover {
-      text-decoration: underline;
-      transform: scale(1.03);
-    }
+.add-person:hover {
+  text-decoration: underline;
+  transform: scale(1.03);
+}
 
-    .delete-group {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background-color: #ef4444;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85em;
-      transition: background 0.3s ease;
-    }
+.delete-group {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background 0.3s ease;
+}
 
-    .delete-group:hover {
-      background-color: #dc2626;
-    }
+.delete-group:hover {
+  background-color: #dc2626;
+}
 
-    .overall {
-      font-weight: bold;
-      margin-top: 15px;
-      font-size: 1em;
-    }
+.overall {
+  font-weight: bold;
+  margin-top: 15px;
+  font-size: 1em;
+}
 
-    .backup-btn {
-      background-color: #10b981;
-      color: white;
-      padding: 12px 28px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1em;
-      display: block;
-      margin: 30px auto 0;
-      transition: background 0.3s ease, transform 0.2s;
-    }
+.backup-btn {
+  background-color: #10b981;
+  color: white;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  display: block;
+  margin: 30px auto 0;
+  transition: background 0.3s ease, transform 0.2s;
+}
 
-    .backup-btn:hover {
-      background-color: #059669;
-      transform: scale(1.05);
-    }
+.backup-btn:hover {
+  background-color: #059669;
+  transform: scale(1.05);
+}
 
-    /* Scrollbar for logs */
-    .log::-webkit-scrollbar {
-      width: 6px;
-    }
+/* Scrollbar for logs */
+.log::-webkit-scrollbar {
+  width: 6px;
+}
 
-    .log::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
+.log::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
   </style>
 </head>
 <body>
@@ -245,7 +245,6 @@
   <div id="groupTransactions"></div>
   <button class="backup-btn" onclick="backupData()">Backup Data</button>
 </div>
-
 <script>
   // Save groups data to localStorage
   function saveGroups(groups) {
@@ -331,102 +330,100 @@
         const ticketPrice = parseFloat(prompt("Ticket Price:"));
         const qty = parseInt(prompt("Quantity:"));
         const paid = parseFloat(prompt("Paid:")) || 0;
-        const referenceCode = prompt("Reference Code:"); // Ensure reference code is captured here
+        const referenceCode = prompt("Reference Code:");
 
         if (name && !isNaN(ticketPrice) && !isNaN(qty) && referenceCode) {
           group.people.push({ name, ticketPrice, qty, paid, referenceCode });
-          addLog(group, `Added person: ${name}, Ref: ${referenceCode}`);
+          addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid}, Reference: ${referenceCode})`);
           saveGroups(groups);
           renderGroupTransactions();
-        } else {
-          alert("Please fill in all fields correctly.");
         }
+      };
+      membersDiv.appendChild(addPerson);
+
+      const logDiv = document.createElement('div');
+      logDiv.classList.add('log');
+      logDiv.innerHTML = `<strong>Transaction Log:</strong><br>` +
+        (group.logs && group.logs.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
+      membersDiv.appendChild(logDiv);
+
+      groupName.onclick = () => {
+        membersDiv.style.display = membersDiv.style.display === 'block' ? 'none' : 'block';
       };
 
       groupDiv.appendChild(groupName);
       groupDiv.appendChild(deleteBtn);
       groupDiv.appendChild(membersDiv);
-      groupDiv.appendChild(addPerson);
       container.appendChild(groupDiv);
     });
   }
 
-  // Add a payment to a person
-  function addPayment(groupIndex, personIndex) {
-    const groups = JSON.parse(localStorage.getItem('groups')) || [];
-    const group = groups[groupIndex];
-    const person = group.people[personIndex];
-    const amount = parseFloat(prompt("Enter payment amount:"));
-    
-    if (!isNaN(amount) && amount > 0) {
-      person.paid += amount;
-      addLog(group, `${person.name} paid ₱${amount}`);
+  // Function to add payment to a person
+  function addPayment(groupIdx, personIdx) {
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    const person = groups[groupIdx].people[personIdx];
+    const totalDue = person.ticketPrice * person.qty;
+    const currentPaid = person.paid;
+
+    const amount = parseFloat(prompt("Enter amount to add:"));
+
+    if (!isNaN(amount)) {
+      if (currentPaid + amount > totalDue) {
+        alert(`Payment exceeds the total amount due (₱${totalDue}). Current Paid: ₱${currentPaid}`);
+      } else {
+        person.paid += amount;
+        addLog(groups[groupIdx], `Added ₱${amount} payment for ${person.name}`);
+        saveGroups(groups);
+        renderGroupTransactions();
+      }
+    }
+  }
+
+  // Function to add tickets to a person
+  function addTicket(groupIdx, personIdx) {
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    const qty = parseInt(prompt("Enter ticket quantity:"));
+    if (!isNaN(qty)) {
+      groups[groupIdx].people[personIdx].qty += qty;
+      addLog(groups[groupIdx], `Added ${qty} ticket(s) to ${groups[groupIdx].people[personIdx].name}`);
       saveGroups(groups);
       renderGroupTransactions();
     }
   }
 
-  // Add a ticket to a person
-  function addTicket(groupIndex, personIndex) {
-    const groups = JSON.parse(localStorage.getItem('groups')) || [];
-    const group = groups[groupIndex];
-    const person = group.people[personIndex];
-    const qty = parseInt(prompt("Enter number of tickets:"));
-    
-    if (!isNaN(qty) && qty > 0) {
-      person.qty += qty;
-      addLog(group, `${person.name} added ${qty} tickets`);
+  // Function to edit a person's details
+  function editPerson(groupIdx, personIdx) {
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    const person = groups[groupIdx].people[personIdx];
+
+    const name = prompt("Name:", person.name);
+    const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
+    const qty = parseInt(prompt("Quantity:", person.qty));
+    const paid = parseFloat(prompt("Paid:", person.paid));
+
+    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
+      groups[groupIdx].people[personIdx] = { name, ticketPrice, qty, paid };
+      addLog(groups[groupIdx], `Edited person: ${name}`);
       saveGroups(groups);
       renderGroupTransactions();
     }
   }
 
-  // Edit a person's details
-  function editPerson(groupIndex, personIndex) {
-    const groups = JSON.parse(localStorage.getItem('groups')) || [];
-    const group = groups[groupIndex];
-    const person = group.people[personIndex];
-    const name = prompt("Edit Name:", person.name);
-    const ticketPrice = parseFloat(prompt("Edit Ticket Price:", person.ticketPrice));
-    const qty = parseInt(prompt("Edit Quantity:", person.qty));
-    const paid = parseFloat(prompt("Edit Paid:", person.paid)) || 0;
-    const referenceCode = prompt("Edit Reference Code:", person.referenceCode);
-
-    if (name && !isNaN(ticketPrice) && !isNaN(qty) && referenceCode) {
-      group.people[personIndex] = { name, ticketPrice, qty, paid, referenceCode };
-      addLog(group, `Edited person: ${name}, Ref: ${referenceCode}`);
-      saveGroups(groups);
-      renderGroupTransactions();
-    } else {
-      alert("Please fill in all fields correctly.");
-    }
-  }
-
-  // Delete a person
-  function deletePerson(groupIndex, personIndex) {
-    const groups = JSON.parse(localStorage.getItem('groups')) || [];
-    const group = groups[groupIndex];
-    const person = group.people[personIndex];
-    if (confirm(`Are you sure you want to delete ${person.name}?`)) {
-      group.people.splice(personIndex, 1);
-      addLog(group, `Deleted person: ${person.name}`);
-      saveGroups(groups);
-      renderGroupTransactions();
-    }
-  }
-
-  // Backup data to localStorage or to a file
-  function backupData() {
-    const groups = JSON.parse(localStorage.getItem('groups')) || [];
-    console.log('Backing up data:', groups);
-    alert('Data backed up to console (check developer tools).');
-  }
-
-  // Initial render when page loads
-  window.onload = function() {
+  // Function to delete a person from the group
+  function deletePerson(groupIdx, personIdx) {
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    const name = groups[groupIdx].people[personIdx].name;
+    groups[groupIdx].people.splice(personIdx, 1);
+    addLog(groups[groupIdx], `Deleted person: ${name}`);
+    saveGroups(groups);
     renderGroupTransactions();
   }
-</script>
 
+  function backupData() {
+    window.location.href = 'backup.html';
+  }
+
+  document.addEventListener('DOMContentLoaded', renderGroupTransactions);
+</script>
 </body>
 </html>
