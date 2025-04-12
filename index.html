@@ -210,8 +210,11 @@
     persons.push(person);
     localStorage.setItem('persons', JSON.stringify(persons));
 
+    // Use setTimeout to allow alert to show before redirect
     alert('Person saved successfully!');
-    window.location.href = 'person.html'; 
+    setTimeout(() => {
+      window.location.href = 'person.html'; // Redirect
+    }, 100); // Short delay to give the alert time to close
   } else {
     alert("Please enter valid person details.");
   }
