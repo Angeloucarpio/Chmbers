@@ -228,6 +228,10 @@
   </div>
 
   <script>
+    function generateReferenceCode() {
+      return 'REF-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    }
+
     function renderPersonTransactions() {
       const container = document.getElementById('personTransactions');
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
@@ -241,7 +245,7 @@
 
         return `
           <div class="person">
-            <div class="person-name">${person.name}</div>
+            <div class="person-name">${person.name} (Reference: ${person.referenceCode})</div>
             <div class="info-line">Ticket: ₱${person.ticketPrice} × ${person.qty} = ₱${total}</div>
             <div class="info-line">Paid: ₱${person.paid}</div>
             <div class="info-line">${status}</div>
@@ -277,11 +281,12 @@
       const paid = parseFloat(prompt("Amount paid:"));
 
       if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
+        const referenceCode = generateReferenceCode();
         const persons = JSON.parse(localStorage.getItem('persons')) || [];
-        persons.push({ name, ticketPrice, qty, paid });
+        persons.push({ name, ticketPrice, qty, paid, referenceCode });
         localStorage.setItem('persons', JSON.stringify(persons));
         renderPersonTransactions();
-        logTransaction(`${name} added with ${qty} ticket(s) at ₱${ticketPrice} each, Paid: ₱${paid}`);
+        logTransaction(`${name} added with ${qty} ticket(s) at ₱${ticketPrice} each, Paid: ₱${paid}, Reference Code: ${referenceCode}`);
       }
     }
 
@@ -317,26 +322,22 @@
       const paid = parseFloat(prompt("Enter new amount paid:", person.paid));
 
       if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
-        persons[index] = { name, ticketPrice, qty, paid };
+        persons[index] = { name, ticketPrice, qty, paid, referenceCode: person.referenceCode };
         localStorage.setItem('persons', JSON.stringify(persons));
         renderPersonTransactions();
-        logTransaction(`${name}'s data was edited`);
+        logTransaction(`${person.name} updated`);
       }
     }
 
     function deletePerson(index) {
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
-      const name = persons[index].name;
-      if (confirm(`Delete ${name}?`)) {
-        persons.splice(index, 1);
-        localStorage.setItem('persons', JSON.stringify(persons));
-        renderPersonTransactions();
-        logTransaction(`${name} was deleted`);
-      }
+      const deleted = persons.splice(index, 1);
+      localStorage.setItem('persons', JSON.stringify(persons));
+      renderPersonTransactions();
+      logTransaction(`${deleted[0].name} deleted`);
     }
 
-    document.addEventListener('DOMContentLoaded', renderPersonTransactions);
+    renderPersonTransactions();
   </script>
-
 </body>
 </html>
