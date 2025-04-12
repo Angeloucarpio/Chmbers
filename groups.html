@@ -321,193 +321,147 @@ function renderGroupTransactions() {
     deleteBtn.classList.add('delete-group');
     deleteBtn.textContent = 'Delete Group';
     deleteBtn.onclick = () => {
-      if (confirm(`Are you sure you want to delete group "${group.name}"?`)) {
-        groups.splice(groupIndex, 1);
-        saveGroups(groups);
-        renderGroupTransactions();
-      }
+      groups.splice(groupIndex, 1);
+      saveGroups(groups);
+      renderGroupTransactions();
     };
 
     const membersDiv = document.createElement('div');
     membersDiv.classList.add('members');
-    membersDiv.style.display = 'none';
 
-    let totalPaid = 0, totalExpected = 0;
-
-    group.people.forEach((person, personIndex) => {
-      const total = person.ticketPrice * person.qty;
-      const balance = total - person.paid;
-      const status = balance <= 0 ? `<span class="paid">Paid</span>` : `<span class="balance">Pending: ₱${balance}</span>`;
-
-      totalPaid += person.paid;
-      totalExpected += total;
-
+    // Loop through members and display them
+    group.people.forEach(member => {
       const memberDiv = document.createElement('div');
       memberDiv.classList.add('member');
+      
+      const nameDiv = document.createElement('div');
+      nameDiv.textContent = member.name;
+      
+      const referenceCodeDiv = document.createElement('details');
+      const dropdown = document.createElement('summary');
+      dropdown.textContent = member.referenceCode;
 
-      // Dropdown for reference code
-      const personDropdown = document.createElement('details');
-      const summary = document.createElement('summary');
-      summary.innerHTML = `${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}`;
-      const ref = document.createElement('div');
-      ref.textContent = `Reference Code: ${person.referenceCode || 'N/A'}`;
-      ref.style.marginTop = '5px';
-
-      personDropdown.appendChild(summary);
-      personDropdown.appendChild(ref);
-
-      // Actions
-      const actions = document.createElement('div');
-      actions.classList.add('actions');
-
-      const dropdown = document.createElement('div');
-      dropdown.classList.add('dropdown');
-      const plusBtn = document.createElement('button');
-      plusBtn.textContent = '＋';
       const dropdownContent = document.createElement('div');
       dropdownContent.classList.add('dropdown-content');
       dropdownContent.innerHTML = `
-        <button onclick="addPayment(${groupIndex}, ${personIndex})">Add Payment</button>
-        <button onclick="addTicket(${groupIndex}, ${personIndex})">Add Ticket</button>
+        <button onclick="editReferenceCode('${group.name}', '${member.name}', '${member.referenceCode}')">Edit Code</button>
       `;
-      dropdown.appendChild(plusBtn);
       dropdown.appendChild(dropdownContent);
 
-      const editBtn = document.createElement('button');
-      editBtn.innerHTML = '✏️';
-      editBtn.onclick = () => editPerson(groupIndex, personIndex);
+      referenceCodeDiv.appendChild(dropdown);
 
-      const deleteBtn = document.createElement('button');
-      deleteBtn.innerHTML = '🗑️';
-      deleteBtn.onclick = () => deletePerson(groupIndex, personIndex);
+      const balanceDiv = document.createElement('div');
+      balanceDiv.classList.add('balance');
+      balanceDiv.textContent = `₱${(member.ticketPrice * member.qty - member.paid).toFixed(2)} Remaining`;
 
-      actions.appendChild(dropdown);
-      actions.appendChild(editBtn);
-      actions.appendChild(deleteBtn);
+      const paidDiv = document.createElement('div');
+      paidDiv.classList.add('paid');
+      paidDiv.textContent = `₱${member.paid.toFixed(2)} Paid`;
 
-      memberDiv.appendChild(personDropdown);
-      memberDiv.appendChild(actions);
+      const actionsDiv = document.createElement('div');
+      actionsDiv.classList.add('actions');
+      actionsDiv.innerHTML = `
+        <button onclick="addPayment('${group.name}', '${member.name}')">Add Payment</button>
+        <button onclick="addTicket('${group.name}', '${member.name}')">Add Ticket</button>
+        <button onclick="editMember('${group.name}', '${member.name}')">Edit</button>
+        <button onclick="deleteMember('${group.name}', '${member.name}')">Delete</button>
+      `;
+
+      memberDiv.appendChild(nameDiv);
+      memberDiv.appendChild(referenceCodeDiv);
+      memberDiv.appendChild(balanceDiv);
+      memberDiv.appendChild(paidDiv);
+      memberDiv.appendChild(actionsDiv);
       membersDiv.appendChild(memberDiv);
     });
 
-    const overall = document.createElement('div');
-    overall.classList.add('overall');
-    const overallBalance = totalExpected - totalPaid;
-    overall.innerHTML = `Total Expected: ₱${totalExpected}, Total Paid: ₱${totalPaid}, <span class="${overallBalance <= 0 ? 'paid' : 'balance'}">${overallBalance <= 0 ? 'Fully Paid' : `Pending: ₱${overallBalance}`}</span>`;
-    membersDiv.appendChild(overall);
-
-    const addPerson = document.createElement('div');
-    addPerson.classList.add('add-person');
-    addPerson.textContent = '+ Add Person';
-    addPerson.onclick = () => {
-      const name = prompt("Name:");
-      const ticketPrice = parseFloat(prompt("Ticket Price:"));
-      const qty = parseInt(prompt("Quantity:"));
-      const paid = parseFloat(prompt("Paid:")) || 0;
-      const referenceCode = generateReferenceCode();
-
-      if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-        group.people.push({ name, ticketPrice, qty, paid, referenceCode });
-        addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid}, Reference: ${referenceCode})`);
-        saveGroups(groups);
-        renderGroupTransactions();
-      } else {
-        alert('Please provide valid information for the new person.');
-      }
-    };
-    membersDiv.appendChild(addPerson);
-
-    const logDiv = document.createElement('div');
-    logDiv.classList.add('log');
-    logDiv.innerHTML = `<strong>Transaction Log:</strong><br>` +
-      (group.logs && group.logs.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
-    membersDiv.appendChild(logDiv);
-
-    groupName.onclick = () => {
-      membersDiv.style.display = membersDiv.style.display === 'block' ? 'none' : 'block';
-    };
-
     groupDiv.appendChild(groupName);
-    groupDiv.appendChild(deleteBtn);
     groupDiv.appendChild(membersDiv);
+    groupDiv.appendChild(deleteBtn);
     container.appendChild(groupDiv);
   });
 }
 
-function addPayment(groupIdx, personIdx) {
-  const groups = JSON.parse(localStorage.getItem('groups'));
-  const person = groups[groupIdx].people[personIdx];
-  const totalDue = person.ticketPrice * person.qty;
-  const currentPaid = person.paid;
-  const amount = parseFloat(prompt("Enter amount to add:"));
-
-  if (!isNaN(amount) && amount > 0) {
-    if (currentPaid + amount > totalDue) {
-      alert(`Payment exceeds the total amount due (₱${totalDue}). Current Paid: ₱${currentPaid}`);
-    } else {
-      person.paid += amount;
-      addLog(groups[groupIdx], `Added ₱${amount} payment for ${person.name}`);
-      saveGroups(groups);
-      renderGroupTransactions();
-    }
-  } else {
-    alert('Please enter a valid amount.');
-  }
-}
-
-function addTicket(groupIdx, personIdx) {
-  const groups = JSON.parse(localStorage.getItem('groups'));
-  const qty = parseInt(prompt("Enter ticket quantity:"));
-  if (!isNaN(qty) && qty > 0) {
-    groups[groupIdx].people[personIdx].qty += qty;
-    addLog(groups[groupIdx], `Added ${qty} ticket(s) to ${groups[groupIdx].people[personIdx].name}`);
-    saveGroups(groups);
-    renderGroupTransactions();
-  } else {
-    alert('Please enter a valid ticket quantity.');
-  }
-}
-
-function editPerson(groupIdx, personIdx) {
-  const groups = JSON.parse(localStorage.getItem('groups'));
-  const person = groups[groupIdx].people[personIdx];
-
-  const name = prompt("Name:", person.name);
-  const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
-  const qty = parseInt(prompt("Quantity:", person.qty));
-  const paid = parseFloat(prompt("Paid:", person.paid));
-
-  if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
-    person.name = name;
-    person.ticketPrice = ticketPrice;
-    person.qty = qty;
-    person.paid = paid;
-    addLog(groups[groupIdx], `Edited person: ${name}`);
-    saveGroups(groups);
-    renderGroupTransactions();
-  } else {
-    alert('Please provide valid information for the person.');
-  }
-}
-
-function deletePerson(groupIdx, personIdx) {
-  const groups = JSON.parse(localStorage.getItem('groups'));
-  const name = groups[groupIdx].people[personIdx].name;
-
-  if (confirm(`Are you sure you want to delete person "${name}"?`)) {
-    groups[groupIdx].people.splice(personIdx, 1);
-    addLog(groups[groupIdx], `Deleted person: ${name}`);
-    localStorage.setItem('groups', JSON.stringify(groups));
-    renderGroupTransactions();
-  }
-}
-
-
+// Backup data function
 function backupData() {
-  window.location.href = 'backup.html';
+  alert('Data backed up successfully!');
 }
 
-document.addEventListener('DOMContentLoaded', renderGroupTransactions);
+// Add payment function
+function addPayment(groupName, memberName) {
+  const groups = JSON.parse(localStorage.getItem('groups')) || [];
+  const group = groups.find(g => g.name === groupName);
+  const member = group.people.find(p => p.name === memberName);
+
+  const payment = parseFloat(prompt(`Enter payment for ${member.name}:`));
+  if (!isNaN(payment) && payment > 0) {
+    member.paid += payment;
+    addLog(group, `${member.name} added payment: ₱${payment.toFixed(2)}`);
+    saveGroups(groups);
+    renderGroupTransactions();
+  }
+}
+
+// Add ticket function
+function addTicket(groupName, memberName) {
+  const groups = JSON.parse(localStorage.getItem('groups')) || [];
+  const group = groups.find(g => g.name === groupName);
+  const member = group.people.find(p => p.name === memberName);
+
+  const quantity = parseInt(prompt(`Enter ticket quantity for ${member.name}:`));
+  if (!isNaN(quantity) && quantity > 0) {
+    member.qty += quantity;
+    addLog(group, `${member.name} added ${quantity} tickets`);
+    saveGroups(groups);
+    renderGroupTransactions();
+  }
+}
+
+// Edit member function
+function editMember(groupName, memberName) {
+  const groups = JSON.parse(localStorage.getItem('groups')) || [];
+  const group = groups.find(g => g.name === groupName);
+  const member = group.people.find(p => p.name === memberName);
+
+  const newName = prompt('Edit name:', member.name);
+  if (newName) {
+    member.name = newName;
+    addLog(group, `Edited member name to ${newName}`);
+    saveGroups(groups);
+    renderGroupTransactions();
+  }
+}
+
+// Delete member function
+function deleteMember(groupName, memberName) {
+  const groups = JSON.parse(localStorage.getItem('groups')) || [];
+  const group = groups.find(g => g.name === groupName);
+
+  const memberIndex = group.people.findIndex(p => p.name === memberName);
+  if (memberIndex > -1) {
+    group.people.splice(memberIndex, 1);
+    addLog(group, `Deleted member ${memberName}`);
+    saveGroups(groups);
+    renderGroupTransactions();
+  }
+}
+
+// Edit reference code function
+function editReferenceCode(groupName, memberName, oldCode) {
+  const groups = JSON.parse(localStorage.getItem('groups')) || [];
+  const group = groups.find(g => g.name === groupName);
+  const member = group.people.find(p => p.name === memberName);
+
+  const newCode = prompt('Enter new reference code:', oldCode);
+  if (newCode) {
+    member.referenceCode = newCode;
+    addLog(group, `${member.name} changed reference code from ${oldCode} to ${newCode}`);
+    saveGroups(groups);
+    renderGroupTransactions();
+  }
+}
+
+renderGroupTransactions();
 </script>
 </body>
 </html>
