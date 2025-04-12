@@ -341,13 +341,21 @@ h2 {
     const groups = JSON.parse(localStorage.getItem('groups')) || [];
     const group = groups[groupIndex];
     const person = group.people[personIndex];
+    const totalAmount = person.ticketPrice * person.qty;
+    const remainingBalance = totalAmount - person.paid;
+    
+    // Ensure the user does not pay more than the remaining balance
     const payment = parseFloat(prompt(`Enter payment amount for ${person.name}:`));
 
     if (!isNaN(payment) && payment > 0) {
-      person.paid += payment;
-      addLog(group, `${person.name} made a payment of ₱${payment}`);
-      saveGroups(groups);
-      renderGroupTransactions();
+      if (payment > remainingBalance) {
+        alert(`Payment cannot exceed the remaining balance of ₱${remainingBalance}.`);
+      } else {
+        person.paid += payment;
+        addLog(group, `${person.name} made a payment of ₱${payment}`);
+        saveGroups(groups);
+        renderGroupTransactions();
+      }
     } else {
       alert('Please enter a valid payment amount.');
     }
@@ -597,5 +605,6 @@ h2 {
 
   document.addEventListener('DOMContentLoaded', renderGroupTransactions);
 </script>
+
 </body>
 </html>
