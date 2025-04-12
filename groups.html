@@ -266,43 +266,43 @@ h2 {
   <button class="backup-btn" onclick="backupData()">Backup Data</button>
 </div>
 <script>
- // Save groups data to localStorage
+
 function saveGroups(groups) {
   localStorage.setItem('groups', JSON.stringify(groups));
 }
 
-// Generate a unique reference code in the format N66BO4
+
 function generateReferenceCode() {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const numbers = '0123456789';
 
-  // Generate a 1-letter prefix
+
   const letter = letters.charAt(Math.floor(Math.random() * letters.length));
 
-  // Generate a 2-digit number
+
   const num1 = Math.floor(Math.random() * 10);
   const num2 = Math.floor(Math.random() * 10);
 
-  // Generate a 2-letter suffix
+
   const letter2 = letters.charAt(Math.floor(Math.random() * letters.length));
   const letter3 = letters.charAt(Math.floor(Math.random() * letters.length));
 
-  // Generate a 1-digit suffix
+ 
   const num3 = Math.floor(Math.random() * 10);
 
-  // Combine into the desired format
+  
   return `${letter}${num1}${num2}${letter2}${letter3}${num3}`;
 }
 
-// Add a log message to the group transaction log with date and time
+
 function addLog(group, message) {
   const now = new Date();
-  const timestamp = now.toLocaleString();  // Get the current date and time
+  const timestamp = now.toLocaleString();  
   if (!group.logs) group.logs = [];
   group.logs.unshift(`[${timestamp}] ${message}`);
 }
 
-// Render all groups with their members and transactions
+
 function renderGroupTransactions() {
   const container = document.getElementById('groupTransactions');
   const groups = JSON.parse(localStorage.getItem('groups')) || [];
@@ -316,7 +316,7 @@ function renderGroupTransactions() {
     groupName.classList.add('group-name');
     groupName.textContent = group.name;
 
-    // Delete button
+  
     const deleteBtn = document.createElement('button');
     deleteBtn.classList.add('delete-group');
     deleteBtn.textContent = 'Delete Group';
@@ -345,7 +345,6 @@ function renderGroupTransactions() {
       const memberDiv = document.createElement('div');
       memberDiv.classList.add('member');
 
-      // Dropdown for reference code
       const personDropdown = document.createElement('details');
       const summary = document.createElement('summary');
       summary.innerHTML = `${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}`;
@@ -356,7 +355,7 @@ function renderGroupTransactions() {
       personDropdown.appendChild(summary);
       personDropdown.appendChild(ref);
 
-      // Actions
+   
       const actions = document.createElement('div');
       actions.classList.add('actions');
 
@@ -493,11 +492,15 @@ function editPerson(groupIdx, personIdx) {
 function deletePerson(groupIdx, personIdx) {
   const groups = JSON.parse(localStorage.getItem('groups'));
   const name = groups[groupIdx].people[personIdx].name;
-  groups[groupIdx].people.splice(personIdx, 1);
-  addLog(groups[groupIdx], `Deleted person: ${name}`);
-  saveGroups(groups);
-  renderGroupTransactions();
+  
+  if (confirm(`Are you sure you want to delete person "${name}"?`)) {
+    groups[groupIdx].people.splice(personIdx, 1);
+    addLog(groups[groupIdx], `Deleted person: ${name}`);
+    saveGroups(groups);
+    renderGroupTransactions();
+  }
 }
+
 
 function backupData() {
   window.location.href = 'backup.html';
