@@ -177,7 +177,7 @@
       const ticketPrice = parseFloat(entry.querySelector('.ticketPrice').value);
       const qty = parseInt(entry.querySelector('.ticketQty').value);
       if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-        people.push({ name, ticketPrice, qty, paid: 0 });
+        people.push({ name, ticketPrice, qty, paid: 0, referenceCode: generateReferenceCode() });
       }
     });
 
