@@ -485,14 +485,15 @@ function editPerson(groupIdx, personIdx) {
     person.ticketPrice = ticketPrice;
     person.qty = qty;
     person.paid = paid;
-    person.reference = finalReference; // Update the reference code
-    addLog(groups[groupIdx], `Edited person: ${name}`);
+    person.reference = finalReference; // Update the reference code correctly
+    addLog(groups[groupIdx], `Edited person: ${name}, Reference Code: ${finalReference}`); // Add a log message
     saveGroups(groups);
     renderGroupTransactions();
   } else {
     alert('Please provide valid information for the person.');
   }
 }
+
 
 function deletePerson(groupIdx, personIdx) {
   const groups = JSON.parse(localStorage.getItem('groups'));
