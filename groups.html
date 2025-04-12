@@ -319,9 +319,7 @@ h2 {
       const overall = document.createElement('div');
       overall.classList.add('overall');
       const overallBalance = totalExpected - totalPaid;
-      overall.innerHTML = `
-        Total Expected: ₱${totalExpected}, Total Paid: ₱${totalPaid}, <span class="${overallBalance <= 0 ? 'paid' : 'balance'}">${overallBalance <= 0 ? 'Fully Paid' : `Pending: ₱${overallBalance}`}</span>
-      `;
+      overall.innerHTML = `Total Expected: ₱${totalExpected}, Total Paid: ₱${totalPaid}, <span class="${overallBalance <= 0 ? 'paid' : 'balance'}">${overallBalance <= 0 ? 'Fully Paid' : `Pending: ₱${overallBalance}`}</span>`;
       membersDiv.appendChild(overall);
 
       const addPerson = document.createElement('div');
@@ -332,10 +330,11 @@ h2 {
         const ticketPrice = parseFloat(prompt("Ticket Price:"));
         const qty = parseInt(prompt("Quantity:"));
         const paid = parseFloat(prompt("Paid:")) || 0;
+        const referenceCode = prompt("Reference Code:");
 
-        if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-          group.people.push({ name, ticketPrice, qty, paid });
-          addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid})`);
+        if (name && !isNaN(ticketPrice) && !isNaN(qty) && referenceCode) {
+          group.people.push({ name, ticketPrice, qty, paid, referenceCode });
+          addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid}, Reference: ${referenceCode})`);
           saveGroups(groups);
           renderGroupTransactions();
         }
@@ -421,9 +420,8 @@ h2 {
   }
 
   function backupData() {
-  window.location.href = 'backup.html';
-}
-
+    window.location.href = 'backup.html';
+  }
 
   document.addEventListener('DOMContentLoaded', renderGroupTransactions);
 </script>
