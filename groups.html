@@ -305,12 +305,12 @@ h2 {
             <div class="dropdown">
               <button>＋</button>
               <div class="dropdown-content">
-                <button onclick="addPayment(${groupIndex}, ${personIndex})">Add Payment</button>
-                <button onclick="addTicket(${groupIndex}, ${personIndex})">Add Ticket</button>
+                <button onclick="addPayment(${groupIndex}, '${person.id}')">Add Payment</button>
+                <button onclick="addTicket(${groupIndex}, '${person.id}')">Add Ticket</button>
               </div>
             </div>
-            <button onclick="editPerson(${groupIndex}, ${personIndex})">✏️</button>
-            <button onclick="deletePerson(${groupIndex}, ${personIndex})">🗑️</button>
+            <button onclick="editPerson(${groupIndex}, '${person.id}')">✏️</button>
+            <button onclick="deletePerson(${groupIndex}, '${person.id}')">🗑️</button>
           </div>
         `;
         membersDiv.appendChild(memberDiv);
@@ -319,9 +319,7 @@ h2 {
       const overall = document.createElement('div');
       overall.classList.add('overall');
       const overallBalance = totalExpected - totalPaid;
-      overall.innerHTML = `
-        Total Expected: ₱${totalExpected}, Total Paid: ₱${totalPaid}, <span class="${overallBalance <= 0 ? 'paid' : 'balance'}">${overallBalance <= 0 ? 'Fully Paid' : `Pending: ₱${overallBalance}`}</span>
-      `;
+      overall.innerHTML = `Total Expected: ₱${totalExpected}, Total Paid: ₱${totalPaid}, <span class="${overallBalance <= 0 ? 'paid' : 'balance'}">${overallBalance <= 0 ? 'Fully Paid' : `Pending: ₱${overallBalance}`}</span>`;
       membersDiv.appendChild(overall);
 
       const addPerson = document.createElement('div');
@@ -334,7 +332,8 @@ h2 {
         const paid = parseFloat(prompt("Paid:")) || 0;
 
         if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-          group.people.push({ name, ticketPrice, qty, paid });
+          const personId = `person-${Date.now()}`; // Unique ID
+          group.people.push({ id: personId, name, ticketPrice, qty, paid });
           addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid})`);
           saveGroups(groups);
           renderGroupTransactions();
@@ -345,88 +344,92 @@ h2 {
       const logDiv = document.createElement('div');
       logDiv.classList.add('log');
       logDiv.innerHTML = `<strong>Transaction Log:</strong><br>` +
-        (group.logs && group.logs.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
-      membersDiv.appendChild(logDiv);
-
-      groupName.onclick = () => {
-        membersDiv.style.display = membersDiv.style.display === 'block' ? 'none' : 'block';
-      };
+        (group.logs && group.logs.length > 0 ? group.logs.join('<br>') : 'No logs available.');
 
       groupDiv.appendChild(groupName);
       groupDiv.appendChild(deleteBtn);
       groupDiv.appendChild(membersDiv);
+      groupDiv.appendChild(logDiv);
       container.appendChild(groupDiv);
     });
   }
 
-  // Function to add payment to a person
-  function addPayment(groupIdx, personIdx) {
+  // Add payment to a person
+  function addPayment(groupIndex, personId) {
     const groups = JSON.parse(localStorage.getItem('groups'));
-    const person = groups[groupIdx].people[personIdx];
-    const totalDue = person.ticketPrice * person.qty;
-    const currentPaid = person.paid;
+    const group = groups[groupIndex];
+    const person = group.people.find(p => p.id === personId);
+    const payment = parseFloat(prompt("Enter payment amount:"));
 
-    const amount = parseFloat(prompt("Enter amount to add:"));
-
-    if (!isNaN(amount)) {
-      if (currentPaid + amount > totalDue) {
-        alert(`Payment exceeds the total amount due (₱${totalDue}). Current Paid: ₱${currentPaid}`);
-      } else {
-        person.paid += amount;
-        addLog(groups[groupIdx], `Added ₱${amount} payment for ${person.name}`);
-        saveGroups(groups);
-        renderGroupTransactions();
-      }
-    }
-  }
-
-  // Function to add tickets to a person
-  function addTicket(groupIdx, personIdx) {
-    const groups = JSON.parse(localStorage.getItem('groups'));
-    const qty = parseInt(prompt("Enter ticket quantity:"));
-    if (!isNaN(qty)) {
-      groups[groupIdx].people[personIdx].qty += qty;
-      addLog(groups[groupIdx], `Added ${qty} ticket(s) to ${groups[groupIdx].people[personIdx].name}`);
+    if (payment && payment > 0) {
+      person.paid += payment;
+      addLog(group, `${person.name} made a payment of ₱${payment}`);
       saveGroups(groups);
       renderGroupTransactions();
     }
   }
 
-  // Function to edit a person's details
-  function editPerson(groupIdx, personIdx) {
+  // Add ticket to a person
+  function addTicket(groupIndex, personId) {
     const groups = JSON.parse(localStorage.getItem('groups'));
-    const person = groups[groupIdx].people[personIdx];
+    const group = groups[groupIndex];
+    const person = group.people.find(p => p.id === personId);
+    const ticketQty = parseInt(prompt("Enter ticket quantity:"));
 
-    const name = prompt("Name:", person.name);
-    const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
-    const qty = parseInt(prompt("Quantity:", person.qty));
-    const paid = parseFloat(prompt("Paid:", person.paid));
-
-    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
-      groups[groupIdx].people[personIdx] = { name, ticketPrice, qty, paid };
-      addLog(groups[groupIdx], `Edited person: ${name}`);
+    if (ticketQty && ticketQty > 0) {
+      person.qty += ticketQty;
+      addLog(group, `${person.name} added ${ticketQty} more tickets.`);
       saveGroups(groups);
       renderGroupTransactions();
     }
   }
 
-  // Function to delete a person from the group
-  function deletePerson(groupIdx, personIdx) {
+  // Edit a person's info
+  function editPerson(groupIndex, personId) {
     const groups = JSON.parse(localStorage.getItem('groups'));
-    const name = groups[groupIdx].people[personIdx].name;
-    groups[groupIdx].people.splice(personIdx, 1);
-    addLog(groups[groupIdx], `Deleted person: ${name}`);
-    saveGroups(groups);
-    renderGroupTransactions();
+    const group = groups[groupIndex];
+    const person = group.people.find(p => p.id === personId);
+    
+    const name = prompt("Edit name:", person.name);
+    const ticketPrice = parseFloat(prompt("Edit ticket price:", person.ticketPrice));
+    const qty = parseInt(prompt("Edit quantity:", person.qty));
+    
+    if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
+      person.name = name;
+      person.ticketPrice = ticketPrice;
+      person.qty = qty;
+      addLog(group, `Edited ${person.name}'s info (₱${ticketPrice} × ${qty}).`);
+      saveGroups(groups);
+      renderGroupTransactions();
+    }
   }
 
+  // Delete a person from the group
+  function deletePerson(groupIndex, personId) {
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    const group = groups[groupIndex];
+    const personIndex = group.people.findIndex(p => p.id === personId);
+
+    if (personIndex !== -1) {
+      const deletedPerson = group.people.splice(personIndex, 1)[0];
+      addLog(group, `Deleted person: ${deletedPerson.name}`);
+      saveGroups(groups);
+      renderGroupTransactions();
+    }
+  }
+
+  // Backup data
   function backupData() {
-  window.location.href = 'backup.html';
-}
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const blob = new Blob([JSON.stringify(groups)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'backup.json';
+    link.click();
+  }
 
-
-  document.addEventListener('DOMContentLoaded', renderGroupTransactions);
+  // Initial render
+  renderGroupTransactions();
 </script>
-
 </body>
 </html>
