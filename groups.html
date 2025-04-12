@@ -15,27 +15,67 @@
   color: #f1f5f9;
   backdrop-filter: blur(4px);
 }
-
 .navbar {
   background-color: #1e293b;
-  padding: 18px;
+  padding: 18px 20px;
   text-align: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .navbar a {
   color: #f9fafb;
   text-decoration: none;
   padding: 12px 20px;
-  margin: 0 10px;
+  margin: 0 15px;
   transition: all 0.3s ease;
   border-radius: 8px;
   font-weight: 500;
+  text-transform: uppercase;
 }
 
 .navbar a:hover {
   background-color: #3b82f6;
   transform: scale(1.05);
+  color: #ffffff;
+}
+
+.search-container {
+  position: relative;
+}
+
+#searchInput {
+  padding: 8px;
+  font-size: 16px;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+#searchResults {
+  position: absolute;
+  top: 35px;
+  width: 200px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#searchResults li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#searchResults li:hover {
+  background-color: #f1f1f1;
 }
 
 .container {
@@ -254,11 +294,16 @@ h2 {
 </head>
 <body>
 
-<div class="navbar">
-  <a href="index.html">Home</a>
-  <a href="groups.html">Groups</a>
-  <a href="person.html">Persons</a>
-</div>
+  <div class="navbar">
+    <a href="index.html">Home</a>
+    <a href="groups.html">Groups</a>
+    <a href="person.html">Persons</a>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search by Reference Code..." oninput="searchPerson()">
+      <ul id="searchResults" class="dropdown-content"></ul>
+    </div>
+  </div>
+  
 
 <div class="container">
   <h2>Group Transactions</h2>
@@ -433,7 +478,55 @@ h2 {
       container.appendChild(groupDiv);
     });
   }
+  // Function to handle search input and filter persons by reference code
+function searchPerson() {
+  const searchInput = document.getElementById('searchInput').value.toLowerCase();
+  const searchResults = document.getElementById('searchResults');
+  const groups = JSON.parse(localStorage.getItem('groups')) || [];
   
+  searchResults.innerHTML = ''; // Clear previous search results
+  
+  if (searchInput) {
+    // Iterate through all groups and their members
+    groups.forEach((group, groupIndex) => {
+      group.people.forEach((person, personIndex) => {
+        if (person.referenceCode.toLowerCase().includes(searchInput)) {
+          // If the reference code matches, show in the search results dropdown
+          const resultItem = document.createElement('li');
+          resultItem.textContent = `${person.name} (Ref: ${person.referenceCode})`;
+          resultItem.onclick = () => navigateToPerson(groupIndex, personIndex);
+          searchResults.appendChild(resultItem);
+        }
+      });
+    });
+    
+    // Show the search results dropdown
+    searchResults.style.display = searchResults.children.length > 0 ? 'block' : 'none';
+  } else {
+    // Hide the dropdown if input is empty
+    searchResults.style.display = 'none';
+  }
+}
+
+// Function to navigate to the person's location in the group transactions page
+function navigateToPerson(groupIndex, personIndex) {
+  const groups = JSON.parse(localStorage.getItem('groups')) || [];
+  const group = groups[groupIndex];
+  const person = group.people[personIndex];
+  
+  // Scroll to the specific person in the group
+  const personElement = document.getElementById(`person-${groupIndex}-${personIndex}`);
+  if (personElement) {
+    personElement.scrollIntoView({ behavior: 'smooth' });
+  }
+  
+  // Optionally, you can add more actions here, like highlighting the person's div.
+  alert(`Navigating to ${person.name}'s location.`);
+  
+  // Close the search results dropdown
+  document.getElementById('searchResults').style.display = 'none';
+}
+
   function addPayment(groupIdx, personIdx) {
     const groups = JSON.parse(localStorage.getItem('groups'));
     const person = groups[groupIdx].people[personIdx];
