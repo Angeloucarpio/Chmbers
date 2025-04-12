@@ -321,34 +321,24 @@ h2 {
   function generateReferenceCode() {
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const numbers = '0123456789';
-  
-    // Generate a 1-letter prefix
     const letter = letters.charAt(Math.floor(Math.random() * letters.length));
-  
-    // Generate a 2-digit number
     const num1 = Math.floor(Math.random() * 10);
     const num2 = Math.floor(Math.random() * 10);
-  
-    // Generate a 2-letter suffix
     const letter2 = letters.charAt(Math.floor(Math.random() * letters.length));
     const letter3 = letters.charAt(Math.floor(Math.random() * letters.length));
-  
-    // Generate a 1-digit suffix
     const num3 = Math.floor(Math.random() * 10);
-  
-    // Combine into the desired format
     return `${letter}${num1}${num2}${letter2}${letter3}${num3}`;
   }
   
-  // Add a log message to the group transaction log with date and time
+  // Add a log message to the group transaction log
   function addLog(group, message) {
     const now = new Date();
-    const timestamp = now.toLocaleString();  // Get the current date and time
+    const timestamp = now.toLocaleString();
     if (!group.logs) group.logs = [];
     group.logs.unshift(`[${timestamp}] ${message}`);
   }
   
-  // Render all groups with their members and transactions
+  // Render all groups and members
   function renderGroupTransactions() {
     const container = document.getElementById('groupTransactions');
     const groups = JSON.parse(localStorage.getItem('groups')) || [];
@@ -362,12 +352,11 @@ h2 {
       groupName.classList.add('group-name');
       groupName.textContent = group.name;
   
-      // Delete button
       const deleteBtn = document.createElement('button');
       deleteBtn.classList.add('delete-group');
       deleteBtn.textContent = 'Delete Group';
       deleteBtn.onclick = () => {
-        if (confirm(`Are you sure you want to delete group "${group.name}"?`)) {
+        if (confirm(`Delete group "${group.name}"?`)) {
           groups.splice(groupIndex, 1);
           saveGroups(groups);
           renderGroupTransactions();
@@ -384,14 +373,13 @@ h2 {
         const total = person.ticketPrice * person.qty;
         const balance = total - person.paid;
         const status = balance <= 0 ? `<span class="paid">Paid</span>` : `<span class="balance">Pending: ₱${balance}</span>`;
-  
         totalPaid += person.paid;
         totalExpected += total;
   
         const memberDiv = document.createElement('div');
         memberDiv.classList.add('member');
+        memberDiv.id = `person-${groupIndex}-${personIndex}`;
   
-        // Dropdown for reference code
         const personDropdown = document.createElement('details');
         const summary = document.createElement('summary');
         summary.innerHTML = `${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}`;
@@ -402,7 +390,6 @@ h2 {
         personDropdown.appendChild(summary);
         personDropdown.appendChild(ref);
   
-        // Actions
         const actions = document.createElement('div');
         actions.classList.add('actions');
   
@@ -454,7 +441,7 @@ h2 {
   
         if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
           group.people.push({ name, ticketPrice, qty, paid, referenceCode });
-          addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid}, Reference: ${referenceCode})`);
+          addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid}, Ref: ${referenceCode})`);
           saveGroups(groups);
           renderGroupTransactions();
         } else {
@@ -466,7 +453,7 @@ h2 {
       const logDiv = document.createElement('div');
       logDiv.classList.add('log');
       logDiv.innerHTML = `<strong>Transaction Log:</strong><br>` +
-        (group.logs && group.logs.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
+        (group.logs?.length ? group.logs.join('<br>') : '<em>No logs yet.</em>');
       membersDiv.appendChild(logDiv);
   
       groupName.onclick = () => {
@@ -479,55 +466,43 @@ h2 {
       container.appendChild(groupDiv);
     });
   }
-  // Function to handle search input and filter persons by reference code
-function searchPerson() {
-  const searchInput = document.getElementById('searchInput').value.toLowerCase();
-  const searchResults = document.getElementById('searchResults');
-  const groups = JSON.parse(localStorage.getItem('groups')) || [];
   
-  searchResults.innerHTML = ''; // Clear previous search results
+  // Navigate to a specific person in the DOM
+  function navigateToPerson(groupIndex, personIndex) {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const person = groups[groupIndex]?.people[personIndex];
+    const personElement = document.getElementById(`person-${groupIndex}-${personIndex}`);
+    if (personElement && person) {
+      personElement.scrollIntoView({ behavior: 'smooth' });
+      alert(`Navigating to ${person.name}'s location.`);
+      document.getElementById('searchResults').style.display = 'none';
+    }
+  }
   
-  if (searchInput) {
-    // Iterate through all groups and their members
-    groups.forEach((group, groupIndex) => {
-      group.people.forEach((person, personIndex) => {
-        if (person.referenceCode.toLowerCase().includes(searchInput)) {
-          // If the reference code matches, show in the search results dropdown
-          const resultItem = document.createElement('li');
-          resultItem.textContent = `${person.name} (Ref: ${person.referenceCode})`;
-          resultItem.onclick = () => navigateToPerson(groupIndex, personIndex);
-          searchResults.appendChild(resultItem);
-        }
+  // Search persons by reference code
+  function searchPerson() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const searchResults = document.getElementById('searchResults');
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    searchResults.innerHTML = '';
+  
+    if (input) {
+      groups.forEach((group, groupIndex) => {
+        group.people.forEach((person, personIndex) => {
+          if (person.referenceCode?.toLowerCase().includes(input)) {
+            const li = document.createElement('li');
+            li.textContent = `${person.name} (Ref: ${person.referenceCode})`;
+            li.onclick = () => navigateToPerson(groupIndex, personIndex);
+            searchResults.appendChild(li);
+          }
+        });
       });
-    });
-    
-    // Show the search results dropdown
-    searchResults.style.display = searchResults.children.length > 0 ? 'block' : 'none';
-  } else {
-    // Hide the dropdown if input is empty
-    searchResults.style.display = 'none';
-  }
-}
-
-// Function to navigate to the person's location in the group transactions page
-function navigateToPerson(groupIndex, personIndex) {
-  const groups = JSON.parse(localStorage.getItem('groups')) || [];
-  const group = groups[groupIndex];
-  const person = group.people[personIndex];
-  
-  // Scroll to the specific person in the group
-  const personElement = document.getElementById(`person-${groupIndex}-${personIndex}`);
-  if (personElement) {
-    personElement.scrollIntoView({ behavior: 'smooth' });
+      searchResults.style.display = searchResults.children.length ? 'block' : 'none';
+    } else {
+      searchResults.style.display = 'none';
+    }
   }
   
-  // Optionally, you can add more actions here, like highlighting the person's div.
-  alert(`Navigating to ${person.name}'s location.`);
-  
-  // Close the search results dropdown
-  document.getElementById('searchResults').style.display = 'none';
-}
-
   function addPayment(groupIdx, personIdx) {
     const groups = JSON.parse(localStorage.getItem('groups'));
     const person = groups[groupIdx].people[personIdx];
@@ -537,7 +512,7 @@ function navigateToPerson(groupIndex, personIndex) {
   
     if (!isNaN(amount) && amount > 0) {
       if (currentPaid + amount > totalDue) {
-        alert(`Payment exceeds the total amount due (₱${totalDue}). Current Paid: ₱${currentPaid}`);
+        alert(`Payment exceeds total due (₱${totalDue}). Current Paid: ₱${currentPaid}`);
       } else {
         person.paid += amount;
         addLog(groups[groupIdx], `Added ₱${amount} payment for ${person.name}`);
@@ -558,7 +533,7 @@ function navigateToPerson(groupIndex, personIndex) {
       saveGroups(groups);
       renderGroupTransactions();
     } else {
-      alert('Please enter a valid ticket quantity.');
+      alert('Please enter a valid quantity.');
     }
   }
   
@@ -570,43 +545,32 @@ function navigateToPerson(groupIndex, personIndex) {
     const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
     const qty = parseInt(prompt("Quantity:", person.qty));
     const paid = parseFloat(prompt("Paid:", person.paid));
-    const reference = prompt("Reference Code:", person.referenceCode);  // Prompt for reference code
+    const reference = prompt("Reference Code:", person.referenceCode);
   
     if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid) && reference) {
       person.name = name;
       person.ticketPrice = ticketPrice;
       person.qty = qty;
       person.paid = paid;
-      person.referenceCode = reference;  // Update the reference code
-      
-      addLog(groups[groupIdx], `Edited person: ${name} with reference code: ${reference}`);
-      
-      // Save the updated groups back to localStorage
-      localStorage.setItem('groups', JSON.stringify(groups));
-      
-      renderGroupTransactions();  // Re-render the transactions to reflect the updated info
+      person.referenceCode = reference;
+      addLog(groups[groupIdx], `Edited ${name} (Ref: ${reference})`);
+      saveGroups(groups);
+      renderGroupTransactions();
     } else {
-      alert('Please provide valid information for the person.');
+      alert('Invalid input.');
     }
   }
   
   function deletePerson(groupIdx, personIdx) {
     const groups = JSON.parse(localStorage.getItem('groups'));
     const name = groups[groupIdx].people[personIdx].name;
-  
-    if (confirm(`Are you sure you want to delete person "${name}"?`)) {
+    if (confirm(`Delete ${name}?`)) {
       groups[groupIdx].people.splice(personIdx, 1);
-      addLog(groups[groupIdx], `Deleted person: ${name}`);
-      localStorage.setItem('groups', JSON.stringify(groups));
+      addLog(groups[groupIdx], `Deleted ${name}`);
+      saveGroups(groups);
       renderGroupTransactions();
     }
   }
-  
-  function backupData() {
-    window.location.href = 'backup.html';
-  }
-  
-  document.addEventListener('DOMContentLoaded', renderGroupTransactions);
-</script> 
+  </script>  
 </body>
 </html>
