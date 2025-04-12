@@ -196,7 +196,6 @@
       alert("Please enter valid group and people details.");
     }
   }
-
   function savePerson() {
   const name = document.getElementById('personName').value.trim();
   const ticketPrice = parseFloat(document.getElementById('personTicketPrice').value);
@@ -204,16 +203,20 @@
 
   if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
     const referenceCode = generateReferenceCode(); 
-    const addedOn = new Date().toLocaleString();  // ✅ use addedOn instead of dateAdded
+    const addedOn = new Date().toLocaleString();
     const person = { name, ticketPrice, qty, paid: 0, referenceCode, addedOn }; 
+
     const persons = JSON.parse(localStorage.getItem('persons')) || [];
     persons.push(person);
     localStorage.setItem('persons', JSON.stringify(persons));
+
     alert('Person saved successfully!');
+    window.location.href = 'person.html'; // ✅ Redirect to person.html after success
   } else {
     alert("Please enter valid person details.");
   }
 }
+
 </script>
 
 </body>
