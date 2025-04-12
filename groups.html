@@ -334,14 +334,6 @@ h2 {
 
       let totalPaid = 0, totalExpected = 0;
 
-      // Create a search bar for reference codes
-      const searchBar = document.createElement('input');
-      searchBar.setAttribute('type', 'text');
-      searchBar.setAttribute('placeholder', 'Search by Reference Code');
-      searchBar.addEventListener('input', (event) => filterMembers(group, event.target.value));
-
-      group.membersSearchTerm = ''; // Add a property to track the current search term
-
       group.people.forEach((person, personIndex) => {
         const total = person.ticketPrice * person.qty;
         const balance = total - person.paid;
@@ -352,7 +344,6 @@ h2 {
 
         const memberDiv = document.createElement('div');
         memberDiv.classList.add('member');
-        memberDiv.style.display = person.reference.includes(group.membersSearchTerm) ? 'block' : 'none'; // Show or hide based on search
 
         // Dropdown for reference code
         const personDropdown = document.createElement('details');
@@ -438,16 +429,9 @@ h2 {
 
       groupDiv.appendChild(groupName);
       groupDiv.appendChild(deleteBtn);
-      groupDiv.appendChild(searchBar);  // Append the search bar to the group
       groupDiv.appendChild(membersDiv);
       container.appendChild(groupDiv);
     });
-  }
-
-  // Function to filter members by reference code
-  function filterMembers(group, searchTerm) {
-    group.membersSearchTerm = searchTerm; // Store the current search term
-    renderGroupTransactions();
   }
 
   function addPayment(groupIdx, personIdx) {
