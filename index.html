@@ -198,22 +198,22 @@
   }
 
   function savePerson() {
-    const name = document.getElementById('personName').value.trim();
-    const ticketPrice = parseFloat(document.getElementById('personTicketPrice').value);
-    const qty = parseInt(document.getElementById('personTicketQty').value);
+  const name = document.getElementById('personName').value.trim();
+  const ticketPrice = parseFloat(document.getElementById('personTicketPrice').value);
+  const qty = parseInt(document.getElementById('personTicketQty').value);
 
-    if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-      const referenceCode = generateReferenceCode(); 
-      const dateAdded = new Date().toLocaleString(); 
-      const person = { name, ticketPrice, qty, paid: 0, referenceCode, dateAdded }; 
-      const persons = JSON.parse(localStorage.getItem('persons')) || [];
-      persons.push(person);
-      localStorage.setItem('persons', JSON.stringify(persons));
-      alert('Person saved successfully!');
-    } else {
-      alert("Please enter valid person details.");
-    }
+  if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
+    const referenceCode = generateReferenceCode(); 
+    const addedOn = new Date().toLocaleString();  // ✅ use addedOn instead of dateAdded
+    const person = { name, ticketPrice, qty, paid: 0, referenceCode, addedOn }; 
+    const persons = JSON.parse(localStorage.getItem('persons')) || [];
+    persons.push(person);
+    localStorage.setItem('persons', JSON.stringify(persons));
+    alert('Person saved successfully!');
+  } else {
+    alert("Please enter valid person details.");
   }
+}
 </script>
 
 </body>
