@@ -493,11 +493,11 @@ function editPerson(groupIdx, personIdx) {
 function deletePerson(groupIdx, personIdx) {
   const groups = JSON.parse(localStorage.getItem('groups'));
   const name = groups[groupIdx].people[personIdx].name;
-  
+
   if (confirm(`Are you sure you want to delete person "${name}"?`)) {
     groups[groupIdx].people.splice(personIdx, 1);
     addLog(groups[groupIdx], `Deleted person: ${name}`);
-    saveGroups(groups);
+    localStorage.setItem('groups', JSON.stringify(groups));
     renderGroupTransactions();
   }
 }

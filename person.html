@@ -363,14 +363,18 @@
         logTransaction(`${person.name} updated`);
       }
     }
-
     function deletePerson(index) {
-      const persons = JSON.parse(localStorage.getItem('persons')) || [];
-      const deleted = persons.splice(index, 1);
-      localStorage.setItem('persons', JSON.stringify(persons));
-      renderPersonTransactions();
-      logTransaction(`${deleted[0].name} deleted`);
-    }
+  const persons = JSON.parse(localStorage.getItem('persons')) || [];
+  const deleted = persons[index];
+
+  if (confirm(`Are you sure you want to delete "${deleted.name}"? This cannot be undone.`)) {
+    persons.splice(index, 1);
+    localStorage.setItem('persons', JSON.stringify(persons));
+    renderPersonTransactions();
+    logTransaction(`${deleted.name} deleted`);
+  }
+}
+
 
     renderPersonTransactions();
   </script>

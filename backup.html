@@ -116,13 +116,18 @@
     }
 
     function deleteBackup() {
-      if (confirm("Are you sure you want to delete both the groups and persons backup data? This cannot be undone.")) {
-        localStorage.removeItem('groups');
-        localStorage.removeItem('persons');
-        document.getElementById('groupsBackup').textContent = "No groups data available.";
-        document.getElementById('personsBackup').textContent = "No persons data available.";
-      }
-    }
+  if (confirm("Are you sure you want to delete the backup data? This cannot be undone.")) {
+    localStorage.removeItem('groups_backup');
+    localStorage.removeItem('persons_backup');
+    const groupsEl = document.getElementById('groupsBackup');
+    const personsEl = document.getElementById('personsBackup');
+    if (groupsEl) groupsEl.textContent = "No backup data available.";
+    if (personsEl) personsEl.textContent = "No backup data available.";
+    
+    alert("Backup data has been deleted.");
+  }
+}
+
   </script>
 
 </body>
