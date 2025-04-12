@@ -266,247 +266,126 @@ h2 {
   <button class="backup-btn" onclick="backupData()">Backup Data</button>
 </div>
 <script>
+  // Generate a random reference code for each person
+  function generateReferenceCode() {
+    return 'REF-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  }
 
-function saveGroups(groups) {
-  localStorage.setItem('groups', JSON.stringify(groups));
-}
+  // Render all persons' transactions from localStorage
+  function renderPersonTransactions() {
+    const container = document.getElementById('personTransactions');
+    const persons = JSON.parse(localStorage.getItem('persons')) || [];
 
-
-function generateReferenceCode() {
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const numbers = '0123456789';
-
-
-  const letter = letters.charAt(Math.floor(Math.random() * letters.length));
-
-
-  const num1 = Math.floor(Math.random() * 10);
-  const num2 = Math.floor(Math.random() * 10);
-
-
-  const letter2 = letters.charAt(Math.floor(Math.random() * letters.length));
-  const letter3 = letters.charAt(Math.floor(Math.random() * letters.length));
-
- 
-  const num3 = Math.floor(Math.random() * 10);
-
-  
-  return `${letter}${num1}${num2}${letter2}${letter3}${num3}`;
-}
-
-
-function addLog(group, message) {
-  const now = new Date();
-  const timestamp = now.toLocaleString();  
-  if (!group.logs) group.logs = [];
-  group.logs.unshift(`[${timestamp}] ${message}`);
-}
-
-
-function renderGroupTransactions() {
-  const container = document.getElementById('groupTransactions');
-  const groups = JSON.parse(localStorage.getItem('groups')) || [];
-  container.innerHTML = '';
-
-  groups.forEach((group, groupIndex) => {
-    const groupDiv = document.createElement('div');
-    groupDiv.classList.add('group');
-
-    const groupName = document.createElement('div');
-    groupName.classList.add('group-name');
-    groupName.textContent = group.name;
-
-  
-    const deleteBtn = document.createElement('button');
-    deleteBtn.classList.add('delete-group');
-    deleteBtn.textContent = 'Delete Group';
-    deleteBtn.onclick = () => {
-      if (confirm(`Are you sure you want to delete group "${group.name}"?`)) {
-        groups.splice(groupIndex, 1);
-        saveGroups(groups);
-        renderGroupTransactions();
-      }
-    };
-
-    const membersDiv = document.createElement('div');
-    membersDiv.classList.add('members');
-    membersDiv.style.display = 'none';
-
-    let totalPaid = 0, totalExpected = 0;
-
-    group.people.forEach((person, personIndex) => {
+    container.innerHTML = persons.map((person, index) => {
       const total = person.ticketPrice * person.qty;
       const balance = total - person.paid;
-      const status = balance <= 0 ? `<span class="paid">Paid</span>` : `<span class="balance">Pending: ₱${balance}</span>`;
+      const status = balance <= 0
+        ? `<span class="paid">Fully Paid</span>`
+        : `<span class="balance">Pending: ₱${balance}</span>`;
 
-      totalPaid += person.paid;
-      totalExpected += total;
+      return `
+        <div class="person">
+          <div class="person-name">${person.name} (Reference: ${person.referenceCode || 'N/A'})</div>
+          <div class="info-line">Ticket: ₱${person.ticketPrice} × ${person.qty} = ₱${total}</div>
+          <div class="info-line">Paid: ₱${person.paid}</div>
+          <div class="info-line">${status}</div>
 
-      const memberDiv = document.createElement('div');
-      memberDiv.classList.add('member');
-
-      const personDropdown = document.createElement('details');
-      const summary = document.createElement('summary');
-      summary.innerHTML = `${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}`;
-      const ref = document.createElement('div');
-      ref.textContent = `Reference Code: ${person.referenceCode || 'N/A'}`;
-      ref.style.marginTop = '5px';
-
-      personDropdown.appendChild(summary);
-      personDropdown.appendChild(ref);
-
-   
-      const actions = document.createElement('div');
-      actions.classList.add('actions');
-
-      const dropdown = document.createElement('div');
-      dropdown.classList.add('dropdown');
-      const plusBtn = document.createElement('button');
-      plusBtn.textContent = '＋';
-      const dropdownContent = document.createElement('div');
-      dropdownContent.classList.add('dropdown-content');
-      dropdownContent.innerHTML = `
-        <button onclick="addPayment(${groupIndex}, ${personIndex})">Add Payment</button>
-        <button onclick="addTicket(${groupIndex}, ${personIndex})">Add Ticket</button>
+          <div class="actions">
+            <div class="dropdown">
+              <button>＋</button>
+              <div class="dropdown-content">
+                <button onclick="addPayment(${index})">Add Payment</button>
+                <button onclick="addTicket(${index})">Add Ticket</button>
+              </div>
+            </div>
+            <button class="edit-btn" onclick="editPerson(${index})">✏️ Edit</button>
+            <button class="delete-btn" onclick="deletePerson(${index})">🗑️ Delete</button>
+          </div>
+        </div>
       `;
-      dropdown.appendChild(plusBtn);
-      dropdown.appendChild(dropdownContent);
+    }).join('');
+  }
 
-      const editBtn = document.createElement('button');
-      editBtn.innerHTML = '✏️';
-      editBtn.onclick = () => editPerson(groupIndex, personIndex);
+  // Log transactions to a log container
+  function logTransaction(text) {
+    const logBox = document.getElementById('log');
+    const timestamp = new Date().toLocaleString();
+    const entry = document.createElement('div');
+    entry.textContent = `[${timestamp}] ${text}`;
+    logBox.prepend(entry);
+  }
 
-      const deleteBtn = document.createElement('button');
-      deleteBtn.innerHTML = '🗑️';
-      deleteBtn.onclick = () => deletePerson(groupIndex, personIndex);
+  // Add a new person to the list
+  function addPerson() {
+    const name = prompt("Enter name:");
+    const ticketPrice = parseFloat(prompt("Ticket price:"));
+    const qty = parseInt(prompt("Ticket quantity:"));
+    const paid = parseFloat(prompt("Amount paid:"));
 
-      actions.appendChild(dropdown);
-      actions.appendChild(editBtn);
-      actions.appendChild(deleteBtn);
-
-      memberDiv.appendChild(personDropdown);
-      memberDiv.appendChild(actions);
-      membersDiv.appendChild(memberDiv);
-    });
-
-    const overall = document.createElement('div');
-    overall.classList.add('overall');
-    const overallBalance = totalExpected - totalPaid;
-    overall.innerHTML = `Total Expected: ₱${totalExpected}, Total Paid: ₱${totalPaid}, <span class="${overallBalance <= 0 ? 'paid' : 'balance'}">${overallBalance <= 0 ? 'Fully Paid' : `Pending: ₱${overallBalance}`}</span>`;
-    membersDiv.appendChild(overall);
-
-    const addPerson = document.createElement('div');
-    addPerson.classList.add('add-person');
-    addPerson.textContent = '+ Add Person';
-    addPerson.onclick = () => {
-      const name = prompt("Name:");
-      const ticketPrice = parseFloat(prompt("Ticket Price:"));
-      const qty = parseInt(prompt("Quantity:"));
-      const paid = parseFloat(prompt("Paid:")) || 0;
+    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
       const referenceCode = generateReferenceCode();
-
-      if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-        group.people.push({ name, ticketPrice, qty, paid, referenceCode });
-        addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid}, Reference: ${referenceCode})`);
-        saveGroups(groups);
-        renderGroupTransactions();
-      } else {
-        alert('Please provide valid information for the new person.');
-      }
-    };
-    membersDiv.appendChild(addPerson);
-
-    const logDiv = document.createElement('div');
-    logDiv.classList.add('log');
-    logDiv.innerHTML = `<strong>Transaction Log:</strong><br>` +
-      (group.logs && group.logs.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
-    membersDiv.appendChild(logDiv);
-
-    groupName.onclick = () => {
-      membersDiv.style.display = membersDiv.style.display === 'block' ? 'none' : 'block';
-    };
-
-    groupDiv.appendChild(groupName);
-    groupDiv.appendChild(deleteBtn);
-    groupDiv.appendChild(membersDiv);
-    container.appendChild(groupDiv);
-  });
-}
-
-function addPayment(groupIdx, personIdx) {
-  const groups = JSON.parse(localStorage.getItem('groups'));
-  const person = groups[groupIdx].people[personIdx];
-  const totalDue = person.ticketPrice * person.qty;
-  const currentPaid = person.paid;
-  const amount = parseFloat(prompt("Enter amount to add:"));
-
-  if (!isNaN(amount) && amount > 0) {
-    if (currentPaid + amount > totalDue) {
-      alert(`Payment exceeds the total amount due (₱${totalDue}). Current Paid: ₱${currentPaid}`);
-    } else {
-      person.paid += amount;
-      addLog(groups[groupIdx], `Added ₱${amount} payment for ${person.name}`);
-      saveGroups(groups);
-      renderGroupTransactions();
+      const persons = JSON.parse(localStorage.getItem('persons')) || [];
+      persons.push({ name, ticketPrice, qty, paid, referenceCode });
+      localStorage.setItem('persons', JSON.stringify(persons));
+      renderPersonTransactions();
+      logTransaction(`${name} added with ${qty} ticket(s) at ₱${ticketPrice} each, Paid: ₱${paid}, Reference Code: ${referenceCode}`);
     }
-  } else {
-    alert('Please enter a valid amount.');
   }
-}
 
-function addTicket(groupIdx, personIdx) {
-  const groups = JSON.parse(localStorage.getItem('groups'));
-  const qty = parseInt(prompt("Enter ticket quantity:"));
-  if (!isNaN(qty) && qty > 0) {
-    groups[groupIdx].people[personIdx].qty += qty;
-    addLog(groups[groupIdx], `Added ${qty} ticket(s) to ${groups[groupIdx].people[personIdx].name}`);
-    saveGroups(groups);
-    renderGroupTransactions();
-  } else {
-    alert('Please enter a valid ticket quantity.');
+  // Add a payment to an existing person
+  function addPayment(index) {
+    const persons = JSON.parse(localStorage.getItem('persons')) || [];
+    const amount = parseFloat(prompt("Enter payment amount:"));
+    if (!isNaN(amount)) {
+      persons[index].paid += amount;
+      localStorage.setItem('persons', JSON.stringify(persons));
+      renderPersonTransactions();
+      logTransaction(`${persons[index].name} added payment ₱${amount}`);
+    }
   }
-}
 
-function editPerson(groupIdx, personIdx) {
-  const groups = JSON.parse(localStorage.getItem('groups'));
-  const person = groups[groupIdx].people[personIdx];
-
-  const name = prompt("Name:", person.name);
-  const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
-  const qty = parseInt(prompt("Quantity:", person.qty));
-  const paid = parseFloat(prompt("Paid:", person.paid));
-
-  if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
-    person.name = name;
-    person.ticketPrice = ticketPrice;
-    person.qty = qty;
-    person.paid = paid;
-    addLog(groups[groupIdx], `Edited person: ${name}`);
-    saveGroups(groups);
-    renderGroupTransactions();
-  } else {
-    alert('Please provide valid information for the person.');
+  // Add additional tickets to an existing person
+  function addTicket(index) {
+    const persons = JSON.parse(localStorage.getItem('persons')) || [];
+    const qty = parseInt(prompt("Enter additional ticket quantity:"));
+    if (!isNaN(qty)) {
+      persons[index].qty += qty;
+      localStorage.setItem('persons', JSON.stringify(persons));
+      renderPersonTransactions();
+      logTransaction(`${persons[index].name} added ${qty} ticket(s)`);
+    }
   }
-}
 
-function deletePerson(groupIdx, personIdx) {
-  const groups = JSON.parse(localStorage.getItem('groups'));
-  const name = groups[groupIdx].people[personIdx].name;
-  
-  if (confirm(`Are you sure you want to delete person "${name}"?`)) {
-    groups[groupIdx].people.splice(personIdx, 1);
-    addLog(groups[groupIdx], `Deleted person: ${name}`);
-    saveGroups(groups);
-    renderGroupTransactions();
+  // Edit an existing person's details
+  function editPerson(index) {
+    const persons = JSON.parse(localStorage.getItem('persons')) || [];
+    const person = persons[index];
+
+    const name = prompt("Enter new name:", person.name);
+    const ticketPrice = parseFloat(prompt("Enter new ticket price:", person.ticketPrice));
+    const qty = parseInt(prompt("Enter new quantity:", person.qty));
+    const paid = parseFloat(prompt("Enter new amount paid:", person.paid));
+
+    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
+      // Maintain the existing reference code when editing
+      persons[index] = { name, ticketPrice, qty, paid, referenceCode: person.referenceCode };
+      localStorage.setItem('persons', JSON.stringify(persons));
+      renderPersonTransactions();
+      logTransaction(`${person.name} updated`);
+    }
   }
-}
 
+  // Delete a person from the list
+  function deletePerson(index) {
+    const persons = JSON.parse(localStorage.getItem('persons')) || [];
+    const deleted = persons.splice(index, 1);
+    localStorage.setItem('persons', JSON.stringify(persons));
+    renderPersonTransactions();
+    logTransaction(`${deleted[0].name} deleted`);
+  }
 
-function backupData() {
-  window.location.href = 'backup.html';
-}
-
-document.addEventListener('DOMContentLoaded', renderGroupTransactions);
+  // Initially render all person transactions
+  renderPersonTransactions();
 </script>
 </body>
 </html>
