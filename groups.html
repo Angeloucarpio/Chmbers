@@ -275,7 +275,6 @@ function saveGroups(groups) {
 function generateReferenceCode() {
   return 'REF-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
 }
-
 // Add a log message to the group transaction log
 function addLog(group, message) {
   const now = new Date();
