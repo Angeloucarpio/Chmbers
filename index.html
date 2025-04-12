@@ -141,7 +141,6 @@
     <button onclick="savePerson()">Save Person</button>
   </div>
 </div>
-
 <script>
   function generateReferenceCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -175,7 +174,14 @@
       const ticketPrice = parseFloat(entry.querySelector('.ticketPrice').value);
       const qty = parseInt(entry.querySelector('.ticketQty').value);
       if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-        people.push({ name, ticketPrice, qty, paid: 0, referenceCode: generateReferenceCode() });
+        people.push({ 
+          name, 
+          ticketPrice, 
+          qty, 
+          paid: 0, 
+          referenceCode: generateReferenceCode(),
+          dateAdded: new Date().toLocaleString() // ✅ Add date added
+        });
       }
     });
 
@@ -197,8 +203,9 @@
     const qty = parseInt(document.getElementById('personTicketQty').value);
 
     if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-      const referenceCode = generateReferenceCode();  // Generate reference code for person
-      const person = { name, ticketPrice, qty, paid: 0, referenceCode };  // Include reference code here
+      const referenceCode = generateReferenceCode(); 
+      const dateAdded = new Date().toLocaleString(); // ✅ Add date added
+      const person = { name, ticketPrice, qty, paid: 0, referenceCode, dateAdded }; // ✅ Use dateAdded
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
       persons.push(person);
       localStorage.setItem('persons', JSON.stringify(persons));
