@@ -15,7 +15,49 @@
   color: #f1f5f9;
   backdrop-filter: blur(4px);
 }
+.search-container {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
 
+    .search-bar {
+      padding: 10px 20px;
+      font-size: 1.1em;
+      border-radius: 8px;
+      border: none;
+      width: 300px;
+      background-color: #f9fafb;
+      color: #111827;
+    }
+
+    .search-bar:focus {
+      outline: none;
+      border: 2px solid #3b82f6;
+    }
+
+    .results {
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      background-color: #f1f5f9;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .result-item {
+      padding: 8px 12px;
+      border-bottom: 1px dashed #cbd5e1;
+      font-size: 0.95em;
+      color: #0f172a;
+      cursor: pointer;
+    }
+
+    .result-item:hover {
+      background-color: #e5e7eb;
+    }
 .navbar {
   background-color: #1e293b;
   padding: 18px;
@@ -258,6 +300,10 @@ h2 {
   <a href="index.html">Home</a>
   <a href="groups.html">Groups</a>
   <a href="person.html">Persons</a>
+  <div class="search-container">
+    <input type="text" id="search" class="search-bar" placeholder="Search by Reference Code" oninput="searchPerson()">
+    <div id="results" class="results"></div>
+  </div>
 </div>
 
 <div class="container">
@@ -506,7 +552,30 @@ h2 {
       renderGroupTransactions();
     }
   }
+  function searchPerson() {
+      const searchQuery = document.getElementById('search').value.trim().toUpperCase();
+      const resultsContainer = document.getElementById('results');
+      resultsContainer.innerHTML = '';  // Clear previous results
 
+      if (searchQuery === '') return;
+
+     
+      const filteredResults = [];  
+
+      if (filteredResults.length > 0) {
+        filteredResults.forEach(result => {
+          const resultDiv = document.createElement('div');
+          resultDiv.classList.add('result-item');
+          resultDiv.textContent = result; 
+          resultsContainer.appendChild(resultDiv);
+        });
+      } else {
+        const noResultDiv = document.createElement('div');
+        noResultDiv.classList.add('result-item');
+        noResultDiv.textContent = 'No results found';
+        resultsContainer.appendChild(noResultDiv);
+      }
+    }
   function backupData() {
     window.location.href = 'backup.html';
   }
