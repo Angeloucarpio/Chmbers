@@ -512,25 +512,32 @@ function searchPerson() {
     searchResults.style.display = 'none';
   }
 }
-
-/// Function to navigate to the person's location in the group transactions page
 function navigateToPerson(groupIndex, personIndex) {
   const groups = JSON.parse(localStorage.getItem('groups')) || [];
   const group = groups[groupIndex];
   const person = group.people[personIndex];
 
-  // Scroll to the specific person in the group
-  const personElement = document.getElementById(`person-${groupIndex}-${personIndex}`);
-  if (personElement) {
-    personElement.scrollIntoView({ behavior: 'smooth' });
+  // Show the group's member section if hidden
+  const groupDivs = document.querySelectorAll('.group');
+  const membersDiv = groupDivs[groupIndex].querySelector('.members');
+  if (membersDiv.style.display !== 'block') {
+    membersDiv.style.display = 'block';
   }
 
-  // Optionally, you can add more actions here, like highlighting the person's div.
-  alert(`Navigating to ${person.name}'s location.`);
 
-  // Close the search results dropdown
+  const personElement = document.getElementById(`person-${groupIndex}-${personIndex}`);
+  if (personElement) {
+    personElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    personElement.style.backgroundColor = '#2b2b3a'; 
+    setTimeout(() => {
+      personElement.style.backgroundColor = '';
+    }, 1000);
+  }
+
   document.getElementById('searchResults').style.display = 'none';
 }
+
 
 
   function addPayment(groupIdx, personIdx) {
