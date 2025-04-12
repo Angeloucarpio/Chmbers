@@ -475,7 +475,7 @@ function editPerson(groupIdx, personIdx) {
   const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
   const qty = parseInt(prompt("Quantity:", person.qty));
   const paid = parseFloat(prompt("Paid:", person.paid));
-  const reference = prompt("Reference Code:", person.reference);  // Prompt for reference code
+  const reference = prompt("Reference Code:", person.reference);
 
   if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid) && reference) {
     person.name = name;
@@ -483,17 +483,28 @@ function editPerson(groupIdx, personIdx) {
     person.qty = qty;
     person.paid = paid;
     person.reference = reference;  // Update the reference code
-    
+
     addLog(groups[groupIdx], `Edited person: ${name} with reference code: ${reference}`);
-    
-    // Save the updated groups back to localStorage
-    localStorage.setItem('groups', JSON.stringify(groups));
-    
-    renderGroupTransactions();  // Re-render the transactions to reflect the updated info
+    localStorage.setItem('groups', JSON.stringify(groups));  // Save changes to localStorage
+    renderGroupTransactions();  // Re-render to reflect updated info
   } else {
     alert('Please provide valid information for the person.');
   }
 }
+
+function renderGroupTransactions() {
+  const groups = JSON.parse(localStorage.getItem('groups'));
+
+  groups.forEach(group => {
+    group.people.forEach(person => {
+      const personElement = document.querySelector(`#person-${person.reference}`);
+      if (personElement) {
+        personElement.querySelector('.reference-code').textContent = person.reference;  // Update the reference code on the UI
+      }
+    });
+  });
+}
+
 
 
 function deletePerson(groupIdx, personIdx) {
