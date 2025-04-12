@@ -337,6 +337,75 @@ h2 {
     group.logs.unshift(`[${timestamp}] ${message}`);
   }
 
+  function addPayment(groupIndex, personIndex) {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const group = groups[groupIndex];
+    const person = group.people[personIndex];
+    const payment = parseFloat(prompt(`Enter payment amount for ${person.name}:`));
+
+    if (!isNaN(payment) && payment > 0) {
+      person.paid += payment;
+      addLog(group, `${person.name} made a payment of ₱${payment}`);
+      saveGroups(groups);
+      renderGroupTransactions();
+    } else {
+      alert('Please enter a valid payment amount.');
+    }
+  }
+
+  function addTicket(groupIndex, personIndex) {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const group = groups[groupIndex];
+    const person = group.people[personIndex];
+    const qty = parseInt(prompt(`Enter additional ticket quantity for ${person.name}:`));
+
+    if (!isNaN(qty) && qty > 0) {
+      person.qty += qty;
+      addLog(group, `${person.name} added ${qty} more tickets.`);
+      saveGroups(groups);
+      renderGroupTransactions();
+    } else {
+      alert('Please enter a valid ticket quantity.');
+    }
+  }
+
+  function editPerson(groupIndex, personIndex) {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const group = groups[groupIndex];
+    const person = group.people[personIndex];
+
+    const name = prompt("Edit name:", person.name);
+    const ticketPrice = parseFloat(prompt("Edit ticket price:", person.ticketPrice));
+    const qty = parseInt(prompt("Edit quantity:", person.qty));
+    const paid = parseFloat(prompt("Edit paid amount:", person.paid));
+
+    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
+      person.name = name;
+      person.ticketPrice = ticketPrice;
+      person.qty = qty;
+      person.paid = paid;
+      person.referenceCode = generateReferenceCode();  // You can update the reference code if needed.
+      addLog(group, `${name}'s details were updated.`);
+      saveGroups(groups);
+      renderGroupTransactions();
+    } else {
+      alert('Please provide valid information to update the person.');
+    }
+  }
+
+  function deletePerson(groupIndex, personIndex) {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const group = groups[groupIndex];
+    const person = group.people[personIndex];
+
+    if (confirm(`Are you sure you want to delete ${person.name}?`)) {
+      group.people.splice(personIndex, 1);
+      addLog(group, `${person.name} was deleted.`);
+      saveGroups(groups);
+      renderGroupTransactions();
+    }
+  }
+
   function renderGroupTransactions() {
     const container = document.getElementById('groupTransactions');
     const groups = JSON.parse(localStorage.getItem('groups')) || [];
