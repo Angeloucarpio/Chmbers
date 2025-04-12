@@ -450,7 +450,7 @@ h2 {
         const ticketPrice = parseFloat(prompt("Ticket Price:"));
         const qty = parseInt(prompt("Quantity:"));
         const paid = parseFloat(prompt("Paid:")) || 0;
-        const referenceCode = generateReferenceCode();
+        const referenceCode = generateReferenceCode();  // Automatically generate reference code
 
         if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
           group.people.push({ name, ticketPrice, qty, paid, reference: referenceCode }); // Correct reference property
@@ -552,35 +552,13 @@ h2 {
       renderGroupTransactions();
     }
   }
-  function searchPerson() {
-      const searchQuery = document.getElementById('search').value.trim().toUpperCase();
-      const resultsContainer = document.getElementById('results');
-      resultsContainer.innerHTML = '';  // Clear previous results
 
-      if (searchQuery === '') return;
-
-     
-      const filteredResults = [];  
-
-      if (filteredResults.length > 0) {
-        filteredResults.forEach(result => {
-          const resultDiv = document.createElement('div');
-          resultDiv.classList.add('result-item');
-          resultDiv.textContent = result; 
-          resultsContainer.appendChild(resultDiv);
-        });
-      } else {
-        const noResultDiv = document.createElement('div');
-        noResultDiv.classList.add('result-item');
-        noResultDiv.textContent = 'No results found';
-        resultsContainer.appendChild(noResultDiv);
-      }
-    }
   function backupData() {
     window.location.href = 'backup.html';
   }
 
   document.addEventListener('DOMContentLoaded', renderGroupTransactions);
 </script>
+
 </body>
 </html>
