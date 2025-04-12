@@ -322,25 +322,33 @@ h2 {
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const numbers = '0123456789';
 
+    // Generate a 1-letter prefix
     const letter = letters.charAt(Math.floor(Math.random() * letters.length));
-    const num1 = numbers.charAt(Math.floor(Math.random() * numbers.length));
-    const num2 = numbers.charAt(Math.floor(Math.random() * numbers.length));
+
+    // Generate a 2-digit number
+    const num1 = Math.floor(Math.random() * 10);
+    const num2 = Math.floor(Math.random() * 10);
+
+    // Generate a 2-letter suffix
     const letter2 = letters.charAt(Math.floor(Math.random() * letters.length));
     const letter3 = letters.charAt(Math.floor(Math.random() * letters.length));
-    const num3 = numbers.charAt(Math.floor(Math.random() * numbers.length));
 
+    // Generate a 1-digit suffix
+    const num3 = Math.floor(Math.random() * 10);
+
+    // Combine into the desired format
     return `${letter}${num1}${num2}${letter2}${letter3}${num3}`;
   }
 
-  // Add a log message to the group transaction log
+  // Add a log message to the group transaction log with date and time
   function addLog(group, message) {
     const now = new Date();
-    const timestamp = now.toLocaleString();
+    const timestamp = now.toLocaleString();  // Get the current date and time
     if (!group.logs) group.logs = [];
     group.logs.unshift(`[${timestamp}] ${message}`);
   }
 
-  // Render all groups and their members
+  // Render all groups with their members and transactions
   function renderGroupTransactions() {
     const container = document.getElementById('groupTransactions');
     const groups = JSON.parse(localStorage.getItem('groups')) || [];
@@ -354,6 +362,7 @@ h2 {
       groupName.classList.add('group-name');
       groupName.textContent = group.name;
 
+      // Delete button
       const deleteBtn = document.createElement('button');
       deleteBtn.classList.add('delete-group');
       deleteBtn.textContent = 'Delete Group';
@@ -371,24 +380,22 @@ h2 {
 
       let totalPaid = 0, totalExpected = 0;
 
-      group.people?.forEach((person, personIndex) => {
+      group.people.forEach((person, personIndex) => {
         const total = person.ticketPrice * person.qty;
         const balance = total - person.paid;
-        const status = balance <= 0
-          ? `<span class="paid">Paid</span>`
-          : `<span class="balance">Pending: ₱${balance}</span>`;
+        const status = balance <= 0 ? `<span class="paid">Paid</span>` : `<span class="balance">Pending: ₱${balance}</span>`;
 
         totalPaid += person.paid;
         totalExpected += total;
 
         const memberDiv = document.createElement('div');
         memberDiv.classList.add('member');
-        memberDiv.id = `person-${groupIndex}-${personIndex}`;
+        memberDiv.id = `person-${groupIndex}-${personIndex}`;  // Assign a unique ID to each person
 
+        // Dropdown for reference code
         const personDropdown = document.createElement('details');
         const summary = document.createElement('summary');
         summary.innerHTML = `${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}`;
-
         const ref = document.createElement('div');
         ref.textContent = `Reference Code: ${person.referenceCode || 'N/A'}`;
         ref.style.marginTop = '5px';
@@ -409,14 +416,12 @@ h2 {
         dropdown.classList.add('dropdown');
         const plusBtn = document.createElement('button');
         plusBtn.textContent = '＋';
-
         const dropdownContent = document.createElement('div');
         dropdownContent.classList.add('dropdown-content');
         dropdownContent.innerHTML = `
           <button onclick="addPayment(${groupIndex}, ${personIndex})">Add Payment</button>
           <button onclick="addTicket(${groupIndex}, ${personIndex})">Add Ticket</button>
         `;
-
         dropdown.appendChild(plusBtn);
         dropdown.appendChild(dropdownContent);
 
@@ -424,30 +429,25 @@ h2 {
         editBtn.innerHTML = '✏️';
         editBtn.onclick = () => editPerson(groupIndex, personIndex);
 
-        const deletePersonBtn = document.createElement('button');
-        deletePersonBtn.innerHTML = '🗑️';
-        deletePersonBtn.onclick = () => deletePerson(groupIndex, personIndex);
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.onclick = () => deletePerson(groupIndex, personIndex);
 
         actions.appendChild(dropdown);
         actions.appendChild(editBtn);
-        actions.appendChild(deletePersonBtn);
+        actions.appendChild(deleteBtn);
 
         memberDiv.appendChild(personDropdown);
         memberDiv.appendChild(actions);
         membersDiv.appendChild(memberDiv);
       });
 
-      // Group summary
       const overall = document.createElement('div');
       overall.classList.add('overall');
       const overallBalance = totalExpected - totalPaid;
-      overall.innerHTML = `Total Expected: ₱${totalExpected}, Total Paid: ₱${totalPaid}, 
-        <span class="${overallBalance <= 0 ? 'paid' : 'balance'}">
-          ${overallBalance <= 0 ? 'Fully Paid' : `Pending: ₱${overallBalance}`}
-        </span>`;
+      overall.innerHTML = `Total Expected: ₱${totalExpected}, Total Paid: ₱${totalPaid}, <span class="${overallBalance <= 0 ? 'paid' : 'balance'}">${overallBalance <= 0 ? 'Fully Paid' : `Pending: ₱${overallBalance}`}</span>`;
       membersDiv.appendChild(overall);
 
-      // Add person
       const addPerson = document.createElement('div');
       addPerson.classList.add('add-person');
       addPerson.textContent = '+ Add Person';
@@ -457,10 +457,9 @@ h2 {
         const qty = parseInt(prompt("Quantity:"));
         const paid = parseFloat(prompt("Paid:")) || 0;
         const referenceCode = generateReferenceCode();
-        const dateAdded = new Date().toLocaleString();
+        const dateAdded = new Date().toLocaleString();  // Add current date and time when the person is added
 
         if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-          if (!group.people) group.people = [];
           group.people.push({ name, ticketPrice, qty, paid, referenceCode, dateAdded });
           addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid}, Reference: ${referenceCode})`);
           saveGroups(groups);
@@ -471,11 +470,10 @@ h2 {
       };
       membersDiv.appendChild(addPerson);
 
-      // Transaction log
       const logDiv = document.createElement('div');
       logDiv.classList.add('log');
       logDiv.innerHTML = `<strong>Transaction Log:</strong><br>` +
-        (group.logs?.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
+        (group.logs && group.logs.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
       membersDiv.appendChild(logDiv);
 
       groupName.onclick = () => {
@@ -489,18 +487,20 @@ h2 {
     });
   }
 
-  // Search by reference code
+  // Function to handle search input and filter persons by reference code
   function searchPerson() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
     const searchResults = document.getElementById('searchResults');
     const groups = JSON.parse(localStorage.getItem('groups')) || [];
-
-    searchResults.innerHTML = '';
-
+    
+    searchResults.innerHTML = ''; // Clear previous search results
+    
     if (searchInput) {
+      // Iterate through all groups and their members
       groups.forEach((group, groupIndex) => {
-        group.people?.forEach((person, personIndex) => {
-          if (person.referenceCode?.toLowerCase().includes(searchInput)) {
+        group.people.forEach((person, personIndex) => {
+          if (person.referenceCode.toLowerCase().includes(searchInput)) {
+            // If the reference code matches, show in the search results dropdown
             const resultItem = document.createElement('li');
             resultItem.textContent = `${person.name} (Ref: ${person.referenceCode})`;
             resultItem.onclick = () => navigateToPerson(groupIndex, personIndex);
@@ -508,25 +508,32 @@ h2 {
           }
         });
       });
-
+      
+      // Show the search results dropdown
       searchResults.style.display = searchResults.children.length > 0 ? 'block' : 'none';
     } else {
+      // Hide the dropdown if input is empty
       searchResults.style.display = 'none';
     }
   }
 
-  // Navigate to person
   function navigateToPerson(groupIndex, personIndex) {
     const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const group = groups[groupIndex];
+    const person = group.people[personIndex];
 
+    // Show the group's member section if hidden
     const groupDivs = document.querySelectorAll('.group');
     const membersDiv = groupDivs[groupIndex].querySelector('.members');
-    membersDiv.style.display = 'block';
+    if (membersDiv.style.display !== 'block') {
+      membersDiv.style.display = 'block';
+    }
 
     const personElement = document.getElementById(`person-${groupIndex}-${personIndex}`);
     if (personElement) {
       personElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      personElement.style.backgroundColor = '#2b2b3a';
+
+      personElement.style.backgroundColor = '#2b2b3a'; 
       setTimeout(() => {
         personElement.style.backgroundColor = '';
       }, 1000);
@@ -535,7 +542,7 @@ h2 {
     document.getElementById('searchResults').style.display = 'none';
   }
 
-  // Go to backup
+  // Backup function
   function backupData() {
     window.location.href = 'backup.html';
   }
