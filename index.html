@@ -199,7 +199,8 @@
     const qty = parseInt(document.getElementById('personTicketQty').value);
 
     if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-      const person = { name, ticketPrice, qty, paid: 0 };
+      const referenceCode = generateReferenceCode();  // Generate reference code for person
+      const person = { name, ticketPrice, qty, paid: 0, referenceCode };  // Include reference code here
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
       persons.push(person);
       localStorage.setItem('persons', JSON.stringify(persons));
