@@ -354,7 +354,7 @@ h2 {
     });
   }
 
-  // Add payment to a person
+
   function addPayment(groupIndex, personId) {
     const groups = JSON.parse(localStorage.getItem('groups'));
     const group = groups[groupIndex];
@@ -369,7 +369,7 @@ h2 {
     }
   }
 
-  // Add ticket to a person
+
   function addTicket(groupIndex, personId) {
     const groups = JSON.parse(localStorage.getItem('groups'));
     const group = groups[groupIndex];
@@ -384,7 +384,7 @@ h2 {
     }
   }
 
-  // Edit a person's info
+
   function editPerson(groupIndex, personId) {
     const groups = JSON.parse(localStorage.getItem('groups'));
     const group = groups[groupIndex];
@@ -418,7 +418,7 @@ h2 {
     }
   }
 
-  // Backup data
+
   function backupData() {
     const groups = JSON.parse(localStorage.getItem('groups')) || [];
     const blob = new Blob([JSON.stringify(groups)], { type: 'application/json' });
