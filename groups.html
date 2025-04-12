@@ -271,9 +271,27 @@ function saveGroups(groups) {
   localStorage.setItem('groups', JSON.stringify(groups));
 }
 
-// Generate a unique reference code
+// Generate a unique reference code in the format N66BO4
 function generateReferenceCode() {
-  return 'REF-'.toString(36) + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+
+  // Generate a 1-letter prefix
+  const letter = letters.charAt(Math.floor(Math.random() * letters.length));
+
+  // Generate a 2-digit number
+  const num1 = Math.floor(Math.random() * 10);
+  const num2 = Math.floor(Math.random() * 10);
+
+  // Generate a 2-letter suffix
+  const letter2 = letters.charAt(Math.floor(Math.random() * letters.length));
+  const letter3 = letters.charAt(Math.floor(Math.random() * letters.length));
+
+  // Generate a 1-digit suffix
+  const num3 = Math.floor(Math.random() * 10);
+
+  // Combine into the desired format
+  return `${letter}${num1}${num2}${letter2}${letter3}${num3}`;
 }
 
 // Add a log message to the group transaction log with date and time
@@ -486,6 +504,6 @@ function backupData() {
 }
 
 document.addEventListener('DOMContentLoaded', renderGroupTransactions);
-  </script>  
+</script>
 </body>
 </html>
