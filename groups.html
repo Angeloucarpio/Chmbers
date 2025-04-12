@@ -266,16 +266,25 @@ h2 {
   <button class="backup-btn" onclick="backupData()">Backup Data</button>
 </div>
 <script>
+  // Save groups data to localStorage
   function saveGroups(groups) {
     localStorage.setItem('groups', JSON.stringify(groups));
   }
 
+  // Generate a unique reference code
+  function generateReferenceCode() {
+    return 'REF-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+  }
+
+  // Add a log message to the group transaction log
   function addLog(group, message) {
-    const timestamp = new Date().toLocaleString();
+    const now = new Date();
+    const timestamp = now.toLocaleString();
     if (!group.logs) group.logs = [];
     group.logs.unshift(`[${timestamp}] ${message}`);
   }
 
+  // Render all groups with their members and transactions
   function renderGroupTransactions() {
     const container = document.getElementById('groupTransactions');
     const groups = JSON.parse(localStorage.getItem('groups')) || [];
@@ -289,6 +298,7 @@ h2 {
       groupName.classList.add('group-name');
       groupName.textContent = group.name;
 
+      // Delete button
       const deleteBtn = document.createElement('button');
       deleteBtn.classList.add('delete-group');
       deleteBtn.textContent = 'Delete Group';
@@ -309,9 +319,7 @@ h2 {
       group.people.forEach((person, personIndex) => {
         const total = person.ticketPrice * person.qty;
         const balance = total - person.paid;
-        const statusHTML = balance <= 0
-          ? `<span class="paid">Paid</span>`
-          : `<span class="balance">Pending: ₱${balance}</span>`;
+        const status = balance <= 0 ? `<span class="paid">Paid</span>` : `<span class="balance">Pending: ₱${balance}</span>`;
 
         totalPaid += person.paid;
         totalExpected += total;
@@ -319,10 +327,10 @@ h2 {
         const memberDiv = document.createElement('div');
         memberDiv.classList.add('member');
 
+        // Dropdown for reference code
         const personDropdown = document.createElement('details');
         const summary = document.createElement('summary');
-        summary.innerHTML = `${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${statusHTML}`;
-
+        summary.innerHTML = `${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}`;
         const ref = document.createElement('div');
         ref.textContent = `Reference Code: ${person.referenceCode || 'N/A'}`;
         ref.style.marginTop = '5px';
@@ -330,25 +338,20 @@ h2 {
         personDropdown.appendChild(summary);
         personDropdown.appendChild(ref);
 
+        // Actions
         const actions = document.createElement('div');
         actions.classList.add('actions');
 
         const dropdown = document.createElement('div');
         dropdown.classList.add('dropdown');
-
         const plusBtn = document.createElement('button');
         plusBtn.textContent = '＋';
-        plusBtn.onclick = () => {
-          dropdownContent.classList.toggle('show-dropdown');
-        };
-
         const dropdownContent = document.createElement('div');
         dropdownContent.classList.add('dropdown-content');
         dropdownContent.innerHTML = `
           <button onclick="addPayment(${groupIndex}, ${personIndex})">Add Payment</button>
           <button onclick="addTicket(${groupIndex}, ${personIndex})">Add Ticket</button>
         `;
-
         dropdown.appendChild(plusBtn);
         dropdown.appendChild(dropdownContent);
 
@@ -356,13 +359,13 @@ h2 {
         editBtn.innerHTML = '✏️';
         editBtn.onclick = () => editPerson(groupIndex, personIndex);
 
-        const delBtn = document.createElement('button');
-        delBtn.innerHTML = '🗑️';
-        delBtn.onclick = () => deletePerson(groupIndex, personIndex);
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.onclick = () => deletePerson(groupIndex, personIndex);
 
         actions.appendChild(dropdown);
         actions.appendChild(editBtn);
-        actions.appendChild(delBtn);
+        actions.appendChild(deleteBtn);
 
         memberDiv.appendChild(personDropdown);
         memberDiv.appendChild(actions);
@@ -383,15 +386,13 @@ h2 {
         const ticketPrice = parseFloat(prompt("Ticket Price:"));
         const qty = parseInt(prompt("Quantity:"));
         const paid = parseFloat(prompt("Paid:")) || 0;
-        const referenceCode = prompt("Reference Code:");
+        const referenceCode = generateReferenceCode();
 
-        if (name && !isNaN(ticketPrice) && !isNaN(qty) && referenceCode) {
+        if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
           group.people.push({ name, ticketPrice, qty, paid, referenceCode });
           addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid}, Reference: ${referenceCode})`);
           saveGroups(groups);
           renderGroupTransactions();
-        } else {
-          alert("Invalid input. Person was not added.");
         }
       };
       membersDiv.appendChild(addPerson);
@@ -399,7 +400,7 @@ h2 {
       const logDiv = document.createElement('div');
       logDiv.classList.add('log');
       logDiv.innerHTML = `<strong>Transaction Log:</strong><br>` +
-        (group.logs?.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
+        (group.logs && group.logs.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
       membersDiv.appendChild(logDiv);
 
       groupName.onclick = () => {
@@ -414,15 +415,15 @@ h2 {
   }
 
   function addPayment(groupIdx, personIdx) {
-    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const groups = JSON.parse(localStorage.getItem('groups'));
     const person = groups[groupIdx].people[personIdx];
     const totalDue = person.ticketPrice * person.qty;
+    const currentPaid = person.paid;
     const amount = parseFloat(prompt("Enter amount to add:"));
 
     if (!isNaN(amount)) {
-      const remaining = totalDue - person.paid;
-      if (amount > remaining) {
-        alert(`Payment exceeds remaining balance. Remaining: ₱${remaining}`);
+      if (currentPaid + amount > totalDue) {
+        alert(`Payment exceeds the total amount due (₱${totalDue}). Current Paid: ₱${currentPaid}`);
       } else {
         person.paid += amount;
         addLog(groups[groupIdx], `Added ₱${amount} payment for ${person.name}`);
@@ -433,46 +434,43 @@ h2 {
   }
 
   function addTicket(groupIdx, personIdx) {
-    const groups = JSON.parse(localStorage.getItem('groups')) || [];
-    const qty = parseInt(prompt("Enter number of tickets to add:"));
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    const qty = parseInt(prompt("Enter ticket quantity:"));
     if (!isNaN(qty)) {
-      const person = groups[groupIdx].people[personIdx];
-      person.qty += qty;
-      addLog(groups[groupIdx], `Added ${qty} ticket(s) to ${person.name}`);
+      groups[groupIdx].people[personIdx].qty += qty;
+      addLog(groups[groupIdx], `Added ${qty} ticket(s) to ${groups[groupIdx].people[personIdx].name}`);
       saveGroups(groups);
       renderGroupTransactions();
     }
   }
 
   function editPerson(groupIdx, personIdx) {
-    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const groups = JSON.parse(localStorage.getItem('groups'));
     const person = groups[groupIdx].people[personIdx];
 
     const name = prompt("Name:", person.name);
     const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
     const qty = parseInt(prompt("Quantity:", person.qty));
     const paid = parseFloat(prompt("Paid:", person.paid));
-    const referenceCode = prompt("Reference Code:", person.referenceCode);
 
-    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid) && referenceCode) {
-      groups[groupIdx].people[personIdx] = { name, ticketPrice, qty, paid, referenceCode };
+    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
+      person.name = name;
+      person.ticketPrice = ticketPrice;
+      person.qty = qty;
+      person.paid = paid;
       addLog(groups[groupIdx], `Edited person: ${name}`);
       saveGroups(groups);
       renderGroupTransactions();
-    } else {
-      alert("Invalid input. Edit was not applied.");
     }
   }
 
   function deletePerson(groupIdx, personIdx) {
-    const groups = JSON.parse(localStorage.getItem('groups')) || [];
-    const person = groups[groupIdx].people[personIdx];
-    if (confirm(`Are you sure you want to delete ${person.name}?`)) {
-      groups[groupIdx].people.splice(personIdx, 1);
-      addLog(groups[groupIdx], `Deleted person: ${person.name}`);
-      saveGroups(groups);
-      renderGroupTransactions();
-    }
+    const groups = JSON.parse(localStorage.getItem('groups'));
+    const name = groups[groupIdx].people[personIdx].name;
+    groups[groupIdx].people.splice(personIdx, 1);
+    addLog(groups[groupIdx], `Deleted person: ${name}`);
+    saveGroups(groups);
+    renderGroupTransactions();
   }
 
   function backupData() {
