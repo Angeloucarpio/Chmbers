@@ -467,31 +467,6 @@ function addTicket(groupIdx, personIdx) {
     alert('Please enter a valid ticket quantity.');
   }
 }
-const searchInput = document.createElement('input');
-searchInput.type = 'text';
-searchInput.placeholder = 'Search by reference code...';
-searchInput.style.margin = '10px 0';
-searchInput.style.padding = '8px';
-searchInput.style.borderRadius = '8px';
-searchInput.style.border = '1px solid #cbd5e1';
-searchInput.style.width = '100%';
-searchInput.style.boxSizing = 'border-box';
-
-searchInput.addEventListener('input', () => {
-  const value = searchInput.value.trim().toUpperCase();
-
-  const memberDivs = membersDiv.querySelectorAll('.member');
-  memberDivs.forEach(div => {
-    const refCode = div.querySelector('details > div')?.textContent || '';
-    if (refCode.toUpperCase().includes(value)) {
-      div.style.display = 'flex';
-    } else {
-      div.style.display = 'none';
-    }
-  });
-});
-
-membersDiv.appendChild(searchInput);
 function editPerson(groupIdx, personIdx) {
   const groups = JSON.parse(localStorage.getItem('groups'));
   const person = groups[groupIdx].people[personIdx];
@@ -500,23 +475,24 @@ function editPerson(groupIdx, personIdx) {
   const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
   const qty = parseInt(prompt("Quantity:", person.qty));
   const paid = parseFloat(prompt("Paid:", person.paid));
-  const referenceCode = prompt("Reference Code:", person.referenceCode || '');
+  const reference = prompt("Reference Code (Leave empty to generate a new one):", person.reference);
+
+  // If no reference code is provided, generate a new one
+  const finalReference = reference.trim() === "" ? generateReferenceCode() : reference;
 
   if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
     person.name = name;
     person.ticketPrice = ticketPrice;
     person.qty = qty;
     person.paid = paid;
-    person.referenceCode = referenceCode;
-
-    addLog(groups[groupIdx], `Edited ${name}'s details`);
+    person.reference = finalReference; // Update the reference code
+    addLog(groups[groupIdx], `Edited person: ${name}`);
     saveGroups(groups);
     renderGroupTransactions();
   } else {
-    alert("Invalid inputs. Please fill out all fields correctly.");
+    alert('Please provide valid information for the person.');
   }
 }
-group.people.forEach((person, personIndex) => {
 
 function deletePerson(groupIdx, personIdx) {
   const groups = JSON.parse(localStorage.getItem('groups'));
