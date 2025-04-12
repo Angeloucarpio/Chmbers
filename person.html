@@ -308,14 +308,20 @@
       }
     }
   
-    // Delete a person from the list
-    function deletePerson(index) {
-      const persons = JSON.parse(localStorage.getItem('persons')) || [];
-      const person = persons.splice(index, 1)[0];  // Remove the person at the specified index
-      localStorage.setItem('persons', JSON.stringify(persons));
-      logTransaction(`${person.name} deleted`);
-      renderPersonTransactions();  // Re-render person transactions to reflect changes
-    }
+   // Delete a person from the list
+function deletePerson(index) {
+  const persons = JSON.parse(localStorage.getItem('persons')) || [];
+  const person = persons[index];
+
+  const confirmed = confirm(`Are you sure you want to delete ${person.name}?`);
+  if (confirmed) {
+    persons.splice(index, 1);  // Remove the person at the specified index
+    localStorage.setItem('persons', JSON.stringify(persons));
+    logTransaction(`${person.name} deleted`);
+    renderPersonTransactions();  // Re-render person transactions to reflect changes
+  }
+}
+
   
     // Search for a person by their reference code
     function searchPerson() {
