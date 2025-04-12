@@ -312,10 +312,10 @@ h2 {
   <button class="backup-btn" onclick="backupData()">Backup Data</button>
 </div>
 <script>
-  
   function saveGroups(groups) {
     localStorage.setItem('groups', JSON.stringify(groups));
   }
+
   function generateReferenceCode() {
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const numbers = '0123456789';
@@ -323,26 +323,20 @@ h2 {
     const num1 = Math.floor(Math.random() * 10);
     const num2 = Math.floor(Math.random() * 10);
 
-    
     const letter2 = letters.charAt(Math.floor(Math.random() * letters.length));
     const letter3 = letters.charAt(Math.floor(Math.random() * letters.length));
-
-  
     const num3 = Math.floor(Math.random() * 10);
 
-   
     return `${letter}${num1}${num2}${letter2}${letter3}${num3}`;
   }
 
- 
   function addLog(group, message) {
     const now = new Date();
-    const timestamp = now.toLocaleString();  
+    const timestamp = now.toLocaleString();
     if (!group.logs) group.logs = [];
     group.logs.unshift(`[${timestamp}] ${message}`);
   }
 
-  
   function renderGroupTransactions() {
     const container = document.getElementById('groupTransactions');
     const groups = JSON.parse(localStorage.getItem('groups')) || [];
@@ -355,7 +349,6 @@ h2 {
       const groupName = document.createElement('div');
       groupName.classList.add('group-name');
       groupName.textContent = group.name;
-
 
       const deleteBtn = document.createElement('button');
       deleteBtn.classList.add('delete-group');
@@ -384,8 +377,7 @@ h2 {
 
         const memberDiv = document.createElement('div');
         memberDiv.classList.add('member');
-        memberDiv.id = `person-${groupIndex}-${personIndex}`;  
-
+        memberDiv.id = `person-${groupIndex}-${personIndex}`;
 
         const personDropdown = document.createElement('details');
         const summary = document.createElement('summary');
@@ -402,7 +394,6 @@ h2 {
         personDropdown.appendChild(ref);
         personDropdown.appendChild(dateAdded);
 
-  
         const actions = document.createElement('div');
         actions.classList.add('actions');
 
@@ -451,7 +442,7 @@ h2 {
         const qty = parseInt(prompt("Quantity:"));
         const paid = parseFloat(prompt("Paid:")) || 0;
         const referenceCode = generateReferenceCode();
-        const dateAdded = new Date().toLocaleString();  
+        const dateAdded = new Date().toLocaleString();
 
         if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
           group.people.push({ name, ticketPrice, qty, paid, referenceCode, dateAdded });
@@ -481,7 +472,6 @@ h2 {
     });
   }
 
-  
   function searchPerson() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
     const searchResults = document.getElementById('searchResults');
@@ -537,6 +527,5 @@ h2 {
 
   document.addEventListener('DOMContentLoaded', renderGroupTransactions);
 </script>
-
 </body>
 </html>
