@@ -243,7 +243,7 @@
 <div class="container">
   <h2>Group Transactions</h2>
   <div id="groupTransactions"></div>
-  <button class="backup-btn" onclick="backupData()">Backup Data</button>
+  <a href="backup.html">backup Data</a>
 </div>
 
 <script>
@@ -429,15 +429,7 @@
     }
   }
 
-  // Backup data
-  function backupData() {
-    const data = JSON.stringify(localStorage.getItem('groups'));
-    const blob = new Blob([data], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'backup.json';
-    link.click();
-  }
+
 </script>
 
 </body>
