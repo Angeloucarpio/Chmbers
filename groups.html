@@ -378,13 +378,14 @@ h2 {
     const ticketPrice = parseFloat(prompt("Edit ticket price:", person.ticketPrice));
     const qty = parseInt(prompt("Edit quantity:", person.qty));
     const paid = parseFloat(prompt("Edit paid amount:", person.paid));
+    const referenceCode = prompt("Edit reference code:", person.referenceCode);
 
     if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
       person.name = name;
       person.ticketPrice = ticketPrice;
       person.qty = qty;
       person.paid = paid;
-      person.referenceCode = generateReferenceCode();  // You can update the reference code if needed.
+      person.referenceCode = referenceCode || generateReferenceCode();  // Allow updating reference code
       addLog(group, `${name}'s details were updated.`);
       saveGroups(groups);
       renderGroupTransactions();
