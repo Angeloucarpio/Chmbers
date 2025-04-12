@@ -230,6 +230,26 @@ h2 {
   background: #cbd5e1;
   border-radius: 4px;
 }
+.group-name {
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background: #222;
+  color: white;
+  border-radius: 8px;
+  padding: 5px;
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
   </style>
 </head>
 <body>
@@ -273,22 +293,24 @@ h2 {
       groupName.classList.add('group-name');
       groupName.textContent = group.name;
 
-      // Button to delete the group
+      // Delete button
       const deleteBtn = document.createElement('button');
       deleteBtn.classList.add('delete-group');
       deleteBtn.textContent = 'Delete Group';
       deleteBtn.onclick = () => {
-        groups.splice(groupIndex, 1);
-        saveGroups(groups);
-        renderGroupTransactions();
+        if (confirm(`Are you sure you want to delete group "${group.name}"?`)) {
+          groups.splice(groupIndex, 1);
+          saveGroups(groups);
+          renderGroupTransactions();
+        }
       };
 
       const membersDiv = document.createElement('div');
       membersDiv.classList.add('members');
+      membersDiv.style.display = 'none';
 
       let totalPaid = 0, totalExpected = 0;
 
-      // Render each member in the group
       group.people.forEach((person, personIndex) => {
         const total = person.ticketPrice * person.qty;
         const balance = total - person.paid;
@@ -299,20 +321,49 @@ h2 {
 
         const memberDiv = document.createElement('div');
         memberDiv.classList.add('member');
-        memberDiv.innerHTML = `  
-          <div>${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}</div>
-          <div class="actions">
-            <div class="dropdown">
-              <button>＋</button>
-              <div class="dropdown-content">
-                <button onclick="addPayment(${groupIndex}, ${personIndex})">Add Payment</button>
-                <button onclick="addTicket(${groupIndex}, ${personIndex})">Add Ticket</button>
-              </div>
-            </div>
-            <button onclick="editPerson(${groupIndex}, ${personIndex})">✏️</button>
-            <button onclick="deletePerson(${groupIndex}, ${personIndex})">🗑️</button>
-          </div>
+
+        // Dropdown for reference code
+        const personDropdown = document.createElement('details');
+        const summary = document.createElement('summary');
+        summary.innerHTML = `${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}`;
+        const ref = document.createElement('div');
+        ref.textContent = `Reference Code: ${person.referenceCode || 'N/A'}`;
+        ref.style.marginTop = '5px';
+
+        personDropdown.appendChild(summary);
+        personDropdown.appendChild(ref);
+
+        // Actions
+        const actions = document.createElement('div');
+        actions.classList.add('actions');
+
+        const dropdown = document.createElement('div');
+        dropdown.classList.add('dropdown');
+        const plusBtn = document.createElement('button');
+        plusBtn.textContent = '＋';
+        const dropdownContent = document.createElement('div');
+        dropdownContent.classList.add('dropdown-content');
+        dropdownContent.innerHTML = `
+          <button onclick="addPayment(${groupIndex}, ${personIndex})">Add Payment</button>
+          <button onclick="addTicket(${groupIndex}, ${personIndex})">Add Ticket</button>
         `;
+        dropdown.appendChild(plusBtn);
+        dropdown.appendChild(dropdownContent);
+
+        const editBtn = document.createElement('button');
+        editBtn.innerHTML = '✏️';
+        editBtn.onclick = () => editPerson(groupIndex, personIndex);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.onclick = () => deletePerson(groupIndex, personIndex);
+
+        actions.appendChild(dropdown);
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+
+        memberDiv.appendChild(personDropdown);
+        memberDiv.appendChild(actions);
         membersDiv.appendChild(memberDiv);
       });
 
@@ -358,13 +409,11 @@ h2 {
     });
   }
 
-  // Function to add payment to a person
   function addPayment(groupIdx, personIdx) {
     const groups = JSON.parse(localStorage.getItem('groups'));
     const person = groups[groupIdx].people[personIdx];
     const totalDue = person.ticketPrice * person.qty;
     const currentPaid = person.paid;
-
     const amount = parseFloat(prompt("Enter amount to add:"));
 
     if (!isNaN(amount)) {
@@ -379,7 +428,6 @@ h2 {
     }
   }
 
-  // Function to add tickets to a person
   function addTicket(groupIdx, personIdx) {
     const groups = JSON.parse(localStorage.getItem('groups'));
     const qty = parseInt(prompt("Enter ticket quantity:"));
@@ -391,7 +439,6 @@ h2 {
     }
   }
 
-  // Function to edit a person's details
   function editPerson(groupIdx, personIdx) {
     const groups = JSON.parse(localStorage.getItem('groups'));
     const person = groups[groupIdx].people[personIdx];
@@ -400,16 +447,16 @@ h2 {
     const ticketPrice = parseFloat(prompt("Ticket Price:", person.ticketPrice));
     const qty = parseInt(prompt("Quantity:", person.qty));
     const paid = parseFloat(prompt("Paid:", person.paid));
+    const referenceCode = prompt("Reference Code:", person.referenceCode || '');
 
-    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
-      groups[groupIdx].people[personIdx] = { name, ticketPrice, qty, paid };
+    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid) && referenceCode) {
+      groups[groupIdx].people[personIdx] = { name, ticketPrice, qty, paid, referenceCode };
       addLog(groups[groupIdx], `Edited person: ${name}`);
       saveGroups(groups);
       renderGroupTransactions();
     }
   }
 
-  // Function to delete a person from the group
   function deletePerson(groupIdx, personIdx) {
     const groups = JSON.parse(localStorage.getItem('groups'));
     const name = groups[groupIdx].people[personIdx].name;
