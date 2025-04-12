@@ -48,9 +48,14 @@
 </head>
 <body>
 
-  <h2>📦 Groups Backup (From groups.html)</h2>
+  <h2>📦 Groups & Persons Backup</h2>
   <div class="backup-container">
+    <h3>Groups Data:</h3>
     <pre id="groupsBackup">Loading groups data...</pre>
+    
+    <h3>Persons Data:</h3>
+    <pre id="personsBackup">Loading persons data...</pre>
+
     <div class="buttons">
       <button class="back-btn" onclick="goBack()">⬅️ Back</button>
       <button class="delete-btn" onclick="deleteBackup()">🗑️ Delete Backup</button>
@@ -58,23 +63,29 @@
   </div>
 
   <script>
- 
+    // Load groups and persons data from localStorage
     const groupData = JSON.parse(localStorage.getItem('groups')) || [];
+    const personsData = JSON.parse(localStorage.getItem('persons')) || [];
 
-    
-    const backupDisplay = document.getElementById('groupsBackup');
-    backupDisplay.textContent = JSON.stringify(groupData, null, 2);
+    // Display groups and persons data
+    const groupsBackupDisplay = document.getElementById('groupsBackup');
+    groupsBackupDisplay.textContent = JSON.stringify(groupData, null, 2);
 
-   
+    const personsBackupDisplay = document.getElementById('personsBackup');
+    personsBackupDisplay.textContent = JSON.stringify(personsData, null, 2);
+
+    // Go back to the previous page
     function goBack() {
       window.history.back();
     }
 
- 
+    // Delete backup data (both groups and persons)
     function deleteBackup() {
-      if (confirm("Are you sure you want to delete the backup data? This cannot be undone.")) {
+      if (confirm("Are you sure you want to delete both the groups and persons backup data? This cannot be undone.")) {
         localStorage.removeItem('groups');
-        backupDisplay.textContent = "No groups data available.";
+        localStorage.removeItem('persons');
+        groupsBackupDisplay.textContent = "No groups data available.";
+        personsBackupDisplay.textContent = "No persons data available.";
       }
     }
   </script>
