@@ -273,7 +273,7 @@ function saveGroups(groups) {
 
 // Generate a unique reference code
 function generateReferenceCode() {
-  return 'REF-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+  return 'REF-'.toString(36) + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
 }
 
 // Add a log message to the group transaction log with date and time
