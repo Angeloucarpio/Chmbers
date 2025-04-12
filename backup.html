@@ -12,13 +12,16 @@
     h2 {
       color: #333;
     }
-    .backup-container {
+    .backup-container, .login-container {
       background-color: white;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      max-height: 80vh;
-      overflow-y: auto;
+      max-width: 500px;
+      margin: auto;
+    }
+    .hidden {
+      display: none;
     }
     pre {
       font-family: monospace;
@@ -29,9 +32,9 @@
     .buttons {
       margin-top: 10px;
     }
-    .back-btn, .delete-btn {
+    .back-btn, .delete-btn, .login-btn {
       padding: 10px 15px;
-      margin: 5px;
+      margin: 5px 5px 0 0;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -44,15 +47,32 @@
       background-color: #f44336;
       color: white;
     }
+    .login-btn {
+      background-color: #2196F3;
+      color: white;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body>
 
-  <h2>📦 Groups & Persons Backup</h2>
-  <div class="backup-container">
+  <div class="login-container" id="loginContainer">
+    <h2>🔐 Access Backup Data</h2>
+    <input type="email" id="email" placeholder="Enter email" required />
+    <input type="password" id="password" placeholder="Enter password" required />
+    <button class="login-btn" onclick="login()">Login</button>
+  </div>
+
+  <div class="backup-container hidden" id="backupContainer">
+    <h2>📦 Groups & Persons Backup</h2>
     <h3>Groups Data:</h3>
     <pre id="groupsBackup">Loading groups data...</pre>
-    
+
     <h3>Persons Data:</h3>
     <pre id="personsBackup">Loading persons data...</pre>
 
@@ -63,29 +83,44 @@
   </div>
 
   <script>
-    // Load groups and persons data from localStorage
-    const groupData = JSON.parse(localStorage.getItem('groups')) || [];
-    const personsData = JSON.parse(localStorage.getItem('persons')) || [];
+    // Set login credentials (you can customize these)
+    const ADMIN_EMAIL = "Chambers@yahoo.com";
+    const ADMIN_PASSWORD = "ecommerce";
 
-    // Display groups and persons data
-    const groupsBackupDisplay = document.getElementById('groupsBackup');
-    groupsBackupDisplay.textContent = JSON.stringify(groupData, null, 2);
+    // Login validation
+    function login() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
 
-    const personsBackupDisplay = document.getElementById('personsBackup');
-    personsBackupDisplay.textContent = JSON.stringify(personsData, null, 2);
+      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        document.getElementById('loginContainer').classList.add('hidden');
+        document.getElementById('backupContainer').classList.remove('hidden');
+        loadBackup();
+      } else {
+        alert("Invalid email or password!");
+      }
+    }
 
-    // Go back to the previous page
+    // Load and display backup data
+    function loadBackup() {
+      const groupData = JSON.parse(localStorage.getItem('groups')) || [];
+      const personsData = JSON.parse(localStorage.getItem('persons')) || [];
+
+      document.getElementById('groupsBackup').textContent = JSON.stringify(groupData, null, 2);
+      document.getElementById('personsBackup').textContent = JSON.stringify(personsData, null, 2);
+    }
+
+    // Go back
     function goBack() {
       window.history.back();
     }
 
-    // Delete backup data (both groups and persons)
     function deleteBackup() {
       if (confirm("Are you sure you want to delete both the groups and persons backup data? This cannot be undone.")) {
         localStorage.removeItem('groups');
         localStorage.removeItem('persons');
-        groupsBackupDisplay.textContent = "No groups data available.";
-        personsBackupDisplay.textContent = "No persons data available.";
+        document.getElementById('groupsBackup').textContent = "No groups data available.";
+        document.getElementById('personsBackup').textContent = "No persons data available.";
       }
     }
   </script>
