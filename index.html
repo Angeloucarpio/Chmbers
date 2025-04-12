@@ -15,43 +15,41 @@
       backdrop-filter: blur(4px);
     }
     .navbar {
-  background-color: #1e293b;
-  padding: 18px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
+      background-color: #1e293b;
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
 
-.navbar a {
-  color: #f9fafb;
-  text-decoration: none;
-  padding: 12px 20px;
-  margin: 0 10px;
-  transition: all 0.3s ease;
-  border-radius: 8px;
-  font-weight: 500;
-}
+    .navbar a {
+      color: #f9fafb;
+      text-decoration: none;
+      padding: 12px 20px;
+      margin: 0 10px;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      font-weight: 500;
+    }
 
-.navbar a:hover {
-  background-color: #3b82f6;
-  transform: scale(1.05);
-}
+    .navbar a:hover {
+      background-color: #3b82f6;
+      transform: scale(1.05);
+    }
 
-
-.home-container {
-    display: flex
-;
-    justify-content: space-between;
-    margin-top: 100px;
-    padding: 17px;
-    max-width: 781px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 0px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(6px);
-}
+    .home-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 100px;
+      padding: 17px;
+      max-width: 781px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 0px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(6px);
+    }
 
     .left, .right {
       width: 48%;
@@ -147,6 +145,15 @@
 </div>
 
 <script>
+  function generateReferenceCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let referenceCode = '';
+    for (let i = 0; i < 6; i++) {
+      referenceCode += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return referenceCode;
+  }
+
   function addPersonField() {
     const container = document.getElementById('groupPeopleContainer');
     const div = document.createElement('div');
@@ -175,8 +182,9 @@
     });
 
     if (groupName && people.length > 0) {
+      const referenceCode = generateReferenceCode();
       const groups = JSON.parse(localStorage.getItem('groups')) || [];
-      groups.push({ name: groupName, people });
+      groups.push({ name: groupName, referenceCode, people });
       localStorage.setItem('groups', JSON.stringify(groups));
       alert('Group saved successfully!');
       window.location.href = "groups.html";
