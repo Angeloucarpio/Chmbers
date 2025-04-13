@@ -3,6 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <title>Home</title>
+  
+  <!-- ✅ Bootstrap CSS CDN -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
+    rel="stylesheet" 
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
+    crossorigin="anonymous"
+  >
+
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -50,13 +59,14 @@
       box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
       backdrop-filter: blur(6px);
     }
+
     .left, .right {
-    width: 44%;
-    background-color: rgba(248, 250, 252, 0.1);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
+      width: 44%;
+      background-color: rgba(248, 250, 252, 0.1);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
 
     h2 {
       text-align: center;
@@ -65,15 +75,16 @@
     }
 
     input {
-    width: 93%;
-    padding: 10px;
-    margin-bottom: 12px;
-    border-radius: 8px;
-    border: 1px solid #94a3b8;
-    background-color: rgba(255, 255, 255, 0.05);
-    color: #f1f5f9;
-    font-size: 1em;
-}
+      width: 93%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #94a3b8;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: #f1f5f9;
+      font-size: 1em;
+    }
+
     input::placeholder {
       color: #94a3b8;
     }
@@ -141,6 +152,14 @@
     <button onclick="savePerson()">Save Person</button>
   </div>
 </div>
+
+<!-- ✅ Bootstrap Bundle JS with Popper -->
+<script 
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+  integrity="sha384-Twb4gkpiZ4srF0rTDeCB9J0s4mRBoyG/nSnlBjA40rOvY4knykrO00FZ9QF2eN7y" 
+  crossorigin="anonymous">
+</script>
+
 <script>
   function generateReferenceCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -180,7 +199,7 @@
           qty, 
           paid: 0, 
           referenceCode: generateReferenceCode(),
-          dateAdded: new Date().toLocaleString() // ✅ Add date added
+          dateAdded: new Date().toLocaleString()
         });
       }
     });
@@ -196,30 +215,29 @@
       alert("Please enter valid group and people details.");
     }
   }
+
   function savePerson() {
-  const name = document.getElementById('personName').value.trim();
-  const ticketPrice = parseFloat(document.getElementById('personTicketPrice').value);
-  const qty = parseInt(document.getElementById('personTicketQty').value);
+    const name = document.getElementById('personName').value.trim();
+    const ticketPrice = parseFloat(document.getElementById('personTicketPrice').value);
+    const qty = parseInt(document.getElementById('personTicketQty').value);
 
-  if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
-    const referenceCode = generateReferenceCode(); 
-    const addedOn = new Date().toLocaleString();
-    const person = { name, ticketPrice, qty, paid: 0, referenceCode, addedOn }; 
+    if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
+      const referenceCode = generateReferenceCode(); 
+      const addedOn = new Date().toLocaleString();
+      const person = { name, ticketPrice, qty, paid: 0, referenceCode, addedOn }; 
 
-    const persons = JSON.parse(localStorage.getItem('persons')) || [];
-    persons.push(person);
-    localStorage.setItem('persons', JSON.stringify(persons));
+      const persons = JSON.parse(localStorage.getItem('persons')) || [];
+      persons.push(person);
+      localStorage.setItem('persons', JSON.stringify(persons));
 
-    // Use setTimeout to allow alert to show before redirect
-    alert('Person saved successfully!');
-    setTimeout(() => {
-      window.location.href = 'person.html'; // Redirect
-    }, 100); // Short delay to give the alert time to close
-  } else {
-    alert("Please enter valid person details.");
+      alert('Person saved successfully!');
+      setTimeout(() => {
+        window.location.href = 'person.html';
+      }, 100);
+    } else {
+      alert("Please enter valid person details.");
+    }
   }
-}
-
 </script>
 
 </body>
