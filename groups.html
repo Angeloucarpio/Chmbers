@@ -291,28 +291,35 @@ h2 {
 .dropdown:hover .dropdown-content {
   display: block;
 }
-
 @media (max-width: 480px) {
   body {
     background-size: 200px 200px;
   }
 
-
   .navbar {
     padding: 12px 15px;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;  /* Row layout */
+    justify-content: space-between;  /* Space between navbar items */
+    align-items: center;  /* Vertically align items */
   }
 
   .navbar a {
     font-size: 0.85em;
     padding: 8px 14px;
-    margin: 8px 0;
+    margin: 0 10px;  /* Add space between links */
+    text-align: center;
   }
 
+  /* Adjust the search bar container */
+  .search-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;  /* Push search container to the far right */
+  }
 
   #searchInput {
-    width: 100%;
+    width: 150px;
     font-size: 14px;
     padding: 8px;
   }
@@ -320,7 +327,6 @@ h2 {
   #searchResults {
     width: 100%;
   }
-
 
   .container {
     padding: 15px;
@@ -336,7 +342,6 @@ h2 {
     margin-bottom: 8px;
   }
 
-  
   .member {
     flex-direction: column;
     align-items: flex-start;
@@ -346,13 +351,11 @@ h2 {
     margin-top: 8px;
   }
 
-  
   .log {
     font-size: 0.8em;
     max-height: 150px;
   }
 
- 
   .backup-btn {
     width: 100%;
     padding: 10px;
@@ -364,6 +367,7 @@ h2 {
     font-size: 0.85em;
   }
 }
+
 
   </style>
 </head>
