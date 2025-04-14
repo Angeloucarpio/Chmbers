@@ -14,15 +14,15 @@
       color: #f1f5f9;
       backdrop-filter: blur(4px);
     }
-  
+
     .navbar {
       background-color: #1e293b;
       padding: 18px;
       text-align: center;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
-  
-    .navbar a {
+
+    .navbar a, .navbar button {
       color: #f9fafb;
       text-decoration: none;
       padding: 12px 20px;
@@ -30,28 +30,30 @@
       transition: all 0.3s ease;
       border-radius: 8px;
       font-weight: 500;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
     }
-  
-    .navbar a:hover {
+
+    .navbar a:hover, .navbar button:hover {
       background-color: #3b82f6;
       transform: scale(1.05);
     }
-  
+
     .home-container {
       display: flex;
       justify-content: space-between;
-      margin-top: 100px;
       padding: 17px;
       max-width: 781px;
-      margin-left: auto;
-      margin-right: auto;
-      margin-top: 0px;
+      margin: 0 auto;
+      margin-top: 20px;
       background-color: rgba(255, 255, 255, 0.05);
       border-radius: 12px;
       box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
       backdrop-filter: blur(6px);
     }
-  
+
     .left, .right {
       width: 44%;
       background-color: rgba(248, 250, 252, 0.1);
@@ -59,13 +61,13 @@
       border-radius: 12px;
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     }
-  
+
     h2 {
       text-align: center;
       margin-bottom: 25px;
       color: #e0f2fe;
     }
-  
+
     input {
       width: 93%;
       padding: 10px;
@@ -76,11 +78,11 @@
       color: #f1f5f9;
       font-size: 1em;
     }
-  
+
     input::placeholder {
       color: #94a3b8;
     }
-  
+
     button {
       width: 100%;
       padding: 12px;
@@ -92,12 +94,12 @@
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.2s;
     }
-  
+
     button:hover {
       background-color: #2563eb;
       transform: scale(1.03);
     }
-  
+
     .add-person {
       margin-top: 10px;
       display: inline-block;
@@ -106,54 +108,52 @@
       cursor: pointer;
       transition: all 0.2s ease;
     }
-  
+
     .add-person:hover {
       text-decoration: underline;
       transform: scale(1.03);
     }
-  
-    /* Phone mode (responsive design) */
+
     @media (max-width: 768px) {
       .home-container {
         flex-direction: column;
         padding: 10px;
       }
-  
+
       .left, .right {
         width: 100%;
         margin-bottom: 15px;
       }
-  
+
       .navbar {
         padding: 12px;
       }
-  
-      .navbar a {
+
+      .navbar a, .navbar button {
         padding: 8px 15px;
         font-size: 14px;
       }
-  
+
       h2 {
         font-size: 1.2em;
         margin-bottom: 15px;
       }
-  
+
       input {
         width: 100%;
         padding: 12px;
       }
-  
+
       button {
         padding: 10px;
         font-size: 0.9em;
       }
-  
+
       .add-person {
         font-size: 0.9em;
       }
     }
   </style>
-  
 </head>
 <body>
 
@@ -161,6 +161,7 @@
   <a href="index.html">Home</a>
   <a href="groups.html">Groups</a>
   <a href="person.html">Persons</a>
+  <button onclick="logout()">Logout</button>
 </div>
 
 <div class="home-container">
@@ -186,6 +187,7 @@
     <button onclick="savePerson()">Save Person</button>
   </div>
 </div>
+
 <script>
   function generateReferenceCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -211,7 +213,6 @@
   function saveGroup() {
     const groupName = document.getElementById('groupName').value.trim();
     const peopleInputs = document.querySelectorAll('.group-person-entry');
-
     const people = [];
 
     peopleInputs.forEach(entry => {
@@ -263,6 +264,10 @@
     } else {
       alert("Please enter valid person details.");
     }
+  }
+
+  function logout() {
+    window.location.href = "login.html";
   }
 </script>
 
