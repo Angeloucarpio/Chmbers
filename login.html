@@ -102,7 +102,7 @@
   <script>
     if (!localStorage.getItem("users") || JSON.parse(localStorage.getItem("users")).length === 0) {
       const defaultUsers = [
-        { username: "admin", password: "1234" },
+        { username: admin, password: 1234 },
       ];
       localStorage.setItem("users", JSON.stringify(defaultUsers));
     }
