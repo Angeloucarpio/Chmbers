@@ -129,8 +129,9 @@
     <input type="password" id="password" placeholder="Password" />
     <button onclick="login()">Login</button>
   </div>
-ing: Log the users from loc
+
   <script>
+   
     if (!localStorage.getItem("users")) {
       const defaultUsers = [
         { username: "admin", password: "1234" },
@@ -149,7 +150,7 @@ ing: Log the users from loc
 
       const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
 
-
+    
       console.log("Stored Users: ", storedUsers);
 
       const user = storedUsers.find(u => u.username === username && u.password === password);
