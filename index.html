@@ -188,8 +188,12 @@
     <button onclick="savePerson()">Save Person</button>
   </div>
 </div>
-
 <script>
+  // ✅ Redirect to login page if not logged in
+  if (!localStorage.getItem("isLoggedIn")) {
+    window.location.href = "login.html";
+  }
+
   function generateReferenceCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let referenceCode = '';
@@ -268,6 +272,7 @@
   }
 
   function logout() {
+    localStorage.removeItem("isLoggedIn"); // Clear login flag
     window.location.href = "login.html";
   }
 </script>
