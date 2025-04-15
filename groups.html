@@ -391,13 +391,6 @@ h2 {
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76A08GgC2U6eI2+E66zfgbq1ZtM5gkKnz0j8y7qxJ0lYjzG8gfa8dWj8eH1zE7+" crossorigin="anonymous"></script>
 <script>
-  if (
-  localStorage.getItem("isLoggedIn") !== "true" &&
-  (performance.navigation.type === performance.navigation.TYPE_NAVIGATE || document.referrer === "")
-) {
-  window.location.href = "login.html";
-}
-
   function saveGroups(groups) {
     localStorage.setItem('groups', JSON.stringify(groups));
   }
