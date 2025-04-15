@@ -183,11 +183,12 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // Generate a random reference code
     function generateReferenceCode() {
       return 'REF-' + Math.random().toString(36).substr(2, 9).toUpperCase();
     }
   
-   
+    // Render the list of people and their transactions
     function renderPersonTransactions() {
       const container = document.getElementById('personTransactions');
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
@@ -225,6 +226,7 @@
       }).join('');
     }
   
+    // Log transaction actions to the log section
     function logTransaction(text) {
       const logBox = document.getElementById('log');
       const timestamp = new Date().toLocaleString();
@@ -232,18 +234,20 @@
       entry.textContent = `[${timestamp}] ${text}`;
       logBox.prepend(entry);
   
-
+      // Save logs to localStorage
       const logs = JSON.parse(localStorage.getItem('transactionLogs')) || [];
       logs.unshift({ text, timestamp });
       localStorage.setItem('transactionLogs', JSON.stringify(logs));
     }
-
+  
+    // Load transaction logs from localStorage
     function loadTransactionLogs() {
       const logs = JSON.parse(localStorage.getItem('transactionLogs')) || [];
       const logBox = document.getElementById('log');
       logBox.innerHTML = logs.map(log => `<div>[${log.timestamp}] ${log.text}</div>`).join('');
     }
-
+  
+    // Add a new person to the list
     function addPerson() {
       const name = prompt("Enter name:");
       const ticketPrice = parseFloat(prompt("Ticket price:"));
@@ -253,41 +257,41 @@
       if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
         const referenceCode = generateReferenceCode();
         const persons = JSON.parse(localStorage.getItem('persons')) || [];
-        const addedOn = new Date().toLocaleString();  
+        const addedOn = new Date().toLocaleString();  // Get current time for addedOn
         persons.push({ name, ticketPrice, qty, paid, referenceCode, addedOn });
         localStorage.setItem('persons', JSON.stringify(persons));
         logTransaction(`${name} added with ${qty} ticket(s) at ₱${ticketPrice}, paid ₱${paid}`);
-        renderPersonTransactions();  
+        renderPersonTransactions();  // Re-render person transactions to reflect changes
       }
     }
   
-    
+    // Add payment to a specific person
     function addPayment(index) {
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
       const amount = parseFloat(prompt("Enter additional payment:"));
       if (!isNaN(amount)) {
         persons[index].paid += amount;
-        persons[index].addedOn = new Date().toLocaleString();
+        persons[index].addedOn = new Date().toLocaleString();  // Update 'addedOn' timestamp
         localStorage.setItem('persons', JSON.stringify(persons));
         logTransaction(`${persons[index].name} added ₱${amount} payment`);
-        renderPersonTransactions();  
+        renderPersonTransactions();  // Re-render person transactions to reflect changes
       }
     }
   
-    
+    // Add more tickets to a specific person
     function addTicket(index) {
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
       const qty = parseInt(prompt("Enter additional ticket quantity:"));
       if (!isNaN(qty)) {
         persons[index].qty += qty;
-        persons[index].addedOn = new Date().toLocaleString();  
+        persons[index].addedOn = new Date().toLocaleString();  // Update 'addedOn' timestamp
         localStorage.setItem('persons', JSON.stringify(persons));
         logTransaction(`${persons[index].name} added ${qty} ticket(s)`);
-        renderPersonTransactions();  
+        renderPersonTransactions();  // Re-render person transactions to reflect changes
       }
     }
   
-   
+    // Edit a person's information
     function editPerson(index) {
       const persons = JSON.parse(localStorage.getItem('persons')) || [];
       const person = persons[index];
@@ -302,26 +306,26 @@
         persons[index] = { name, ticketPrice, qty, paid, referenceCode, addedOn: new Date().toLocaleString() };
         localStorage.setItem('persons', JSON.stringify(persons));
         logTransaction(`${name}'s info edited`);
-        renderPersonTransactions();  
+        renderPersonTransactions();  // Re-render person transactions to reflect changes
       }
     }
   
-  
+   // Delete a person from the list
 function deletePerson(index) {
   const persons = JSON.parse(localStorage.getItem('persons')) || [];
   const person = persons[index];
 
   const confirmed = confirm(`Are you sure you want to delete ${person.name}?`);
   if (confirmed) {
-    persons.splice(index, 1);  
+    persons.splice(index, 1);  // Remove the person at the specified index
     localStorage.setItem('persons', JSON.stringify(persons));
     logTransaction(`${person.name} deleted`);
-    renderPersonTransactions();  
+    renderPersonTransactions();  // Re-render person transactions to reflect changes
   }
 }
 
   
-    
+    // Search for a person by their reference code
     function searchPerson() {
       const input = document.getElementById('searchInput').value.toLowerCase();
       const results = document.getElementById('searchResults');
@@ -344,11 +348,14 @@ function deletePerson(index) {
       results.style.display = input && results.children.length > 0 ? 'block' : 'none';
     }
   
-    
+    // Initialize the page by rendering person transactions and loading transaction logs
     window.onload = () => {
       renderPersonTransactions();
-      loadTransactionLogs();  
+      loadTransactionLogs();  // Load and display transaction logs on page load
     };
   </script>
+  
+  
+
 </body>
 </html>
