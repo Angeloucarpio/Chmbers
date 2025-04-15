@@ -16,34 +16,13 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
-    }
-
-    .navbar {
-      background-color: #1e293b;
-      padding: 18px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    .navbar a {
-      color: #f9fafb;
-      text-decoration: none;
-      padding: 12px 20px;
-      margin: 0 10px;
-      transition: all 0.3s ease;
-      border-radius: 8px;
-      font-weight: 500;
-    }
-
-    .navbar a:hover {
-      background-color: #3b82f6;
-      transform: scale(1.05);
+      justify-content: center;
+      align-items: center;
     }
 
     .login-container {
       max-width: 400px;
       width: 90%;
-      margin: 80px auto;
       background-color: rgba(255, 255, 255, 0.05);
       border-radius: 12px;
       padding: 30px;
@@ -58,7 +37,7 @@
     }
 
     input {
-      width: 94%;
+      width: 100%;
       padding: 10px;
       margin-bottom: 15px;
       border-radius: 8px;
@@ -96,15 +75,6 @@
     }
 
     @media (max-width: 768px) {
-      .navbar {
-        padding: 12px;
-      }
-
-      .navbar a {
-        padding: 8px 15px;
-        font-size: 14px;
-      }
-
       h2 {
         font-size: 1.2em;
         margin-bottom: 15px;
@@ -131,7 +101,7 @@
   </div>
 
   <script>
-   
+    // Initialize default users if not set yet
     if (!localStorage.getItem("users")) {
       const defaultUsers = [
         { username: "admin", password: "1234" },
@@ -145,21 +115,17 @@
       const password = document.getElementById("password").value.trim();
       const errorMsg = document.getElementById("errorMsg");
 
-      console.log("Username: ", username);
-      console.log("Password: ", password);
-
       const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
 
-    
-      console.log("Stored Users: ", storedUsers);
-
-      const user = storedUsers.find(u => u.username === username && u.password === password);
+      const user = storedUsers.find(
+        u => u.username === username && u.password === password
+      );
 
       if (user) {
         localStorage.setItem("loggedInUser", JSON.stringify(user));
         errorMsg.textContent = "";
         alert("Login successful!");
-        window.location.href = "index.html"; 
+        window.location.href = "index.html"; // Replace with your dashboard/homepage
       } else {
         errorMsg.textContent = "Invalid username or password.";
       }
