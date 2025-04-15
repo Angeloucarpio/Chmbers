@@ -391,6 +391,11 @@ h2 {
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76A08GgC2U6eI2+E66zfgbq1ZtM5gkKnz0j8y7qxJ0lYjzG8gfa8dWj8eH1zE7+" crossorigin="anonymous"></script>
 <script>
+  const isLoggedIn = localStorage.getItem('loggedIn');
+  if (!isLoggedIn || isLoggedIn !== 'true') {
+    alert('You must be logged in to access this page.');
+    window.location.href = 'index.html'; // redirect to your login/home page
+  }
   function saveGroups(groups) {
     localStorage.setItem('groups', JSON.stringify(groups));
   }
