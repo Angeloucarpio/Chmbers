@@ -23,19 +23,19 @@
     }
 
     .navbar a, .navbar button {
-    color: #f9fafb;
-    text-decoration: none;
-    padding: 11px 20px;
-    margin: 0 10px;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    font-weight: 500;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1em;
-    width: 88px;
-}
+      color: #f9fafb;
+      text-decoration: none;
+      padding: 11px 20px;
+      margin: 0 10px;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      font-weight: 500;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+      width: 88px;
+    }
 
     .navbar a:hover, .navbar button:hover {
       background-color: #3b82f6;
@@ -188,11 +188,17 @@
     <button onclick="savePerson()">Save Person</button>
   </div>
 </div>
+
 <script>
-  if (!localStorage.getItem("isLoggedIn")) {
+  // Check if the user is logged in
+  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!loggedInUser) {
     window.location.href = "login.html";
+  } else {
+    console.log("Welcome back:", loggedInUser.username);
   }
 
+  // Generate a reference code for group members
   function generateReferenceCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let referenceCode = '';
@@ -202,6 +208,7 @@
     return referenceCode;
   }
 
+  // Add fields for a new person in the group
   function addPersonField() {
     const container = document.getElementById('groupPeopleContainer');
     const div = document.createElement('div');
@@ -214,6 +221,7 @@
     container.appendChild(div);
   }
 
+  // Save a new group
   function saveGroup() {
     const groupName = document.getElementById('groupName').value.trim();
     const peopleInputs = document.querySelectorAll('.group-person-entry');
@@ -247,6 +255,7 @@
     }
   }
 
+  // Save a new person
   function savePerson() {
     const name = document.getElementById('personName').value.trim();
     const ticketPrice = parseFloat(document.getElementById('personTicketPrice').value);
@@ -270,7 +279,9 @@
     }
   }
 
+  // Logout function
   function logout() {
+    localStorage.removeItem("loggedInUser"); 
     localStorage.removeItem("isLoggedIn"); 
     window.location.href = "login.html";
   }
