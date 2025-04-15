@@ -174,8 +174,8 @@
       if (user) {
         localStorage.setItem("loggedInUser", JSON.stringify(user));
         errorMsg.textContent = "";
-        window.location.reload(); // Refresh the page
-        window.location.href = "index.html"; // Redirect after login
+        window.location.reload(); 
+        window.location.href = "index.html";
       } else {
         errorMsg.textContent = "Invalid username or password.";
       }
