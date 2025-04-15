@@ -99,37 +99,37 @@
     <input type="password" id="password" placeholder="Password" />
     <button onclick="login()">Login</button>
   </div>
+
   <script>
-
-    localStorage.removeItem("users");
-
-    if (!localStorage.getItem("users") || JSON.parse(localStorage.getItem("users")).length === 0) {
+    // Set default users only once if not already set
+    if (!localStorage.getItem("users")) {
       const defaultUsers = [
         { username: "admin", password: "1234" },
+        { username: "Chambers", password: "ecommerce" }
       ];
       localStorage.setItem("users", JSON.stringify(defaultUsers));
     }
-  
+
     function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
       const errorMsg = document.getElementById("errorMsg");
-  
+
       const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
-  
+
       const user = storedUsers.find(
         u => u.username === username && u.password === password
       );
-  
+
       if (user) {
         localStorage.setItem("loggedInUser", JSON.stringify(user));
         errorMsg.textContent = "";
         alert("Login successful!");
-        window.location.href = "index.html";
+        window.location.href = "index.html"; // redirect after login
       } else {
         errorMsg.textContent = "Invalid username or password.";
       }
     }
-  </script>  
+  </script>
 </body>
 </html>
