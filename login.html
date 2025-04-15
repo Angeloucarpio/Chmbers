@@ -49,7 +49,6 @@
       padding: 30px;
       box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
       backdrop-filter: blur(6px);
-      position: relative;
     }
 
     h2 {
@@ -71,28 +70,6 @@
 
     input::placeholder {
       color: #94a3b8;
-    }
-
-    .password-wrapper {
-      position: relative;
-    }
-
-    .password-wrapper input {
-      padding-right: 40px;
-    }
-
-    .toggle-password {
-      position: absolute;
-      top: 50%;
-      right: 10px;
-      transform: translateY(-50%);
-      cursor: pointer;
-      font-size: 18px;
-      color: #94a3b8;
-    }
-
-    .toggle-password:hover {
-      color: #f1f5f9;
     }
 
     button {
@@ -143,19 +120,13 @@
       }
     }
   </style>
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <div class="login-container">
     <h2>Login</h2>
     <div class="error-message" id="errorMsg"></div>
     <input type="text" id="username" placeholder="Username" />
-    
-    <div class="password-wrapper">
-      <input type="password" id="password" placeholder="Password" />
-      <i class="fas fa-eye toggle-password" id="togglePassword" onclick="togglePassword()"></i>
-    </div>
-
+    <input type="password" id="password" placeholder="Password" />
     <button onclick="login()">Login</button>
   </div>
 
@@ -166,7 +137,7 @@
       const errorMsg = document.getElementById("errorMsg");
 
       const storedUsers = JSON.parse(localStorage.getItem("users")) || [
-        { username: "Chambers", password: "Ecommerce" }
+        { username: "admin", password: "1234" }
       ];
 
       const user = storedUsers.find(u => u.username === username && u.password === password);
@@ -174,26 +145,13 @@
       if (user) {
         localStorage.setItem("loggedInUser", JSON.stringify(user));
         errorMsg.textContent = "";
-        window.location.reload(); 
-        window.location.href = "index.html";
+        alert("Login successful!");
+        window.location.href = "index.html"; 
       } else {
         errorMsg.textContent = "Invalid username or password.";
       }
     }
-
-    function togglePassword() {
-      const passwordInput = document.getElementById("password");
-      const toggleIcon = document.getElementById("togglePassword");
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        toggleIcon.classList.remove("fa-eye");
-        toggleIcon.classList.add("fa-eye-slash");
-      } else {
-        passwordInput.type = "password";
-        toggleIcon.classList.remove("fa-eye-slash");
-        toggleIcon.classList.add("fa-eye");
-      }
-    }
   </script>
+
 </body>
 </html>
