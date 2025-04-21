@@ -472,7 +472,7 @@ h2 {
       person.ticketPrice = ticketPrice;
       person.qty = qty;
       person.paid = paid;
-      person.referenceCode = referenceCode || generateReferenceCode();  // Allow updating reference code
+      person.referenceCode = referenceCode || generateReferenceCode();  
       addLog(group, `${name}'s details were updated.`);
       saveGroups(groups);
       renderGroupTransactions();
