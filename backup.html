@@ -71,10 +71,11 @@
 
     <div class="buttons d-flex justify-content-between">
       <button class="btn btn-success" onclick="goBack()">⬅️ Back</button>
+      <button class="btn btn-primary" onclick="downloadBackup()">⬇️ Download Backup</button>
       <button class="btn btn-danger" onclick="deleteBackup()">🗑️ Delete Backup</button>
     </div>
+    
   </div>
-
   <!-- Bootstrap 5 JS (optional) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -118,6 +119,26 @@
         alert("Backup data has been deleted.");
       }
     }
+    function downloadBackup() {
+  const groupData = JSON.parse(localStorage.getItem('groups')) || [];
+  const personsData = JSON.parse(localStorage.getItem('persons')) || [];
+
+  const backup = {
+    groups: groupData,
+    persons: personsData
+  };
+
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'backup_data.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
   </script>
 
 </body>
