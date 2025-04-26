@@ -123,21 +123,40 @@
   const groupData = JSON.parse(localStorage.getItem('groups')) || [];
   const personsData = JSON.parse(localStorage.getItem('persons')) || [];
 
-  const backup = {
-    groups: groupData,
-    persons: personsData
-  };
+  // Helper: Convert JSON array to CSV string
+  function convertToCSV(data) {
+    if (!data.length) return '';
 
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'backup_data.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+    const headers = Object.keys(data[0]);
+    const rows = data.map(row => 
+      headers.map(field => 
+        String(row[field]).replace(/"/g, '""') // Escape quotes
+      ).join(',')
+    );
+    return [headers.join(','), ...rows].join('\n');
+  }
+
+  // Generate CSV contents
+  const groupsCSV = convertToCSV(groupData);
+  const personsCSV = convertToCSV(personsData);
+
+  // Trigger two separate downloads
+  function triggerDownload(content, filename) {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  triggerDownload(groupsCSV, 'groups_backup.csv');
+  triggerDownload(personsCSV, 'persons_backup.csv');
 }
+
 
   </script>
 
