@@ -161,6 +161,7 @@
 <div class="navbar">
   <a href="index.html">Home</a>
   <a href="groups.html">Groups</a>
+  <a href="School.html">School</a>
   <a href="person.html">Persons</a>
   <button onclick="logout()">Logout</button>
 </div>
@@ -179,7 +180,20 @@
     <span class="add-person" onclick="addPersonField()">+ Add Person</span>
     <button onclick="saveGroup()">Save Group</button>
   </div>
-
+<div class="home-container">
+  <div class="left">
+    <h2>Teacher Input</h2>
+    <input type="text" id="groupName" placeholder="Group Name">
+    <div id="groupPeopleContainer">
+      <div class="group-person-entry">
+        <input type="text" class="groupName" placeholder="Name">
+        <input type="number" class="ticketPrice" placeholder="Ticket Price">
+        <input type="number" class="ticketQty" placeholder="Quantity">
+      </div>
+    </div>
+    <span class="add-person" onclick="addPersonField()">+ Add Person</span>
+    <button onclick="saveGroup()">Save Group</button>
+  </div>
   <div class="right">
     <h2>Person Input</h2>
     <input type="text" id="personName" placeholder="Name">
