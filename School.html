@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Group Transactions</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-q0htXgEuJXos1vzqWiDyp7N8G6U1ghQpENW+ZQndgOPOW14kAVTc5gfapbPo7ZdN" crossorigin="anonymous">
+  <style>
+  body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: url('logo.png') no-repeat center center fixed;
+  background-size: 300px 300px;
+  background-color: #0f172a;
+  color: #f1f5f9;
+  backdrop-filter: blur(4px);
+}
+.navbar {
+  background-color: #1e293b;
+  padding: 18px 20px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar a {
+  color: #ffffff;
+  text-decoration: none;
+  padding: 12px 20px;
+  margin: 0 15px;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.navbar a:hover {
+  background-color: #3b82f6;
+  transform: scale(1.05);
+  color: #007527;
+}
+
+.search-container {
+  position: relative;
+}
+
+#searchInput {
+  padding: 8px;
+  font-size: 16px;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+#searchResults {
+  position: absolute;
+  top: 35px;
+  width: 200px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: black;
+}
+
+#searchResults li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#searchResults li:hover {
+  background-color: #028502;
+}
+
+.container {
+  padding: 30px;
+  max-width: 1000px;
+  margin: auto;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(6px);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #e0f2fe;
+}
+
+.group {
+  background-color: #f8fafc;
+  color: black;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.group:hover {
+  transform: scale(1.02);
+}
+
+.group-name {
+  font-size: 1.6em;
+  cursor: pointer;
+  margin-bottom: 10px;
+  color: #0f172a;
+  transition: color 0.3s;
+}
+
+.group-name:hover {
+  color: #2563eb;
+}
+
+.members {
+  display: none;
+  animation: fadeIn 0.4s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.member {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px dashed #94a3b8;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button,
+.dropdown-content button {
+  background-color: #c7d2fe;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.actions button:hover,
+.dropdown-content button:hover {
+  background-color: #a5b4fc;
+  transform: scale(1.05);
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background-color: #f8fafc;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  border-radius: 6px;
+  z-index: 2;
+  min-width: 150px;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.paid {
+  background-color: #ecfdf5;
+  color: #10b981;
+  font-weight: bold;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.balance {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.log {
+  background: #f1f5f9;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: 0.88em;
+  border-left: 4px solid #3b82f6;
+  color: #111827;
+}
+
+.add-person {
+  margin-top: 15px;
+  display: inline-block;
+  font-weight: 500;
+  color: #3b82f6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-person:hover {
+  text-decoration: underline;
+  transform: scale(1.03);
+}
+
+.delete-group {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background 0.3s ease;
+}
+
+.delete-group:hover {
+  background-color: #dc2626;
+}
+
+.overall {
+  font-weight: bold;
+  margin-top: 15px;
+  font-size: 1em;
+}
+
+.backup-btn {
+  background-color: #10b981;
+  color: white;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  display: block;
+  margin: 30px auto 0;
+  transition: background 0.3s ease, transform 0.2s;
+}
+
+.backup-btn:hover {
+  background-color: #059669;
+  transform: scale(1.05);
+}
+
+/* Scrollbar for logs */
+.log::-webkit-scrollbar {
+  width: 6px;
+}
+
+.log::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.group-name {
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background: #222;
+  color: white;
+  border-radius: 8px;
+  padding: 5px;
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+@media (max-width: 480px) {
+  body {
+    background-size: 200px 200px;
+  }
+
+  .navbar {
+    padding: 12px 15px;
+    flex-direction: row;  /* Row layout */
+    justify-content: space-between;  /* Space between navbar items */
+    align-items: center;  /* Vertically align items */
+  }
+
+    .navbar a {
+        font-size: 0.85em;
+        padding: 8px 14px;
+        margin: 0 -9px;
+        text-align: center;
+    }
+
+  /* Adjust the search bar container */
+  .search-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;  /* Push search container to the far right */
+  }
+
+  #searchInput {
+    width: 150px;
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  #searchResults {
+    width: 100%;
+  }
+
+  .container {
+    padding: 15px;
+    max-width: 95%;
+  }
+
+  .group {
+    padding: 15px;
+  }
+
+  .group-name {
+    font-size: 1.2em;
+    margin-bottom: 8px;
+  }
+
+  .member {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actions {
+    margin-top: 8px;
+  }
+
+  .log {
+    font-size: 0.8em;
+    max-height: 150px;
+  }
+
+  .backup-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.95em;
+  }
+
+  .dropdown-content {
+    min-width: 120px;
+    font-size: 0.85em;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <a href="index.html">Home</a>
+    <a href="groups.html">Groups</a>
+    <a href="person.html">Persons</a>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search by Reference Code..." oninput="searchPerson()">
+      <ul id="searchResults" class="dropdown-content"></ul>
+    </div>
+  </div>
+  
+
+<div class="container">
+  <h2>School Transactions</h2>
+  <div id="groupTransactions"></div>
+  <button class="backup-btn" onclick="backupData()">Backup Data</button>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76A08GgC2U6eI2+E66zfgbq1ZtM5gkKnz0j8y7qxJ0lYjzG8gfa8dWj8eH1zE7+" crossorigin="anonymous"></script>
+<script>
+  function saveGroups(groups) {
+    localStorage.setItem('groups', JSON.stringify(groups));
+  }
+
+  function generateReferenceCode() {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const letter = letters.charAt(Math.floor(Math.random() * letters.length));
+    const num1 = Math.floor(Math.random() * 10);
+    const num2 = Math.floor(Math.random() * 10);
+
+    const letter2 = letters.charAt(Math.floor(Math.random() * letters.length));
+    const letter3 = letters.charAt(Math.floor(Math.random() * letters.length));
+    const num3 = Math.floor(Math.random() * 10);
+
+    return `${letter}${num1}${num2}${letter2}${letter3}${num3}`;
+  }
+
+  function addLog(group, message) {
+    const now = new Date();
+    const timestamp = now.toLocaleString();
+    if (!group.logs) group.logs = [];
+    group.logs.unshift(`[${timestamp}] ${message}`);
+  }
+
+  function addPayment(groupIndex, personIndex) {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const group = groups[groupIndex];
+    const person = group.people[personIndex];
+    const totalAmount = person.ticketPrice * person.qty;
+    const remainingBalance = totalAmount - person.paid;
+    
+    // Ensure the user does not pay more than the remaining balance
+    const payment = parseFloat(prompt(`Enter payment amount for ${person.name}:`));
+
+    if (!isNaN(payment) && payment > 0) {
+      if (payment > remainingBalance) {
+        alert(`Payment cannot exceed the remaining balance of ₱${remainingBalance}.`);
+      } else {
+        person.paid += payment;
+        addLog(group, `${person.name} made a payment of ₱${payment}`);
+        saveGroups(groups);
+        renderGroupTransactions();
+      }
+    } else {
+      alert('Please enter a valid payment amount.');
+    }
+  }
+
+  function addTicket(groupIndex, personIndex) {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const group = groups[groupIndex];
+    const person = group.people[personIndex];
+    const qty = parseInt(prompt(`Enter additional ticket quantity for ${person.name}:`));
+
+    if (!isNaN(qty) && qty > 0) {
+      person.qty += qty;
+      addLog(group, `${person.name} added ${qty} more tickets.`);
+      saveGroups(groups);
+      renderGroupTransactions();
+    } else {
+      alert('Please enter a valid ticket quantity.');
+    }
+  }
+
+  function editPerson(groupIndex, personIndex) {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const group = groups[groupIndex];
+    const person = group.people[personIndex];
+
+    const name = prompt("Edit name:", person.name);
+    const ticketPrice = parseFloat(prompt("Edit ticket price:", person.ticketPrice));
+    const qty = parseInt(prompt("Edit quantity:", person.qty));
+    const paid = parseFloat(prompt("Edit paid amount:", person.paid));
+    const referenceCode = prompt("Edit reference code:", person.referenceCode);
+
+    if (name && !isNaN(ticketPrice) && !isNaN(qty) && !isNaN(paid)) {
+      person.name = name;
+      person.ticketPrice = ticketPrice;
+      person.qty = qty;
+      person.paid = paid;
+      person.referenceCode = referenceCode || generateReferenceCode();  
+      addLog(group, `${name}'s details were updated.`);
+      saveGroups(groups);
+      renderGroupTransactions();
+    } else {
+      alert('Please provide valid information to update the person.');
+    }
+  }
+
+  function deletePerson(groupIndex, personIndex) {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const group = groups[groupIndex];
+    const person = group.people[personIndex];
+
+    if (confirm(`Are you sure you want to delete ${person.name}?`)) {
+      group.people.splice(personIndex, 1);
+      addLog(group, `${person.name} was deleted.`);
+      saveGroups(groups);
+      renderGroupTransactions();
+    }
+  }
+
+  function renderSchoolTransactions() {
+    const container = document.getElementById('groupTransactions');
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    container.innerHTML = '';
+
+    groups.forEach((group, groupIndex) => {
+      const groupDiv = document.createElement('div');
+      groupDiv.classList.add('group');
+
+      const groupName = document.createElement('div');
+      groupName.classList.add('group-name');
+      groupName.textContent = group.name;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.classList.add('delete-group');
+      deleteBtn.textContent = 'Delete Group';
+      deleteBtn.onclick = () => {
+        if (confirm(`Are you sure you want to delete group "${group.name}"?`)) {
+          groups.splice(groupIndex, 1);
+          saveSchool(groups);
+          renderSchoolTransactions();
+        }
+      };
+
+      const membersDiv = document.createElement('div');
+      membersDiv.classList.add('members');
+      membersDiv.style.display = 'none';
+
+      let totalPaid = 0, totalExpected = 0;
+
+      group.people.forEach((person, personIndex) => {
+        const total = person.ticketPrice * person.qty;
+        const balance = total - person.paid;
+        const status = balance <= 0 ? `<span class="paid">Paid</span>` : `<span class="balance">Pending: ₱${balance}</span>`;
+
+        totalPaid += person.paid;
+        totalExpected += total;
+
+        const memberDiv = document.createElement('div');
+        memberDiv.classList.add('member');
+        memberDiv.id = `person-${groupIndex}-${personIndex}`;
+
+        const personDropdown = document.createElement('details');
+        const summary = document.createElement('summary');
+        summary.innerHTML = `${person.name} - ₱${person.ticketPrice} × ${person.qty}, Paid: ₱${person.paid} — ${status}`;
+        const ref = document.createElement('div');
+        ref.textContent = `Reference Code: ${person.referenceCode || 'N/A'}`;
+        ref.style.marginTop = '5px';
+
+        const dateAdded = document.createElement('div');
+        dateAdded.textContent = `Added on: ${person.dateAdded || 'N/A'}`;
+        dateAdded.style.marginTop = '5px';
+
+        personDropdown.appendChild(summary);
+        personDropdown.appendChild(ref);
+        personDropdown.appendChild(dateAdded);
+
+        const actions = document.createElement('div');
+        actions.classList.add('actions');
+
+        const dropdown = document.createElement('div');
+        dropdown.classList.add('dropdown');
+        const plusBtn = document.createElement('button');
+        plusBtn.textContent = '＋';
+        const dropdownContent = document.createElement('div');
+        dropdownContent.classList.add('dropdown-content');
+        dropdownContent.innerHTML = `
+          <button onclick="addPayment(${groupIndex}, ${personIndex})">Add Payment</button>
+          <button onclick="addTicket(${groupIndex}, ${personIndex})">Add Ticket</button>
+        `;
+        dropdown.appendChild(plusBtn);
+        dropdown.appendChild(dropdownContent);
+
+        const editBtn = document.createElement('button');
+        editBtn.innerHTML = '✏️';
+        editBtn.onclick = () => editPerson(groupIndex, personIndex);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.onclick = () => deletePerson(groupIndex, personIndex);
+
+        actions.appendChild(dropdown);
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+
+        memberDiv.appendChild(personDropdown);
+        memberDiv.appendChild(actions);
+        membersDiv.appendChild(memberDiv);
+      });
+
+      const overall = document.createElement('div');
+      overall.classList.add('overall');
+      const overallBalance = totalExpected - totalPaid;
+      overall.innerHTML = `Total Expected: ₱${totalExpected}, Total Paid: ₱${totalPaid}, <span class="${overallBalance <= 0 ? 'paid' : 'balance'}">${overallBalance <= 0 ? 'Fully Paid' : `Pending: ₱${overallBalance}`}</span>`;
+      membersDiv.appendChild(overall);
+
+      const addPerson = document.createElement('div');
+      addPerson.classList.add('add-person');
+      addPerson.textContent = '+ Add Person';
+      addPerson.onclick = () => {
+        const name = prompt("Name:");
+        const ticketPrice = parseFloat(prompt("Ticket Price:"));
+        const qty = parseInt(prompt("Quantity:"));
+        const paid = parseFloat(prompt("Paid:")) || 0;
+        const referenceCode = generateReferenceCode();
+        const dateAdded = new Date().toLocaleString();
+
+        if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
+          group.people.push({ name, ticketPrice, qty, paid, referenceCode, dateAdded });
+          addLog(group, `Added person: ${name} (₱${ticketPrice} × ${qty}, Paid: ₱${paid}, Reference: ${referenceCode})`);
+          saveGroups(groups);
+          renderGroupTransactions();
+        } else {
+          alert('Please provide valid information for the new person.');
+        }
+      };
+      membersDiv.appendChild(addPerson);
+
+      const logDiv = document.createElement('div');
+      logDiv.classList.add('log');
+      logDiv.innerHTML = `<strong>Transaction Log:</strong><br>` +
+        (group.logs && group.logs.length > 0 ? group.logs.join('<br>') : '<em>No logs yet.</em>');
+      membersDiv.appendChild(logDiv);
+
+      groupName.onclick = () => {
+        membersDiv.style.display = membersDiv.style.display === 'block' ? 'none' : 'block';
+      };
+
+      groupDiv.appendChild(groupName);
+      groupDiv.appendChild(deleteBtn);
+      groupDiv.appendChild(membersDiv);
+      container.appendChild(groupDiv);
+    });
+  }
+
+  function searchPerson() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const searchResults = document.getElementById('searchResults');
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    
+    searchResults.innerHTML = ''; 
+    
+    if (searchInput) {
+      
+      groups.forEach((group, groupIndex) => {
+        group.people.forEach((person, personIndex) => {
+          if (person.referenceCode.toLowerCase().includes(searchInput)) {
+            const resultItem = document.createElement('li');
+            resultItem.textContent = `${person.name} (Ref: ${person.referenceCode})`;
+            resultItem.onclick = () => navigateToPerson(groupIndex, personIndex);
+            searchResults.appendChild(resultItem);
+          }
+        });
+      });
+      searchResults.style.display = searchResults.children.length > 0 ? 'block' : 'none';
+    } else {
+      searchResults.style.display = 'none';
+    }
+  }
+
+  function navigateToPerson(groupIndex, personIndex) {
+    const groups = JSON.parse(localStorage.getItem('groups')) || [];
+    const group = groups[groupIndex];
+    const person = group.people[personIndex];
+
+    const groupDivs = document.querySelectorAll('.group');
+    const membersDiv = groupDivs[groupIndex].querySelector('.members');
+    if (membersDiv.style.display !== 'block') {
+      membersDiv.style.display = 'block';
+    }
+
+    const personElement = document.getElementById(`person-${groupIndex}-${personIndex}`);
+    if (personElement) {
+      personElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      personElement.style.backgroundColor = '#2b2b3a'; 
+      setTimeout(() => {
+        personElement.style.backgroundColor = '';
+      }, 1000);
+    }
+
+    document.getElementById('searchResults').style.display = 'none';
+  }
+
+  function backupData() {
+    window.location.href = 'backup.html';
+  }
+
+  document.addEventListener('DOMContentLoaded', renderSchoolTransactions);
+</script>
+
+</body>
+</html>
