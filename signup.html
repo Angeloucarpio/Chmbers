@@ -140,12 +140,12 @@
 
   const userId = data.user.id;
 
-  // 2. Insert into your own 'user' table
+ 
   const { error: insertError } = await supabase
     .from('user')
     .insert([
       {
-        id: userId,        // link to auth user ID
+        id: userId,       
         email: email,
         created_at: new Date().toISOString()
       }
