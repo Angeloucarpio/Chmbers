@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,26 +12,30 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
+
     .container {
       background: white;
       padding: 2rem 3rem;
       border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       width: 320px;
     }
+
     h2 {
       text-align: center;
       margin-bottom: 1.5rem;
       color: #333;
     }
+
     label {
       display: block;
       margin-bottom: 0.3rem;
       color: #555;
       font-weight: 600;
     }
-    input[type="text"],
+
     input[type="email"],
     input[type="password"] {
       width: 100%;
@@ -42,10 +47,12 @@
       box-sizing: border-box;
       transition: border-color 0.3s ease;
     }
+
     input:focus {
       border-color: #0070f3;
       outline: none;
     }
+
     button {
       width: 100%;
       padding: 0.7rem;
@@ -58,31 +65,52 @@
       font-size: 1.1rem;
       transition: background-color 0.3s ease;
     }
+
     button:hover {
       background-color: #005bb5;
     }
-    .message {
-      margin-top: 1rem;
-      font-weight: 600;
-      text-align: center;
-    }
-    .message.error {
-      color: #e63946;
-    }
-    .message.success {
-      color: #2a9d8f;
-    }
+
     .login-link {
       margin-top: 1rem;
       text-align: center;
       font-weight: 600;
     }
+
     .login-link a {
       color: #0070f3;
       text-decoration: none;
     }
+
     .login-link a:hover {
       text-decoration: underline;
+    }
+
+    /* Toast Notification Styles */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #333;
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .toast.success {
+      background-color: #2a9d8f;
+    }
+
+    .toast.error {
+      background-color: #e63946;
     }
   </style>
 </head>
@@ -91,12 +119,6 @@
 <div class="container">
   <h2>Create Account</h2>
   <form id="createAccountForm">
-    <label for="fullname">Full Name</label>
-    <input type="text" id="fullname" name="fullname" required />
-
-    <label for="username">Username</label>
-    <input type="text" id="username" name="username" required />
-
     <label for="email">Email</label>
     <input type="email" id="email" name="email" required />
 
@@ -105,72 +127,74 @@
 
     <button type="submit">Create Account</button>
   </form>
-  <div id="message" class="message"></div>
   <div class="login-link">
     Already have an account? <a href="login.html">Login</a>
   </div>
 </div>
 
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+<!-- Toast Notification Container -->
+<div id="toast" class="toast"></div>
 
- const supabaseUrl = 'https://tjmaegohzduvalgreqan.supabase.co'
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqbWFlZ29oemR1dmFsZ3JlcWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDc1MDUsImV4cCI6MjA2MzU4MzUwNX0.DBZBXfJg0Wudqw7o6q0GLIaZDcpyVWFFgjuXjeJj65c'
-  const supabase = createClient(supabaseUrl, supabaseKey)
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  import bcrypt from 'https://cdn.jsdelivr.net/npm/bcryptjs-esm@2.4.3/+esm';
+
+   const supabaseUrl = 'https://nrnqkbhogxawmksolahq.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybnFrYmhvZ3hhd21rc29sYWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyOTE5NjksImV4cCI6MjA2NTg2Nzk2OX0.cRO9TKO94eq1jgTI3T1KY9snX3HWZbAU84Wpb1VwS1g'; // truncated for security
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   const form = document.getElementById('createAccountForm');
-  const messageEl = document.getElementById('message');
+  const toast = document.getElementById('toast');
+
+  function showToast(message, type = 'success') {
+    toast.textContent = message;
+    toast.className = 'toast show ' + type;
+    setTimeout(() => {
+      toast.className = 'toast';
+    }, 3000);
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    messageEl.textContent = '';
-    messageEl.className = 'message';
 
-    const fullname = form.fullname.value.trim();
-    const username = form.username.value.trim();
     const email = form.email.value.trim();
     const password = form.password.value;
 
-    if (!fullname || !username || !email || !password) {
-      messageEl.textContent = 'Please fill out all fields.';
-      messageEl.classList.add('error');
+    if (!email || !password) {
+      showToast('Please fill out both fields.', 'error');
       return;
     }
 
-   
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password
-    });
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
-    if (authError) {
-      messageEl.textContent = 'Error: ' + authError.message;
-      messageEl.classList.add('error');
-    } else {
-      const userId = authData.user.id;
-
-      
-      const { error: insertError } = await supabase.from('users').insert([{
-        fullname,
-        username,
-        email,
-        password,
-        created_at: new Date().toISOString()
-      }]);
-
-      if (insertError) {
-        messageEl.textContent = 'Error saving user info: ' + insertError.message;
-        messageEl.classList.add('error');
-        return;
-      }
-
-      messageEl.textContent = 'Account created successfully!';
-      messageEl.classList.add('success');
-
-      setTimeout(() => {
-        window.location.href = 'login.html'; 
-      }, 2000);
+    if (error) {
+      showToast('Signup failed: ' + error.message, 'error');
+      return;
     }
+
+    const userId = data.user.id;
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert([
+        {
+          id: userId,
+          email: email,
+          password_hash: passwordHash,
+          created_at: new Date().toISOString()
+        }
+      ]);
+
+    if (insertError) {
+      showToast('Database error: ' + insertError.message, 'error');
+      return;
+    }
+
+    showToast('Account created successfully!', 'success');
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
   });
 </script>
 
