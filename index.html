@@ -203,62 +203,77 @@
 </div>
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-  const supabaseUrl = 'https://nrnqkbhogxawmksolahq.supabase.co';
+  
+const supabaseUrl = 'https://nrnqkbhogxawmksolahq.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybnFrYmhvZ3hhd21rc29sYWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyOTE5NjksImV4cCI6MjA2NTg2Nzk2OX0.cRO9TKO94eq1jgTI3T1KY9snX3HWZbAU84Wpb1VwS1g';
   const supabase = createClient(supabaseUrl, supabaseKey);
 
+
+  const form = document.getElementById('loginForm');
+  const messageEl = document.getElementById('message');
+
   function generateReferenceCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    return Array.from({ length: 6 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+    return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   }
 
-  async function saveGroup() {
+  document.querySelectorAll('.add-person').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const container = btn.previousElementSibling;
+      const div = document.createElement('div');
+      div.classList.add('group-person-entry');
+      div.innerHTML = `
+        <input type="text" class="groupName" placeholder="Name">
+        <input type="number" class="ticketPrice" placeholder="Ticket Price">
+        <input type="number" class="ticketQty" placeholder="Quantity">
+      `;
+      container.appendChild(div);
+    });
+  });
+
+  window.saveGroup = async function () {
     const groupName = document.getElementById('groupName').value.trim();
     const peopleInputs = document.querySelectorAll('.group-person-entry');
+    const people = [];
 
-    if (!groupName || peopleInputs.length === 0) {
-      alert("Please enter a group name and at least one person.");
-      return;
-    }
-
-    const groupInsert = await supabase.from('groups').insert([
-      {
-        group_name: groupName,
-        reference_code: generateReferenceCode()
+    peopleInputs.forEach(entry => {
+      const name = entry.querySelector('.groupName').value.trim();
+      const ticketPrice = parseFloat(entry.querySelector('.ticketPrice').value);
+      const qty = parseInt(entry.querySelector('.ticketQty').value);
+      if (name && !isNaN(ticketPrice) && !isNaN(qty)) {
+        people.push({ name, ticketPrice, qty });
       }
-    ]).select();
+    });
 
-    if (groupInsert.error) {
-      alert("Error saving group: " + groupInsert.error.message);
+    if (!groupName || people.length === 0) {
+      alert("Please enter valid group and people details.");
       return;
     }
 
-    const groupId = groupInsert.data[0].id;
+    const referenceCode = generateReferenceCode();
 
-    const people = Array.from(peopleInputs).map(entry => {
-      return {
-        group_id: groupId,
-        name: entry.querySelector('.groupName').value.trim(),
-        ticket_price: parseFloat(entry.querySelector('.ticketPrice').value),
-        quantity: parseInt(entry.querySelector('.ticketQty').value),
-        paid: 0,
-        reference_code: generateReferenceCode(),
-        date_added: new Date().toISOString()
-      };
-    }).filter(p => p.name && !isNaN(p.ticket_price) && !isNaN(p.quantity));
+    const { data: groupData, error: groupError } = await supabase.from('groups').insert([{ name: groupName, reference_code: referenceCode }]).select().single();
 
-    const peopleInsert = await supabase.from('group_members').insert(people);
-
-    if (peopleInsert.error) {
-      alert("Error saving people: " + peopleInsert.error.message);
-    } else {
-      alert("Group saved to Supabase!");
-      window.location.href = "groups.html";
+    if (groupError) {
+      alert("Error saving group: " + groupError.message);
+      return;
     }
-  }
 
-  async function savePerson() {
+    for (const person of people) {
+      await supabase.from('group_members').insert([{
+        group_id: groupData.id,
+        name: person.name,
+        ticket_price: person.ticketPrice,
+        quantity: person.qty,
+        reference_code: generateReferenceCode()
+      }]);
+    }
+
+    alert("Group and members saved!");
+    window.location.href = "groups.html";
+  };
+
+  window.savePerson = async function () {
     const name = document.getElementById('personName').value.trim();
     const ticketPrice = parseFloat(document.getElementById('personTicketPrice').value);
     const qty = parseInt(document.getElementById('personTicketQty').value);
@@ -268,36 +283,23 @@
       return;
     }
 
-    const insert = await supabase.from('persons').insert([{
+    const { error } = await supabase.from('persons').insert([{
       name,
       ticket_price: ticketPrice,
       quantity: qty,
-      paid: 0,
-      reference_code: generateReferenceCode(),
-      added_on: new Date().toISOString()
+      reference_code: generateReferenceCode()
     }]);
 
-    if (insert.error) {
-      alert("Error saving person: " + insert.error.message);
-    } else {
-      alert("Person saved to Supabase!");
-      window.location.href = 'person.html';
+    if (error) {
+      alert("Error saving person: " + error.message);
+      return;
     }
-  }
 
-  function addPersonField() {
-    const container = document.getElementById('groupPeopleContainer');
-    const div = document.createElement('div');
-    div.classList.add('group-person-entry');
-    div.innerHTML = `
-      <input type="text" class="groupName" placeholder="Name">
-      <input type="number" class="ticketPrice" placeholder="Ticket Price">
-      <input type="number" class="ticketQty" placeholder="Quantity">
-    `;
-    container.appendChild(div);
-  }
+    alert("Person saved!");
+    window.location.href = "person.html";
+  };
 
-  function logout() {
+  window.logout = function () {
     window.location.href = "login.html";
   }
 </script>
