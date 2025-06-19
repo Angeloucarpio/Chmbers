@@ -116,33 +116,55 @@
   const messageEl = document.getElementById('message');
 
   form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    messageEl.textContent = '';
-    messageEl.className = 'message';
+  e.preventDefault();
+  messageEl.textContent = '';
+  messageEl.className = 'message';
 
-    const email = form.email.value.trim();
-    const password = form.password.value;
+  const email = form.email.value.trim();
+  const password = form.password.value;
 
-    if (!email || !password) {
-      messageEl.textContent = 'Please fill out both fields.';
-      messageEl.classList.add('error');
-      return;
-    }
+  if (!email || !password) {
+    messageEl.textContent = 'Please fill out both fields.';
+    messageEl.classList.add('error');
+    return;
+  }
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+  // 1. Create user in Supabase Auth
+  const { data, error } = await supabase.auth.signUp({ email, password });
 
-    if (error) {
-      messageEl.textContent = 'Error: ' + error.message;
-      messageEl.classList.add('error');
-    } else {
-      messageEl.textContent = 'Account created successfully!';
-      messageEl.classList.add('success');
+  if (error) {
+    messageEl.textContent = 'Error: ' + error.message;
+    messageEl.classList.add('error');
+    return;
+  }
 
-      setTimeout(() => {
-        window.location.href = 'login.html';
-      }, 2000);
-    }
-  });
+  const userId = data.user.id;
+
+  // 2. Insert into your own 'user' table
+  const { error: insertError } = await supabase
+    .from('user')
+    .insert([
+      {
+        id: userId,        // link to auth user ID
+        email: email,
+        created_at: new Date().toISOString()
+      }
+    ]);
+
+  if (insertError) {
+    messageEl.textContent = 'Error saving user info: ' + insertError.message;
+    messageEl.classList.add('error');
+    return;
+  }
+
+  messageEl.textContent = 'Account created successfully!';
+  messageEl.classList.add('success');
+
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 2000);
+});
+
 </script>
 
 </body>
