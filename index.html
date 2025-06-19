@@ -23,19 +23,19 @@
     }
 
     .navbar a, .navbar button {
-    color: #f9fafb;
-    text-decoration: none;
-    padding: 11px 20px;
-    margin: 0 10px;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    font-weight: 500;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1em;
-    width: 88px;
-}
+      color: #f9fafb;
+      text-decoration: none;
+      padding: 11px 20px;
+      margin: 0 10px;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      font-weight: 500;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+      width: 88px;
+    }
 
     .navbar a:hover, .navbar button:hover {
       background-color: #3b82f6;
@@ -46,17 +46,19 @@
       display: flex;
       justify-content: space-between;
       padding: 17px;
-      max-width: 781px;
-      margin: 0 auto;
-      margin-top: 20px;
+      max-width: 1200px;
+      margin: 20px auto;
       background-color: rgba(255, 255, 255, 0.05);
       border-radius: 12px;
       box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
       backdrop-filter: blur(6px);
+      gap: 20px;
+      flex-wrap: wrap;
     }
 
-    .left, .right {
-      width: 44%;
+    .left, .right, .center {
+      flex: 1;
+      min-width: 300px;
       background-color: rgba(248, 250, 252, 0.1);
       padding: 20px;
       border-radius: 12px;
@@ -120,39 +122,6 @@
         flex-direction: column;
         padding: 10px;
       }
-
-      .left, .right {
-        width: 100%;
-        margin-bottom: 15px;
-      }
-
-      .navbar {
-        padding: 12px;
-      }
-
-      .navbar a, .navbar button {
-        padding: 8px 15px;
-        font-size: 14px;
-      }
-
-      h2 {
-        font-size: 1.2em;
-        margin-bottom: 15px;
-      }
-
-      input {
-        width: 100%;
-        padding: 12px;
-      }
-
-      button {
-        padding: 10px;
-        font-size: 0.9em;
-      }
-
-      .add-person {
-        font-size: 0.9em;
-      }
     }
   </style>
 </head>
@@ -177,23 +146,25 @@
         <input type="number" class="ticketQty" placeholder="Quantity">
       </div>
     </div>
-    <span class="add-person" onclick="addPersonField()">+ Add Person</span>
+    <span class="add-person" onclick="addPersonField('groupPeopleContainer')">+ Add Person</span>
     <button onclick="saveGroup()">Save Group</button>
   </div>
-  <div class="Right">
+
+  <div class="right">
     <h2>School Input</h2>
-    <input type="text" id="groupName" placeholder="Group Name">
-    <div id="groupPeopleContainer">
+    <input type="text" id="schoolName" placeholder="School Name">
+    <div id="schoolPeopleContainer">
       <div class="group-person-entry">
         <input type="text" class="groupName" placeholder="Name">
         <input type="number" class="ticketPrice" placeholder="Ticket Price">
         <input type="number" class="ticketQty" placeholder="Quantity">
       </div>
     </div>
-    <span class="add-person" onclick="addPersonField()">+ Add Person</span>
-    <button onclick="saveGroup()">Save Group</button>
+    <span class="add-person" onclick="addPersonField('schoolPeopleContainer')">+ Add Person</span>
+    <button onclick="alert('School saving not yet implemented.')">Save School</button>
   </div>
-  <div class="Center">
+
+  <div class="center">
     <h2>Person Input</h2>
     <input type="text" id="personName" placeholder="Name">
     <input type="number" id="personTicketPrice" placeholder="Ticket Price">
@@ -201,39 +172,35 @@
     <button onclick="savePerson()">Save Person</button>
   </div>
 </div>
+
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-  
-const supabaseUrl = 'https://nrnqkbhogxawmksolahq.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybnFrYmhvZ3hhd21rc29sYWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyOTE5NjksImV4cCI6MjA2NTg2Nzk2OX0.cRO9TKO94eq1jgTI3T1KY9snX3HWZbAU84Wpb1VwS1g';
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-
-  const form = document.getElementById('loginForm');
-  const messageEl = document.getElementById('message');
+  const supabase = createClient(
+    'https://nrnqkbhogxawmksolahq.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybnFrYmhvZ3hhd21rc29sYWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyOTE5NjksImV4cCI6MjA2NTg2Nzk2OX0.cRO9TKO94eq1jgTI3T1KY9snX3HWZbAU84Wpb1VwS1g'
+  );
 
   function generateReferenceCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   }
 
-  document.querySelectorAll('.add-person').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const container = btn.previousElementSibling;
-      const div = document.createElement('div');
-      div.classList.add('group-person-entry');
-      div.innerHTML = `
-        <input type="text" class="groupName" placeholder="Name">
-        <input type="number" class="ticketPrice" placeholder="Ticket Price">
-        <input type="number" class="ticketQty" placeholder="Quantity">
-      `;
-      container.appendChild(div);
-    });
-  });
+  window.addPersonField = function(containerId) {
+    const container = document.getElementById(containerId);
+    const div = document.createElement('div');
+    div.classList.add('group-person-entry');
+    div.innerHTML = `
+      <input type="text" class="groupName" placeholder="Name">
+      <input type="number" class="ticketPrice" placeholder="Ticket Price">
+      <input type="number" class="ticketQty" placeholder="Quantity">
+    `;
+    container.appendChild(div);
+  };
 
   window.saveGroup = async function () {
     const groupName = document.getElementById('groupName').value.trim();
-    const peopleInputs = document.querySelectorAll('.group-person-entry');
+    const peopleInputs = document.querySelectorAll('#groupPeopleContainer .group-person-entry');
     const people = [];
 
     peopleInputs.forEach(entry => {
@@ -251,8 +218,11 @@ const supabaseUrl = 'https://nrnqkbhogxawmksolahq.supabase.co';
     }
 
     const referenceCode = generateReferenceCode();
-
-    const { data: groupData, error: groupError } = await supabase.from('groups').insert([{ name: groupName, reference_code: referenceCode }]).select().single();
+    const { data: groupData, error: groupError } = await supabase
+      .from('groups')
+      .insert([{ name: groupName, reference_code: referenceCode }])
+      .select()
+      .single();
 
     if (groupError) {
       alert("Error saving group: " + groupError.message);
@@ -301,9 +271,8 @@ const supabaseUrl = 'https://nrnqkbhogxawmksolahq.supabase.co';
 
   window.logout = function () {
     window.location.href = "login.html";
-  }
+  };
 </script>
-
 
 </body>
 </html>
