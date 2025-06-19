@@ -125,7 +125,7 @@
     const email = form.email.value.trim();
     const password = form.password.value;
 
-    if (!fullname || !username || !email || !password) {
+    if (!email || !password) {
       messageEl.textContent = 'Please fill out all fields.';
       messageEl.classList.add('error');
       return;
