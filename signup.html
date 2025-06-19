@@ -104,11 +104,11 @@
     Already have an account? <a href="login.html">Login</a>
   </div>
 </div>
-
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  import bcrypt from 'https://cdn.jsdelivr.net/npm/bcryptjs-esm@2.4.3/+esm'
 
-  const supabaseUrl = 'https://nrnqkbhogxawmksolahq.supabase.co';
+   const supabaseUrl = 'https://nrnqkbhogxawmksolahq.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybnFrYmhvZ3hhd21rc29sYWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyOTE5NjksImV4cCI6MjA2NTg2Nzk2OX0.cRO9TKO94eq1jgTI3T1KY9snX3HWZbAU84Wpb1VwS1g'; // truncated for security
   const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -116,55 +116,58 @@
   const messageEl = document.getElementById('message');
 
   form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  messageEl.textContent = '';
-  messageEl.className = 'message';
+    e.preventDefault();
+    messageEl.textContent = '';
+    messageEl.className = 'message';
 
-  const email = form.email.value.trim();
-  const password = form.password.value;
+    const email = form.email.value.trim();
+    const password = form.password.value;
 
-  if (!email || !password) {
-    messageEl.textContent = 'Please fill out both fields.';
-    messageEl.classList.add('error');
-    return;
-  }
+    if (!email || !password) {
+      messageEl.textContent = 'Please fill out both fields.';
+      messageEl.classList.add('error');
+      return;
+    }
 
-  // 1. Create user in Supabase Auth
-  const { data, error } = await supabase.auth.signUp({ email, password });
+    // 1. Sign up the user with Supabase Auth
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
-  if (error) {
-    messageEl.textContent = 'Error: ' + error.message;
-    messageEl.classList.add('error');
-    return;
-  }
+    if (error) {
+      messageEl.textContent = 'Error: ' + error.message;
+      messageEl.classList.add('error');
+      return;
+    }
 
-  const userId = data.user.id;
+    const userId = data.user.id;
 
- 
-  const { error: insertError } = await supabase
-    .from('user')
-    .insert([
-      {
-        id: userId,       
-        email: email,
-        created_at: new Date().toISOString()
-      }
-    ]);
+    // 2. Hash the password using bcrypt
+    const passwordHash = await bcrypt.hash(password, 10);
 
-  if (insertError) {
-    messageEl.textContent = 'Error saving user info: ' + insertError.message;
-    messageEl.classList.add('error');
-    return;
-  }
+    // 3. Insert into your custom 'users' table
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert([
+        {
+          id: userId,
+          email: email,
+          password_hash: passwordHash,
+          created_at: new Date().toISOString()
+        }
+      ]);
 
-  messageEl.textContent = 'Account created successfully!';
-  messageEl.classList.add('success');
+    if (insertError) {
+      messageEl.textContent = 'Error saving user info: ' + insertError.message;
+      messageEl.classList.add('error');
+      return;
+    }
 
-  setTimeout(() => {
-    window.location.href = 'login.html';
-  }, 2000);
-});
+    messageEl.textContent = 'Account created successfully!';
+    messageEl.classList.add('success');
 
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+  });
 </script>
 
 </body>
