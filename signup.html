@@ -2,153 +2,148 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sign Up</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create Account</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: url('logo.png') no-repeat center center fixed;
-      background-size: 300px 300px;
-      background-color: #0f172a;
-      color: #f1f5f9;
-      backdrop-filter: blur(4px);
-      height: 100vh;
+      background: #5e9fff;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
+      height: 100vh;
     }
-
-    .signup-container {
-      max-width: 400px;
-      width: 90%;
-      background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(6px);
+    .container {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      width: 320px;
     }
-
     h2 {
       text-align: center;
-      margin-bottom: 25px;
-      color: #e0f2fe;
+      margin-bottom: 1.5rem;
+      color: #333;
     }
-
-    input {
-      width: 94%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #94a3b8;
-      background-color: rgba(255, 255, 255, 0.05);
-      color: #f1f5f9;
-      font-size: 1em;
+    label {
+      display: block;
+      margin-bottom: 0.3rem;
+      color: #555;
+      font-weight: 600;
     }
-
-    input::placeholder {
-      color: #94a3b8;
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
     }
-
+    input:focus {
+      border-color: #0070f3;
+      outline: none;
+    }
     button {
       width: 100%;
-      padding: 12px;
-      background-color: #10b981;
+      padding: 0.7rem;
+      background-color: #0070f3;
       color: white;
+      font-weight: 700;
       border: none;
-      border-radius: 8px;
-      font-size: 1em;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease;
     }
-
     button:hover {
-      background-color: #059669;
-      transform: scale(1.03);
+      background-color: #005bb5;
     }
-
-    .error {
-      color: #f87171;
+    .message {
+      margin-top: 1rem;
+      font-weight: 600;
       text-align: center;
-      margin-bottom: 10px;
     }
-
-    .success {
-      color: #4ade80;
+    .message.error {
+      color: #e63946;
+    }
+    .message.success {
+      color: #2a9d8f;
+    }
+    .login-link {
+      margin-top: 1rem;
       text-align: center;
-      margin-bottom: 10px;
+      font-weight: 600;
     }
-
-    @media (max-width: 768px) {
-      h2 {
-        font-size: 1.2em;
-        margin-bottom: 15px;
-      }
-
-      input {
-        padding: 12px;
-      }
-
-      button {
-        padding: 10px;
-        font-size: 0.9em;
-      }
+    .login-link a {
+      color: #0070f3;
+      text-decoration: none;
+    }
+    .login-link a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="signup-container">
-    <h2>Sign Up</h2>
-    <form id="signupForm">
-      <div id="message"></div>
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Password (min 6 chars)" required />
-      <button type="submit">Create Account</button>
-    </form>
+
+<div class="container">
+  <h2>Create Account</h2>
+  <form id="createAccountForm">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required />
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required />
+
+    <button type="submit">Create Account</button>
+  </form>
+  <div id="message" class="message"></div>
+  <div class="login-link">
+    Already have an account? <a href="login.html">Login</a>
   </div>
+</div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    const supabaseUrl = 'https://nrnqkbhogxawmksolahq.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybnFrYmhvZ3hhd21rc29sYWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyOTE5NjksImV4cCI6MjA2NTg2Nzk2OX0.cRO9TKO94eq1jgTI3T1KY9snX3HWZbAU84Wpb1VwS1g';
-    const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabaseUrl = 'https://tjmaegohzduvalgreqan.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // truncated for security
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const form = document.getElementById('signupForm');
-    const messageEl = document.getElementById('message');
+  const form = document.getElementById('createAccountForm');
+  const messageEl = document.getElementById('message');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      messageEl.textContent = '';
-      messageEl.className = '';
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    messageEl.textContent = '';
+    messageEl.className = 'message';
 
-      const email = form.email.value.trim();
-      const password = form.password.value;
+    const email = form.email.value.trim();
+    const password = form.password.value;
 
-      if (!email || !password) {
-        messageEl.textContent = 'Please fill out all fields.';
-        messageEl.classList.add('error');
-        return;
-      }
+    if (!email || !password) {
+      messageEl.textContent = 'Please fill out both fields.';
+      messageEl.classList.add('error');
+      return;
+    }
 
-      try {
-        const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
-        if (error) {
-          messageEl.textContent = 'Error: ' + error.message;
-          messageEl.classList.add('error');
-        } else {
-          messageEl.textContent = 'Signup successful! Please check your email to verify your account.';
-          messageEl.classList.add('success');
-          form.reset();
-        }
-      } catch (err) {
-        console.error('Unexpected error:', err);
-        messageEl.textContent = 'Unexpected error occurred.';
-        messageEl.classList.add('error');
-      }
-    });
-  </script>
+    if (error) {
+      messageEl.textContent = 'Error: ' + error.message;
+      messageEl.classList.add('error');
+    } else {
+      messageEl.textContent = 'Account created successfully!';
+      messageEl.classList.add('success');
+
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 2000);
+    }
+  });
+</script>
+
 </body>
 </html>
