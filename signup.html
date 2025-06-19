@@ -91,12 +91,6 @@
 <div class="container">
   <h2>Create Account</h2>
   <form id="createAccountForm">
-    <label for="fullname">Full Name</label>
-    <input type="text" id="fullname" name="fullname" required />
-
-    <label for="username">Username</label>
-    <input type="text" id="username" name="username" required />
-
     <label for="email">Email</label>
     <input type="email" id="email" name="email" required />
 
@@ -127,8 +121,7 @@
     messageEl.textContent = '';
     messageEl.className = 'message';
 
-    const fullname = form.fullname.value.trim();
-    const username = form.username.value.trim();
+    
     const email = form.email.value.trim();
     const password = form.password.value;
 
@@ -152,8 +145,6 @@
 
       
       const { error: insertError } = await supabase.from('users').insert([{
-        fullname,
-        username,
         email,
         password,
         created_at: new Date().toISOString()
